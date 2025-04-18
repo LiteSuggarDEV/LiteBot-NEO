@@ -138,12 +138,14 @@ source = { virtual = "." }
 dependencies = [
     { name = "nonebot-adapter-onebot" },
     { name = "nonebot2", extra = ["fastapi"] },
+    { name = "pydantic" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "nonebot-adapter-onebot", specifier = ">=2.4.6" },
     { name = "nonebot2", extras = ["fastapi"], specifier = ">=2.4.2" },
+    { name = "pydantic", specifier = ">=2.11.3" },
 ]
 
 [[package]]
