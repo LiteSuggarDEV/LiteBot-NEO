@@ -6,14 +6,18 @@ readme = "README.md"
 requires-python = ">=3.9, <4.0"
 dependencies = [
     "nonebot-adapter-onebot>=2.4.6",
+    "nonebot-plugin-localstore>=0.7.4",
+    "nonebot-plugin-tortoise-orm>=0.1.4",
     "nonebot2[fastapi]>=2.4.2",
+    "psutil>=7.0.0",
     "pydantic>=2.11.3",
+    "tortoise-orm[accel,asyncmy]>=0.25.0",
 ]
 
 [tool.nonebot]
 adapters = [
-    { name = "OneBot V11", module_name = "nonebot.adapters.onebot.v11" }
+    { name = "OneBot V11", module_name = "nonebot.adapters.onebot.v11" },
 ]
-plugins = []
+plugins = ["nonebot_plugin_tortoise_orm"]
 plugin_dirs = ["src/plugins"]
 builtin_plugins = []

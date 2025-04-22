@@ -1,18 +1,36 @@
+import asyncio
 import os
 import sys
 from typing import TYPE_CHECKING
 
 import nonebot
-from nonebot import logger
+from nonebot import get_driver, logger
 from nonebot.adapters.onebot.v11 import Adapter as ONEBOT_V11Adapter
+from nonebot.adapters.onebot.v11 import Bot
 from nonebot.log import default_format, logger_id
+
+from litebot.utils import send_to_admin
+
+nonebot.init()
+
+driver = nonebot.get_driver()
+driver.register_adapter(ONEBOT_V11Adapter)
+
+
+nonebot.load_from_toml("pyproject.toml")
+
+if TYPE_CHECKING:
+    # avoid sphinx autodoc resolve annotation failed
+    # because loguru module do not have `Logger` class actually
+    from loguru import Record
+
+SUPERUSER_list = list(get_driver().config.superusers)
 
 
 def default_filter(record: "Record"):
     """默认的日志过滤器，根据 `config.log_level` 配置改变日志等级。"""
     log_level = record["extra"].get("nonebot_log_level", "INFO")
     levelno = logger.level(log_level).no if isinstance(log_level, str) else log_level
-
     return record["level"].no >= levelno
 
 
@@ -40,17 +58,25 @@ logger.add(
 )
 
 
-if TYPE_CHECKING:
-    # avoid sphinx autodoc resolve annotation failed
-    # because loguru module do not have `Logger` class actually
-    from loguru import Record
-nonebot.init()
+class AsyncErrorHandler:
+    def write(self, message):
+        # message 是一个 loguru 的 Message 对象
+        asyncio.create_task(self.process(message))
 
-driver = nonebot.get_driver()
-driver.register_adapter(ONEBOT_V11Adapter)
+    async def process(self, message):
+        try:
+            record = message.record
+            if record["level"].name == "ERROR":
+                content = record["message"]
+                bot = nonebot.get_bot()
+                if isinstance(bot, Bot):
+                    await send_to_admin(content)
+        except Exception as e:
+            logger.warning(f"发送群消息失败: {e}")
 
 
-nonebot.load_from_toml("pyproject.toml")
+logger.add(AsyncErrorHandler(), level="ERROR")
+
 
 if __name__ == "__main__":
     nonebot.run()

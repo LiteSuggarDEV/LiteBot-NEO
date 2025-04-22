@@ -43,9 +43,7 @@ class PluginData:
 
                 found = any(
                     existing_matcher.rm_name == matcher.rm_name
-                    for existing_matcher in self.matcher_grouping[
-                        matcher.rm_related
-                    ]
+                    for existing_matcher in self.matcher_grouping[matcher.rm_related]
                 )
                 if not found:
                     self.matcher_grouping[matcher.rm_related].append(matcher)
@@ -62,6 +60,8 @@ class MenuManager:
         for plugin in nonebot.get_loaded_plugins():
             matchers = []
             for matcher in plugin.matcher:
+                if not matcher._default_state:
+                    continue
                 matcher_info = MatcherData.model_validate(matcher._default_state)
                 matchers.append(matcher_info)
             self.plugins.append(PluginData(matchers=matchers, metadata=plugin.metadata))
