@@ -2,10 +2,14 @@ import os
 
 import nonebot
 from nonebot.adapters.onebot.v11 import Adapter as ONEBOT_V11Adapter
-from nonebot.log import logger as logger
 
 __name__ = "LiteBot CI/CD Test Process"
-logger.info("Testing LiteBot...")
+
+
+os.environ["LOG_LEVEL"] = "DEBUG"
+logger = nonebot.logger
+
+logger.info("Start testing LiteBot...")
 nonebot.init()
 logger.info("Loading driver...")
 driver = nonebot.get_driver()
@@ -14,11 +18,13 @@ driver.register_adapter(ONEBOT_V11Adapter)
 logger.info("Loading plugins...")
 try:
     nonebot.load_from_toml("pyproject.toml")
+    logger.info("plugin import done!")
+
 except Exception as e:
-    logger.error("OOPS!There is something wrong with loading plugins!")
+    logger.error("OOPS!There is something wrong while loading plugins!")
     logger.opt(exception=True).error("Error!：{}", type(e).__name__)
-else:
-    logger.info("Done!")
+
+
 logger.info("Testing pre-startup...")
 
 
@@ -28,4 +34,11 @@ async def exit_test():
     os._exit(0)
 
 
-nonebot.run()
+try:
+    nonebot.run()
+
+except Exception as e:
+    logger.error("OOPS!There is something wrong while loading plugins!")
+    logger.opt(exception=True).error("Error!：{}", type(e).__name__)
+else:
+    logger.info("Done!")

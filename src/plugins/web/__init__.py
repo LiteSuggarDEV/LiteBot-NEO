@@ -1,7 +1,6 @@
-from nonebot import on_command
 from nonebot.plugin import PluginMetadata
 
-from .nslookup import nslookup_runner as ns
+from . import nslookup, send_ping
 
 __plugin_meta__ = PluginMetadata(
     name="Web功能插件插件",
@@ -9,4 +8,7 @@ __plugin_meta__ = PluginMetadata(
     usage="Web功能插件",
     type="application",
 )
-__all__ = ["nslookup"]
+__all__ = [
+    "nslookup",
+    "send_ping",
+]

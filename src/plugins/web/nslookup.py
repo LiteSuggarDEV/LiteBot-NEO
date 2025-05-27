@@ -26,7 +26,7 @@ def nslookup_all_records(domain):
 @on_command(
     "nslookup",
     aliases={"ns", "nsl"},
-    state={"rm_name": "NSLOOKUP", "rm_desc": "域名记录查询"},
+    state={"rm_name": "nslookup", "rm_desc": "域名记录查询"},
 ).handle()
 async def nslookup_runner(
     event: MessageEvent, matcher: Matcher, args: Message = CommandArg()

@@ -4,7 +4,9 @@ import sys
 from typing import TYPE_CHECKING
 
 import nonebot
-from nonebot import get_driver, logger
+import nonebot.log
+from dotenv import load_dotenv
+from nonebot import get_driver
 from nonebot.adapters.onebot.v11 import Adapter as ONEBOT_V11Adapter
 from nonebot.adapters.onebot.v11 import Bot
 from nonebot.log import default_format, logger_id
@@ -26,11 +28,14 @@ if TYPE_CHECKING:
 
 SUPERUSER_list = list(get_driver().config.superusers)
 
+load_dotenv()
 
 def default_filter(record: "Record"):
     """默认的日志过滤器，根据 `config.log_level` 配置改变日志等级。"""
     log_level = record["extra"].get("nonebot_log_level", "INFO")
-    levelno = logger.level(log_level).no if isinstance(log_level, str) else log_level
+    levelno = (
+        nonebot.logger.level(log_level).no if isinstance(log_level, str) else log_level
+    )
     return record["level"].no >= levelno
 
 
@@ -38,18 +43,18 @@ log_dir = "logs"
 os.makedirs(log_dir, exist_ok=True)
 
 # 移除 NoneBot 默认的日志处理器
-logger.remove(logger_id)
+nonebot.logger.remove(logger_id)
 # 添加新的日志处理器
-logger.add(
+nonebot.logger.add(
     sys.stdout,
     level=0,
     diagnose=True,
     format=default_format,
     filter=default_filter,
 )
-logger.add(
+nonebot.logger.add(
     f"{log_dir}/" + "{time}.log",  # 传入函数，每天自动更新日志路径
-    level="WARNING",
+    level=os.getenv("LITEBOT_LOG_LEVEL", "WARNING"),
     format=default_format,
     rotation="00:00",
     retention="7 days",
@@ -72,10 +77,10 @@ class AsyncErrorHandler:
                 if isinstance(bot, Bot):
                     await send_to_admin(content)
         except Exception as e:
-            logger.warning(f"发送群消息失败: {e}")
+            nonebot.logger.warning(f"发送群消息失败: {e}")
 
 
-logger.add(AsyncErrorHandler(), level="ERROR")
+nonebot.logger.add(AsyncErrorHandler(), level="ERROR")
 
 
 if __name__ == "__main__":

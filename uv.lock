@@ -436,6 +436,7 @@ dependencies = [
     { name = "nonebot-plugin-mclib" },
     { name = "nonebot-plugin-tortoise-orm" },
     { name = "nonebot2", extra = ["fastapi"] },
+    { name = "ping3" },
     { name = "pip" },
     { name = "psutil" },
     { name = "pydantic" },
@@ -449,6 +450,7 @@ requires-dist = [
     { name = "nonebot-plugin-mclib", specifier = ">=0.0.3.post2" },
     { name = "nonebot-plugin-tortoise-orm", specifier = ">=0.1.4" },
     { name = "nonebot2", extras = ["fastapi"], specifier = ">=2.4.2" },
+    { name = "ping3", specifier = ">=4.0.8" },
     { name = "pip", specifier = ">=25.1.1" },
     { name = "psutil", specifier = ">=7.0.0" },
     { name = "pydantic", specifier = ">=2.11.5" },
@@ -746,6 +748,15 @@ wheels = [
     { url = "https://mirrors.aliyun.com/pypi/packages/ad/fd/7f1d3edd4ffcd944a6a40e9f88af2197b619c931ac4d3cfba4798d4d3815/orjson-3.10.18-cp313-cp313-win32.whl", hash = "sha256:ad8eacbb5d904d5591f27dee4031e2c1db43d559edb8f91778efd642d70e6bea" },
     { url = "https://mirrors.aliyun.com/pypi/packages/4b/03/c75c6ad46be41c16f4cfe0352a2d1450546f3c09ad2c9d341110cd87b025/orjson-3.10.18-cp313-cp313-win_amd64.whl", hash = "sha256:aed411bcb68bf62e85588f2a7e03a6082cc42e5a2796e06e72a962d7c6310b52" },
     { url = "https://mirrors.aliyun.com/pypi/packages/c2/28/f53038a5a72cc4fd0b56c1eafb4ef64aec9685460d5ac34de98ca78b6e29/orjson-3.10.18-cp313-cp313-win_arm64.whl", hash = "sha256:f54c1385a0e6aba2f15a40d703b858bedad36ded0491e55d35d905b2c34a4cc3" },
+]
+
+[[package]]
+name = "ping3"
+version = "4.0.8"
+source = { registry = "https://mirrors.aliyun.com/pypi/simple" }
+sdist = { url = "https://mirrors.aliyun.com/pypi/packages/20/75/31ad8e1e466caeed891c39275be21d585b1490af1f4e5d747d4e45b54e9d/ping3-4.0.8.tar.gz", hash = "sha256:9ab460eb57f006b71f977a693d157215aabd6bbcbc6cd6428b6951eaae0c2875" }
+wheels = [
+    { url = "https://mirrors.aliyun.com/pypi/packages/e6/f4/4070daca3da5bbc3ef5e622d68f979e034e5bf678416817918e51a1b2907/ping3-4.0.8-py3-none-any.whl", hash = "sha256:b5c294851968b4229e9af69d252778241cb84221594b436a8677419c31925594" },
 ]
 
 [[package]]

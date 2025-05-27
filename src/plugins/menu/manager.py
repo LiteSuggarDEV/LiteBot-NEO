@@ -10,6 +10,7 @@ class MatcherData(pydantic.BaseModel):
     """功能模型"""
 
     rm_name: str = pydantic.Field(..., description="功能名称")
+    rm_usage: str = pydantic.Field("", description="功能用法")
     rm_desc: str = pydantic.Field(..., description="功能描述")
     rm_related: str | None = pydantic.Field(None, description="父级菜单")
 
@@ -76,7 +77,9 @@ class MenuManager:
         for plugin in self.plugins:
             # 打印插件信息
             plugin_title = (
-                f"插件: {plugin.metadata.name}" if plugin.metadata else "未命名插件"
+                f"插件: {plugin.metadata.name}"
+                if plugin.metadata
+                else "未命名插件（未读取到元数据）"
             )
             logger.info(plugin_title)
             if plugin.metadata and plugin.metadata.description:
@@ -88,6 +91,12 @@ class MenuManager:
                 if all(matcher.rm_related is None for matcher in matchers):
                     for matcher in matchers:
                         logger.info(f"  - {matcher.rm_name}: {matcher.rm_desc}")
+                        if matcher.rm_usage != "":
+                            logger.info(
+                                "    └─ 用法:" + matcher.rm_usage
+                                if matcher.rm_usage != ""
+                                else ""
+                            )
 
             # 然后打印有子菜单的顶级菜单
             for group_name, matchers in plugin.matcher_grouping.items():
@@ -108,6 +117,12 @@ class MenuManager:
                     for matcher in matchers:
                         if matcher.rm_related is None:
                             logger.info(f"  - {matcher.rm_name}: {matcher.rm_desc}")
+                            if matcher.rm_usage != "":
+                                logger.info(
+                                    "    └─ 用法:" + matcher.rm_usage
+                                    if matcher.rm_usage != ""
+                                    else ""
+                                )
 
                     # 然后打印子菜单
                     for other_matchers in plugin.matcher_grouping.values():
@@ -116,6 +131,13 @@ class MenuManager:
                                 logger.info(
                                     f"  └─ {matcher.rm_name}: {matcher.rm_desc}"
                                 )
+
+                                if matcher.rm_usage != "":
+                                    logger.info(
+                                        "      └─ 用法:" + matcher.rm_usage
+                                        if matcher.rm_usage != ""
+                                        else ""
+                                    )
             logger.info(f"\n{'=' * 40}")
         logger.info("\n菜单打印完成")
 
