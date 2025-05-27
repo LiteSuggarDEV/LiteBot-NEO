@@ -14,8 +14,7 @@ def nslookup_all_records(domain):
     for record_type in record_types:
         try:
             answers = dns.resolver.resolve(domain, record_type)
-            for answer in answers:
-                results.append(f"{record_type} 记录: {answer}")
+            results.extend([f"{record_type} 记录: {answer}" for answer in answers])
         except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN):
             results.append(f"{record_type} 记录: 未找到或不存在")
         except Exception as e:
@@ -27,9 +26,7 @@ def nslookup_all_records(domain):
 @on_command(
     "nslookup",
     aliases={"ns", "nsl"},
-    priority=10,
-    block=True,
-    state={"rm_name": "NSLOOKUP", "rm_desc": "域名记录查询", "rm_related": "Web工具"},
+    state={"rm_name": "NSLOOKUP", "rm_desc": "域名记录查询"},
 ).handle()
 async def nslookup_runner(
     event: MessageEvent, matcher: Matcher, args: Message = CommandArg()
