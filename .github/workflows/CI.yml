@@ -37,7 +37,7 @@ jobs:
 
       - name: Type check
         run: |
-         snap install pyright --classic
+         sudo snap install pyright --classic
          pyright .
 
       - name: Security scan
