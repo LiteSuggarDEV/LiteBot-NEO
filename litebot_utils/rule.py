@@ -1,7 +1,7 @@
 from nonebot.adapters import Event
 from nonebot.adapters.onebot.v11 import GroupMessageEvent
 
-from litebot.models import GroupConfig
+from litebot_utils.models import GroupConfig
 
 
 async def rule_switch(event: Event):

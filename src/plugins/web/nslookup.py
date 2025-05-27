@@ -1,8 +1,10 @@
-from nonebot.matcher import Matcher
-from nonebot.adapters.onebot.v11 import Message, MessageEvent, MessageSegment
-from nonebot.params import CommandArg
-from ipaddress import ip_address, IPv4Address
+from ipaddress import IPv4Address, ip_address
+
 import dns.resolver
+from nonebot import on_command
+from nonebot.adapters.onebot.v11 import Message, MessageEvent, MessageSegment
+from nonebot.matcher import Matcher
+from nonebot.params import CommandArg
 
 
 def nslookup_all_records(domain):
@@ -17,12 +19,21 @@ def nslookup_all_records(domain):
         except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN):
             results.append(f"{record_type} 记录: 未找到或不存在")
         except Exception as e:
-            results.append(f"{record_type} 记录: 错误 - {str(e)}")
+            results.append(f"{record_type} 记录: 错误 - {e!s}")
 
     return results
 
 
-async def nslookup_runner(event: MessageEvent, matcher: Matcher, args: Message = CommandArg()):
+@on_command(
+    "nslookup",
+    aliases={"ns", "nsl"},
+    priority=10,
+    block=True,
+    state={"rm_name": "NSLOOKUP", "rm_desc": "域名记录查询", "rm_related": "Web工具"},
+).handle()
+async def nslookup_runner(
+    event: MessageEvent, matcher: Matcher, args: Message = CommandArg()
+):
     location = args.extract_plain_text()
     if "gov.cn" in location:
         await matcher.send("你 很 刑 啊")

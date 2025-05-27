@@ -63,6 +63,7 @@ class MenuManager:
                 if not matcher._default_state:
                     continue
                 matcher_info = MatcherData.model_validate(matcher._default_state)
+                logger.debug(f"加载菜单: {matcher_info.model_dump_json(indent=2)}")
                 matchers.append(matcher_info)
             self.plugins.append(PluginData(matchers=matchers, metadata=plugin.metadata))
         logger.info("菜单加载完成")
@@ -109,7 +110,7 @@ class MenuManager:
                             logger.info(f"  - {matcher.rm_name}: {matcher.rm_desc}")
 
                     # 然后打印子菜单
-                    for other_group, other_matchers in plugin.matcher_grouping.items():
+                    for other_matchers in plugin.matcher_grouping.values():
                         for matcher in other_matchers:
                             if matcher.rm_related == group_name:
                                 logger.info(

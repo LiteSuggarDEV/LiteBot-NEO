@@ -3,7 +3,7 @@ name = "litebot-new"
 version = "0.1.0"
 description = "litebot-new"
 readme = "README.md"
-requires-python = ">=3.9, <4.0"
+requires-python = ">=3.11, <4.0"
 dependencies = [
     "nonebot-adapter-onebot>=2.4.6",
     "nonebot-plugin-localstore>=0.7.4",
@@ -20,6 +20,38 @@ dependencies = [
 adapters = [
     { name = "OneBot V11", module_name = "nonebot.adapters.onebot.v11" },
 ]
-plugins = ["nonebot_plugin_tortoise_orm", "nonebot_plugin_mcstatus", "nonebot_plugin_mclib"]
+plugins = ["nonebot_plugin_tortoise_orm", "nonebot_plugin_mclib"]
 plugin_dirs = ["src/plugins"]
 builtin_plugins = []
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+    "F",     # Pyflakes
+    "W",     # pycodestyle warnings
+    "E",     # pycodestyle errors
+    "UP",    # pyupgrade
+    "ASYNC", # flake8-async
+    "C4",    # flake8-comprehensions
+    "T10",   # flake8-debugger
+    "PYI",   # flake8-pyi
+    "PT",    # flake8-pytest-style
+    "Q",     # flake8-quotes
+    "RUF",   # Ruff-specific rules
+    "I",     # isort
+    "PERF",  # pylint-performance
+]
+ignore = [
+    "E402",   # module-import-not-at-top-of-file
+    "E501",   # line-too-long
+    "UP037",  # quoted-annotation
+    "RUF001", # ambiguous-unicode-character-string
+    "RUF002", # ambiguous-unicode-character-docstring
+    "RUF003", # ambiguous-unicode-character-comment
+]
+
+[tool.pyright]
+typeCheckingMode = "basic"

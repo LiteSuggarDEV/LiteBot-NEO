@@ -7,8 +7,8 @@ from nonebot.adapters.onebot.v11 import (
     GroupDecreaseNoticeEvent,
     GroupIncreaseNoticeEvent,
     GroupMessageEvent,
-    PokeNotifyEvent,
     MessageSegment,
+    PokeNotifyEvent,
 )
 from nonebot.log import logger  # noqa: F401
 from nonebot.matcher import Matcher

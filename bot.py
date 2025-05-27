@@ -9,7 +9,7 @@ from nonebot.adapters.onebot.v11 import Adapter as ONEBOT_V11Adapter
 from nonebot.adapters.onebot.v11 import Bot
 from nonebot.log import default_format, logger_id
 
-from litebot.utils import send_to_admin
+from litebot_utils.utils import send_to_admin
 
 nonebot.init()
 
