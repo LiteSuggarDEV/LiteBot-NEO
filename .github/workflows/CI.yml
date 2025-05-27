@@ -1,0 +1,48 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - master  # 指定触发分支
+    paths:
+      - '**'    # 监控所有文件变更（可按需调整）
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/uv
+            .venv
+          key: ${{ runner.os }}-python-${{ matrix.python-version }}-${{ hashFiles('**/pyproject.toml') }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Set up Python
+        run: uv python install
+
+      - name: Set environment
+        run: |
+          uv venv
+          uv sync
+
+      - name: Type check
+        run: |
+         uv pip install pyright
+         pyright .
+         
+      - name: Security scan
+        run: |
+           uv pip install bandit
+           bandit -r .
+
+      - name: Load test
+        run: python3 run-test.py
