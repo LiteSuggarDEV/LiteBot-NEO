@@ -4,7 +4,7 @@ from . import manager
 
 __all__ = ["manager"]
 __plugin_meta__ = PluginMetadata(
-    name="菜单", # type: ignore
+    name="菜单",
     description="菜单功能管理器",
     usage="菜单功能",
 )

@@ -101,7 +101,7 @@ async def ping_runner(
     # 统计丢包数量（None 表示超时）
     lost = result.count(None)
     # 计算丢包率百分比
-    packet_loss = (lost / total) * 100  # type: float
+    packet_loss = (lost / total) * 100
 
     # 格式化输出示例（保留两位小数）
     loss_rate = f"丢包率: {packet_loss:.2f}%"
