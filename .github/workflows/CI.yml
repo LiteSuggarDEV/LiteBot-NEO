@@ -6,7 +6,7 @@ on:
       - main  # 指定触发分支
     paths:
       - '**'    # 监控所有文件变更（可按需调整）
-    
+
 jobs:
   test:
     if: '!contains(github.event.head_commit.message, "[ci skip]") && !contains(github.event.head_commit.message, "[skip ci]")'
@@ -16,33 +16,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Cache dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/uv
-            .venv
-          key: ${{ runner.os }}-python-${{ matrix.python-version }}-${{ hashFiles('**/pyproject.toml') }}
-
       - name: Install uv
         uses: astral-sh/setup-uv@v5
 
-      - name: Set up Python
-        run: uv python install
-        
       - name: Set environment
-        run: |
-          uv venv
-          uv sync
-
-      - name: Type check
-        run: |
-         sudo snap install pyright --classic
-         source .venv/bin/activate
-         pyright .
+        run: uv sync
 
       - name: Load test
         run: |
-          source .venv/bin/activate
-          python3 run-test.py
+          uv run run-test.py
 
