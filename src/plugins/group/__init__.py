@@ -14,8 +14,8 @@ from nonebot.log import logger  # noqa: F401
 from nonebot.matcher import Matcher
 from nonebot.plugin import PluginMetadata
 
-from litebot.models import GroupConfig
-from litebot.utils import send_to_admin
+from litebot_utils.models import GroupConfig
+from litebot_utils.utils import send_to_admin
 
 from .utils import get_disk_usage_percentage
 
@@ -23,6 +23,7 @@ __plugin_meta__ = PluginMetadata(
     name="群组插件",
     description="群组插件",
     usage="群组插件",
+    type="application",
 )
 
 
