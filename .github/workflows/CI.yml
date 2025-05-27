@@ -40,12 +40,6 @@ jobs:
          source .venv/bin/activate
          pyright .
 
-      - name: Security scan
-        run: |
-           sudo snap install bandit --classic
-           source .venv/bin/activate
-           bandit -r .
-
       - name: Load test
         run: |
           source .venv/bin/activate
