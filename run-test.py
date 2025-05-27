@@ -1,3 +1,5 @@
+import os
+
 import nonebot
 from nonebot.adapters.onebot.v11 import Adapter as ONEBOT_V11Adapter
 from nonebot.log import logger as logger
@@ -17,3 +19,13 @@ except Exception as e:
     logger.opt(exception=True).error("Error!：{}", type(e).__name__)
 else:
     logger.info("Done!")
+logger.info("Testing pre-startup...")
+
+
+@driver.on_startup
+async def exit_test():
+    logger.info("Finished!")
+    os._exit(0)
+
+
+nonebot.run()
