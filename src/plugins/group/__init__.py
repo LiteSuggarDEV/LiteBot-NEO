@@ -8,8 +8,9 @@ from nonebot.adapters.onebot.v11 import (
     GroupIncreaseNoticeEvent,
     GroupMessageEvent,
     PokeNotifyEvent,
+    MessageSegment,
 )
-from nonebot.log import logger
+from nonebot.log import logger  # noqa: F401
 from nonebot.matcher import Matcher
 from nonebot.plugin import PluginMetadata
 
@@ -175,11 +176,11 @@ async def handle_member_join(
     operator_name = operator_info["nickname"]
 
     if event.sub_type == "invite":
-        message = (
-            f"[CQ:at,qq={uid}] 被 {operator_name}（{operator_id}） 拉进了聊群！欢迎！"
+        message = MessageSegment.at(user_id=uid) + MessageSegment.text(
+            f" 被 {operator_name}（{operator_id}） 拉进了聊群！欢迎！"
         )
     else:
-        message = f"[CQ:at,qq={uid}] 欢迎加入 ！"
+        message = MessageSegment.at(user_id=uid) + MessageSegment.text(" 欢迎加入 ！")
 
     await bot.send_group_msg(group_id=gid, message=message)
 
