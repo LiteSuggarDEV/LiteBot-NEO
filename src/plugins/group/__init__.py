@@ -10,7 +10,6 @@ from nonebot.adapters.onebot.v11 import (
     MessageSegment,
     PokeNotifyEvent,
 )
-from nonebot.log import logger  # noqa: F401
 from nonebot.matcher import Matcher
 from nonebot.plugin import PluginMetadata
 
