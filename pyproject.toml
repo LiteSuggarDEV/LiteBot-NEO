@@ -12,7 +12,7 @@ dependencies = [
     "nonebot2[fastapi]>=2.4.2",
     "pip>=25.1.1",
     "psutil>=7.0.0",
-    "pydantic>=2.11.3",
+    "pydantic>=2.11.5",
     "tortoise-orm[accel,asyncmy]>=0.25.0",
 ]
 
