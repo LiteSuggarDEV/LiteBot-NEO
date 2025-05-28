@@ -56,3 +56,6 @@ ignore = [
 
 [tool.pyright]
 typeCheckingMode = "basic"
+
+[dependency-groups]
+dev = []

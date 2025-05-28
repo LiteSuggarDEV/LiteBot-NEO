@@ -457,6 +457,9 @@ requires-dist = [
     { name = "tortoise-orm", extras = ["accel", "asyncmy"], specifier = ">=0.25.0" },
 ]
 
+[package.metadata.requires-dev]
+dev = []
+
 [[package]]
 name = "loguru"
 version = "0.7.3"
