@@ -55,31 +55,30 @@ async def _(event: MessageEvent, matcher: Matcher, args: Message = CommandArg())
         logger.debug(url[0])
         logger.debug(url[1])
 
-        if not len(url) > 1:
+        if len(url) <= 1:
             await matcher.send("请输入端口！")
             return
         if is_ip_address(url[0]):
             if not is_ip_in_private_network(url[0]):
                 await matcher.send("请输入正确的地址！")
                 return
-        else:
-            if is_domain_refer_to_private_network(url[0]):
-                await matcher.send("请输入正确的地址！")
-                return
+        elif is_domain_refer_to_private_network(url[0]):
+            await matcher.send("请输入正确的地址！")
+            return
         try:
             if not is_ip_address(url[0]):
                 answers = resolver.resolve(url[0], "A")
                 answers = (
-                    [str(rdata.address) for rdata in answers] # type: ignore
+                    [str(rdata.address) for rdata in answers]  # type: ignore
                     if answers
                     else [
-                        str(rdata.address) for rdata in resolver.resolve(url[0], "AAAA") # type: ignore
+                        str(rdata.address)  # type: ignore
+                        for rdata in resolver.resolve(url[0], "AAAA")
                     ]
                 )
 
             else:
-                answers = []
-                answers.append(url[0])
+                answers = [url[0]]
             maps = await nmap_port(answers[0], url[1])
             message = f"""结果：
 端口：{maps["port"]}
