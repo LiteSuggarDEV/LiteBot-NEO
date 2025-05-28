@@ -8,21 +8,11 @@ from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
 from ping3 import ping
 
-from litebot_utils.web_utils import resolve_dns_records
+from litebot_utils.web_utils import (
+    is_domain_refer_to_private_network,
+)
 
 from ..menu.manager import MatcherData
-
-
-def is_domain_refer_to_private_network(domain: str) -> bool:
-    """
-    检查域名是否指向私有网络
-    :param domain: 要检查的域名
-    :return: 如果域名指向私有网络则返回True，否则返回False
-    """
-    records = resolve_dns_records(domain)
-    if records is None:
-        return False
-    return any(ip_address(record).is_private for record in records if records is True)
 
 
 @on_command(

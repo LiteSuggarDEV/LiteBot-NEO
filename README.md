@@ -15,3 +15,5 @@
     > if you dont have uv,install it by `pip install uv`
 4. use `uv sync` to install all dependencies
 5. run your bot using `nb run --reload`
+
+or just simply use init script
