@@ -23,7 +23,7 @@ try:
 except Exception as e:
     logger.error("OOPS!There is something wrong while loading plugins!")
     logger.opt(exception=True).error("Error!：{}", type(e).__name__)
-
+    exit(1)
 
 logger.info("Testing pre-startup...")
 
@@ -40,5 +40,6 @@ try:
 except Exception as e:
     logger.error("OOPS!There is something wrong while loading plugins!")
     logger.opt(exception=True).error("Error!：{}", type(e).__name__)
+    exit(1)
 else:
     logger.info("Done!")

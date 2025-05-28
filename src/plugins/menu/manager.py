@@ -10,9 +10,9 @@ class MatcherData(pydantic.BaseModel):
     """功能模型"""
 
     rm_name: str = pydantic.Field(..., description="功能名称")
-    rm_usage: str = pydantic.Field("", description="功能用法")
+    rm_usage: str | None = pydantic.Field(default=None, description="功能用法")
     rm_desc: str = pydantic.Field(..., description="功能描述")
-    rm_related: str | None = pydantic.Field(None, description="父级菜单")
+    rm_related: str | None = pydantic.Field(description="父级菜单", default=None)
 
 
 class PluginData:
@@ -91,12 +91,8 @@ class MenuManager:
                 if all(matcher.rm_related is None for matcher in matchers):
                     for matcher in matchers:
                         logger.info(f"  - {matcher.rm_name}: {matcher.rm_desc}")
-                        if matcher.rm_usage != "":
-                            logger.info(
-                                "    └─ 用法:" + matcher.rm_usage
-                                if matcher.rm_usage != ""
-                                else ""
-                            )
+                        if matcher.rm_usage:
+                            logger.info(f"    └─ 用法:{matcher.rm_usage}" if matcher.rm_usage != "" else "")
 
             # 然后打印有子菜单的顶级菜单
             for group_name, matchers in plugin.matcher_grouping.items():
@@ -118,11 +114,7 @@ class MenuManager:
                         if matcher.rm_related is None:
                             logger.info(f"  - {matcher.rm_name}: {matcher.rm_desc}")
                             if matcher.rm_usage != "":
-                                logger.info(
-                                    "    └─ 用法:" + matcher.rm_usage
-                                    if matcher.rm_usage != ""
-                                    else ""
-                                )
+                                logger.info(f"    └─ 用法:{matcher.rm_usage}" if matcher.rm_usage != "" else "")
 
                     # 然后打印子菜单
                     for other_matchers in plugin.matcher_grouping.values():
@@ -134,7 +126,7 @@ class MenuManager:
 
                                 if matcher.rm_usage != "":
                                     logger.info(
-                                        "      └─ 用法:" + matcher.rm_usage
+                                        f"      └─ 用法:{matcher.rm_usage}"
                                         if matcher.rm_usage != ""
                                         else ""
                                     )

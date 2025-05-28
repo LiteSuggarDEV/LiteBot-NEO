@@ -1,12 +1,16 @@
+import contextlib
 import time
 from ipaddress import ip_address
 
-import dns.resolver
-from nonebot import logger, on_command
+from nonebot import on_command
 from nonebot.adapters.onebot.v11 import Message, MessageEvent
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
 from ping3 import ping
+
+from litebot_utils.web_utils import resolve_dns_records
+
+from ..menu.manager import MatcherData
 
 
 def is_domain_refer_to_private_network(domain: str) -> bool:
@@ -15,57 +19,20 @@ def is_domain_refer_to_private_network(domain: str) -> bool:
     :param domain: 要检查的域名
     :return: 如果域名指向私有网络则返回True，否则返回False
     """
-
-    def resolve_dns_records(domain: str) -> list[str] | None:
-        """
-        解析域名的A和AAAA记录
-        :param domain: 要解析的域名（如 'example.com'）
-        :return: 包含所有IPv4/IPv6地址的列表，解析失败返回None
-        """
-        resolver = dns.resolver.Resolver()
-        resolver.timeout = 10  # 设置超时时间
-
-        records = []
-
-        try:
-            # 解析A记录（IPv4）
-            a_answers = resolver.resolve(domain, "A")
-            records.extend([answer.to_text() for answer in a_answers])
-
-            # 解析AAAA记录（IPv6）
-            aaaa_answers = resolver.resolve(domain, "AAAA")
-            records.extend([answer.to_text() for answer in aaaa_answers])
-
-            return records
-
-        except dns.resolver.NoAnswer:
-            # 没有对应记录时返回空列表
-            return records if records else None
-        except dns.resolver.NXDOMAIN:
-            logger.warning(f"域名不存在: {domain}")
-            return None
-        except dns.resolver.Timeout:
-            logger.warning("DNS查询超时")
-            return None
-        except Exception as e:
-            logger.warning(f"DNS解析错误: {e!s}")
-            return None
-
     records = resolve_dns_records(domain)
     if records is None:
         return False
     return any(ip_address(record).is_private for record in records if records is True)
 
 
-
 @on_command(
     "ping",
     aliases={"PING"},
-    state={
-        "rm_name": "ping",
-        "rm_desc": "发送Ping包",
-        "rm_usage": "/ping <ip/domain> [次数（可选）]",
-    },
+    state=MatcherData(
+        rm_name="ping",
+        rm_desc="发送Ping包",
+        rm_usage="/ping <ip/domain> [次数（可选）]",
+    ).model_dump(),
 ).handle()
 async def ping_runner(
     event: MessageEvent, matcher: Matcher, args: Message = CommandArg()
@@ -85,13 +52,11 @@ async def ping_runner(
             return
     else:
         count = 3
-    try:
+    with contextlib.suppress(ValueError):
         _ip = ip_address(address)
         if _ip.is_private:
             await matcher.send("请输入正确的地址！")
             return
-    except ValueError:
-        pass
     start_time = time.time()
     result: list[float | None] = [ping(address, size=64) for _ in range(count)]
     stop_time = time.time()
