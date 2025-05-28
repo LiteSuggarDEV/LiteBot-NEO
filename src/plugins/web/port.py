@@ -45,7 +45,6 @@ async def nmap_port(address, port):
         rm_name="端口扫描",
         rm_desc="扫描指定主机的端口",
         rm_usage="port [ip:port]",
-        rm_related="web",
     ).model_dump(),
 ).handle()
 async def _(event: MessageEvent, matcher: Matcher, args: Message = CommandArg()):
@@ -69,10 +68,10 @@ async def _(event: MessageEvent, matcher: Matcher, args: Message = CommandArg())
             if not is_ip_address(url[0]):
                 answers = resolver.resolve(url[0], "A")
                 answers = (
-                    [str(rdata.address) for rdata in answers]  # type: ignore
+                    [rdata.to_text() for rdata in answers]
                     if answers
                     else [
-                        str(rdata.address)  # type: ignore
+                        rdata.to_text()
                         for rdata in resolver.resolve(url[0], "AAAA")
                     ]
                 )
