@@ -55,12 +55,12 @@ async def _(matcher: Matcher, args: Message = CommandArg()):
         logger.debug(url[1])
 
         if len(url) <= 1:
-            await matcher.finish("请输入端口！")
+            await matcher.finish("请输入端口")
         if is_ip_address(url[0]):
             if not is_ip_in_private_network(url[0]):
-                await matcher.finish("请输入正确的地址！")
+                await matcher.finish("请输入正确的地址")
         elif is_domain_refer_to_private_network(url[0]):
-            await matcher.finish("请输入正确的地址！")
+            await matcher.finish("请输入正确的地址")
         try:
             if not is_ip_address(url[0]):
                 answers = resolver.resolve(url[0], "A")
