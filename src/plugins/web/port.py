@@ -51,8 +51,7 @@ async def _(matcher: Matcher, args: Message = CommandArg()):
     if location := args.extract_plain_text():
         url = []
         url = location.split(":", maxsplit=1)
-        logger.debug(url[0])
-        logger.debug(url[1])
+        logger.debug(f"Host: {url[0]}, Port: {url[1]}")
 
         if len(url) <= 1:
             await matcher.finish("请输入端口")
