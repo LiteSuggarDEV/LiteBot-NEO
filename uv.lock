@@ -441,6 +441,7 @@ dependencies = [
     { name = "pip" },
     { name = "psutil" },
     { name = "pydantic" },
+    { name = "python-nmap" },
     { name = "tortoise-orm", extra = ["accel", "asyncmy"] },
 ]
 
@@ -456,6 +457,7 @@ requires-dist = [
     { name = "pip", specifier = ">=25.1.1" },
     { name = "psutil", specifier = ">=7.0.0" },
     { name = "pydantic", specifier = ">=2.11.5" },
+    { name = "python-nmap", specifier = ">=0.7.1" },
     { name = "tortoise-orm", extras = ["accel", "asyncmy"], specifier = ">=0.25.0" },
 ]
 
@@ -993,6 +995,12 @@ sdist = { url = "https://mirrors.aliyun.com/pypi/packages/88/2c/7bb1416c5620485a
 wheels = [
     { url = "https://mirrors.aliyun.com/pypi/packages/1e/18/98a99ad95133c6a6e2005fe89faedf294a748bd5dc803008059409ac9b1e/python_dotenv-1.1.0-py3-none-any.whl", hash = "sha256:d7c01d9e2293916c18baf562d95698754b0dbbb5e74d457c45d4f6561fb9d55d" },
 ]
+
+[[package]]
+name = "python-nmap"
+version = "0.7.1"
+source = { registry = "https://mirrors.aliyun.com/pypi/simple" }
+sdist = { url = "https://mirrors.aliyun.com/pypi/packages/f7/1b/8e6b3d1461331e4e8600faf099e7c62ba3c1603987dafdd558681fb8ba37/python-nmap-0.7.1.tar.gz", hash = "sha256:f75af6b91dd8e3b0c31f869db32163f62ada686945e5b7c25f84bc0f7fad3b64" }
 
 [[package]]
 name = "pytz"
