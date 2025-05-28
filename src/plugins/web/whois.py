@@ -11,21 +11,19 @@ from ..menu.manager import MatcherData
     "whois",
     aliases={"WHOIS"},
     state=MatcherData(
-        **{
-            "rm_name": "whois",
-            "rm_desc": "域名WHOIS查询",
-            "rm_usage": "whois <top_domain>",
-        }
+        rm_name="whois",
+        rm_desc="域名WHOIS查询",
+        rm_usage="whois <top_domain>",
     ).model_dump(),
 ).handle()
 async def whois_runner(
     event: MessageEvent, matcher: Matcher, args: Message = CommandArg()
 ):
-    headers = {
-        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.9 Safari/536.5"
-    }
-
     if location := args.extract_plain_text():
+        headers = {
+            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.9 Safari/536.5"
+        }
+
         async with ClientSession() as session:
             async with session.get(
                 f"https://v2.xxapi.cn/api/whois?domain={location}", headers=headers
@@ -38,12 +36,7 @@ async def whois_runner(
                         if data.get("DNS Serve") is not None:
                             dns_servers = data.get("DNS Serve")
                             await matcher.send(
-                                f"域名：{data.get('Domain')}\n"
-                                f"注册人：{data.get('Registrant') if data.get('Registrant') else '未知'}\n"
-                                f"注册时间：{data.get('Registration Time')}\n"
-                                f"注册商URL：{data.get('Registrar URL')}"
-                                f"到期时间：{data.get('Expiration Time')}\n"
-                                f"DNS服务器：{''.join(server for server in dns_servers)}\n"
+                                f"域名：{data.get('Domain')}\n注册人：{data.get('Registrant') or '未知'}\n注册时间：{data.get('Registration Time')}\n注册商URL：{data.get('Registrar URL')}到期时间：{data.get('Expiration Time')}\nDNS服务器：{''.join(dns_servers)}\n"
                             )
                         else:
                             await matcher.send("该域名不存在或并非顶级域名。")

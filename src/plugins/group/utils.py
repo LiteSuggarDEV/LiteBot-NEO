@@ -14,7 +14,4 @@ def get_disk_usage_percentage(directory):
     # 获取目录所在磁盘使用情况
     disk_usage = shutil.disk_usage(directory)
 
-    # 计算磁盘使用百分比
-    usage_percentage = (disk_usage.used / disk_usage.total) * 100
-
-    return usage_percentage
+    return (disk_usage.used / disk_usage.total) * 100

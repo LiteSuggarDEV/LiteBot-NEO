@@ -40,7 +40,7 @@ def resolve_dns_records(domain: str) -> list[str] | None:
 
         except dns.resolver.NoAnswer:
             # 没有对应记录时返回空列表
-            return records if records else None
+            return records or None
         except dns.resolver.NXDOMAIN:
             logger.warning(f"域名不存在: {domain}")
             return None

@@ -1,3 +1,4 @@
+import contextlib
 import time
 from ipaddress import ip_address
 
@@ -28,11 +29,9 @@ def is_domain_refer_to_private_network(domain: str) -> bool:
     "ping",
     aliases={"PING"},
     state=MatcherData(
-        **{
-            "rm_name": "ping",
-            "rm_desc": "发送Ping包",
-            "rm_usage": "/ping <ip/domain> [次数（可选）]",
-        }
+        rm_name="ping",
+        rm_desc="发送Ping包",
+        rm_usage="/ping <ip/domain> [次数（可选）]",
     ).model_dump(),
 ).handle()
 async def ping_runner(
@@ -53,13 +52,11 @@ async def ping_runner(
             return
     else:
         count = 3
-    try:
+    with contextlib.suppress(ValueError):
         _ip = ip_address(address)
         if _ip.is_private:
             await matcher.send("请输入正确的地址！")
             return
-    except ValueError:
-        pass
     start_time = time.time()
     result: list[float | None] = [ping(address, size=64) for _ in range(count)]
     stop_time = time.time()

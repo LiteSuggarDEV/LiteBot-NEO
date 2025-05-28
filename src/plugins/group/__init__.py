@@ -190,8 +190,6 @@ async def handle_admin_change(
 ):
     sub_type = event.sub_type
     user_info = await bot.get_group_member_info(group_id=gid, user_id=uid)
-    user_name = user_info["nickname"]
-
     if self_id == uid:
         msg = (
             "LiteBot被设置为了群管理！"
@@ -201,6 +199,8 @@ async def handle_admin_change(
         await bot.send_group_msg(group_id=gid, message=msg)
     else:
         action = "设置为了" if sub_type == "set" else "取消了"
+        user_name = user_info["nickname"]
+
         await bot.send_group_msg(
             group_id=gid, message=f"{user_name}（{uid}） 被{action}群管理。"
         )

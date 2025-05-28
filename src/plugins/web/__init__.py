@@ -8,6 +8,7 @@ __plugin_meta__ = PluginMetadata(
     usage="Web功能插件",
     type="application",
 )
+
 __all__ = [
     "nslookup",
     "send_ping",

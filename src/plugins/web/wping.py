@@ -18,14 +18,12 @@ from ..menu.manager import MatcherData
         rm_name="httping",
         rm_usage="httping <uri>",
         rm_desc="Get一个网站",
-        rm_related=None,
     ).model_dump(),
 ).handle()
 async def httping(matcher: Matcher, args: Message = CommandArg()):
     if arg := args.extract_plain_text().strip():
-        if not is_ip_address(arg):
-            if resolve_dns_records(arg) is None:
-                await matcher.finish("请输入正确的地址！")
+        if not is_ip_address(arg) and resolve_dns_records(arg) is None:
+            await matcher.finish("请输入正确的地址！")
         url = (
             arg
             if (arg.startswith("http") or arg.startswith("https"))
