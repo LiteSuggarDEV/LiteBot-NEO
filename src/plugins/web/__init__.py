@@ -3,7 +3,7 @@ from nonebot.plugin import PluginMetadata
 from . import nslookup, send_ping, whois
 
 __plugin_meta__ = PluginMetadata(
-    name="Web功能插件插件", # type: ignore
+    name="Web功能插件插件",
     description="Web功能插件插件",
     usage="Web功能插件",
     type="application",
