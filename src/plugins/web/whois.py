@@ -5,7 +5,9 @@ from nonebot.params import CommandArg
 from aiohttp import ClientSession
 
 
-@on_command("whois", aliases={"WHOIS"}).handle()
+@on_command(
+    "whois", aliases={"WHOIS"}, state={"rm_name": "whois", "rm_desc": "域名WHOIS查询"}
+).handle()
 async def whois_runner(
     event: MessageEvent, matcher: Matcher, args: Message = CommandArg()
 ):
