@@ -1,11 +1,14 @@
 name: CI/CD Pipeline
 
 on:
-  push:
-    branches:
-      - "**"
-    paths:
-      - "**"
+    push:
+        branches:
+            - "**"
+        paths:
+            - "**"
+    pull_request:
+        branches-ignore:
+            - "**"
 
 jobs:
   runTest:
