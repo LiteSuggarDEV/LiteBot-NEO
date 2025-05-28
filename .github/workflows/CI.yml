@@ -22,6 +22,11 @@ jobs:
       - name: Set environment
         run: uv sync
 
+      - name: Run Pyright
+        uses: jakebailey/pyright-action@v2
+        with:
+          pylance-version: latest-release
+          
       - name: Load test
         run: |
           uv run run-test.py
