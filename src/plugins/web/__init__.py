@@ -1,9 +1,9 @@
 from nonebot.plugin import PluginMetadata
 
-from . import nslookup, send_ping
+from . import nslookup, send_ping, whois
 
 __plugin_meta__ = PluginMetadata(
-    name="Web功能插件插件",
+    name="Web功能插件插件", # type: ignore
     description="Web功能插件插件",
     usage="Web功能插件",
     type="application",
@@ -11,4 +11,5 @@ __plugin_meta__ = PluginMetadata(
 __all__ = [
     "nslookup",
     "send_ping",
+    "whois",
 ]
