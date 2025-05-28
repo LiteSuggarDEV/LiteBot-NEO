@@ -3,7 +3,7 @@ import sys
 import dns.resolver as resolver
 import nmap
 from nonebot import logger, on_command
-from nonebot.adapters.onebot.v11 import Message, MessageEvent
+from nonebot.adapters.onebot.v11 import Message
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
 
@@ -47,7 +47,7 @@ async def nmap_port(address, port):
         rm_usage="port [ip:port]",
     ).model_dump(),
 ).handle()
-async def _(event: MessageEvent, matcher: Matcher, args: Message = CommandArg()):
+async def _(matcher: Matcher, args: Message = CommandArg()):
     if location := args.extract_plain_text():
         url = []
         url = location.split(":", maxsplit=1)
@@ -55,25 +55,19 @@ async def _(event: MessageEvent, matcher: Matcher, args: Message = CommandArg())
         logger.debug(url[1])
 
         if len(url) <= 1:
-            await matcher.send("请输入端口！")
-            return
+            await matcher.finish("请输入端口！")
         if is_ip_address(url[0]):
             if not is_ip_in_private_network(url[0]):
-                await matcher.send("请输入正确的地址！")
-                return
+                await matcher.finish("请输入正确的地址！")
         elif is_domain_refer_to_private_network(url[0]):
-            await matcher.send("请输入正确的地址！")
-            return
+            await matcher.finish("请输入正确的地址！")
         try:
             if not is_ip_address(url[0]):
                 answers = resolver.resolve(url[0], "A")
                 answers = (
                     [rdata.to_text() for rdata in answers]
                     if answers
-                    else [
-                        rdata.to_text()
-                        for rdata in resolver.resolve(url[0], "AAAA")
-                    ]
+                    else [rdata.to_text() for rdata in resolver.resolve(url[0], "AAAA")]
                 )
 
             else:
@@ -87,20 +81,8 @@ product:{maps["product"]}
 版本：{maps["version"]}"""
 
         except Exception:
-            exc_type, exc_value, exc_traceback = sys.exc_info()
-            await matcher.send(
-                f"过程发生了错误：{exc_type.__name__ if exc_type is not None else 'nil'}\n{exc_value!s}"
-            )
-            logger.error(
-                f"Exception type: {exc_type.__name__ if exc_type is not None else 'nil'}"
-            )
-            logger.error(f"Exception message: {exc_value!s}")
-            import traceback
-
-            logger.error(
-                f"Detailed exception info:\n{''.join(traceback.format_exception(exc_type, exc_value, exc_traceback))}"
-            )
-            return
+            logger.exception("过程发生了错误")
+            await matcher.finish("过程发生了错误，请检查日志以获取详细信息。")
         await matcher.send(message)
     else:
         await matcher.send("请输入地址！格式<host>:<port>")
