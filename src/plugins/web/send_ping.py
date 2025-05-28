@@ -21,7 +21,7 @@ from ..menu.manager import MatcherData
     state=MatcherData(
         rm_name="ping",
         rm_desc="发送Ping包",
-        rm_usage="/ping <ip/domain> [次数（可选）]",
+        rm_usage="ping <ip/domain> [次数（可选）]",
     ).model_dump(),
 ).handle()
 async def ping_runner(

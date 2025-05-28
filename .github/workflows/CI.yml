@@ -1,11 +1,14 @@
 name: CI/CD Pipeline
 
 on:
-  push:
-    branches:
-      - "**"
-    paths:
-      - "**"
+    push:
+        branches:
+            - "**"
+        paths:
+            - "**"
+    pull_request:
+        branches-ignore:
+            - "**"
 
 jobs:
   runTest:
@@ -34,6 +37,8 @@ jobs:
             uv venv
             uv sync
 
+      - name: Install nmap
+        run: sudo apt-get install -y nmap
 
       - name: Get Python path
         run: |
