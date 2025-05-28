@@ -85,5 +85,4 @@ nonebot.logger.add(AsyncErrorHandler(), level="ERROR")
 
 
 if __name__ == "__main__":
-    os.makedirs("user_plugins", exist_ok=True)
     nonebot.run()

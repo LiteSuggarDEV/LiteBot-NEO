@@ -23,7 +23,7 @@ adapters = [
     { name = "OneBot V11", module_name = "nonebot.adapters.onebot.v11" },
 ]
 plugins = ["nonebot_plugin_tortoise_orm", "nonebot_plugin_mclib"]
-plugin_dirs = ["src/plugins","user_plugins"]
+plugin_dirs = ["src/plugins"]
 builtin_plugins = []
 
 [tool.ruff]
