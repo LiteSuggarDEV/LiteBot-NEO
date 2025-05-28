@@ -15,8 +15,8 @@ jobs:
       - name: Checkout PR branch
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # 获取完整提交历史
-          ref: ${{ github.event.pull_request.head.sha }}  # 明确指定PR分支的SHA
+          fetch-depth: 0 # 获取完整提交历史
+          ref: ${{ github.event.pull_request.head.sha }} # 明确指定PR分支的SHA
 
       - name: Cache virtualenv
         uses: actions/cache@v4
@@ -35,6 +35,9 @@ jobs:
         run: |
           uv venv
           uv sync
+
+      - name: Install nmap
+        run: sudo apt-get install -y nmap
 
       - name: Get Python path
         run: |

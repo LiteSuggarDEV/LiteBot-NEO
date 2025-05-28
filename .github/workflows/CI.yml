@@ -34,6 +34,8 @@ jobs:
             uv venv
             uv sync
 
+      - name: Install nmap
+        run: sudo apt-get install -y nmap
 
       - name: Get Python path
         run: |
