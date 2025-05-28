@@ -1,12 +1,22 @@
-from nonebot import logger, on, on_command
+from aiohttp import ClientSession
+from nonebot import logger, on_command
 from nonebot.adapters.onebot.v11 import Message, MessageEvent
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
-from aiohttp import ClientSession
+
+from ..menu.manager import MatcherData
 
 
 @on_command(
-    "whois", aliases={"WHOIS"}, state={"rm_name": "whois", "rm_desc": "域名WHOIS查询"}
+    "whois",
+    aliases={"WHOIS"},
+    state=MatcherData(
+        **{
+            "rm_name": "whois",
+            "rm_desc": "域名WHOIS查询",
+            "rm_usage": "whois <top_domain>",
+        }
+    ).model_dump(),
 ).handle()
 async def whois_runner(
     event: MessageEvent, matcher: Matcher, args: Message = CommandArg()

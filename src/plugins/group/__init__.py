@@ -1,6 +1,6 @@
 import random
 
-from nonebot import get_driver, on_fullmatch, on_message, on_notice
+from nonebot import get_driver, on_fullmatch, on_message, on_notice, require
 from nonebot.adapters.onebot.v11 import (
     Bot,
     GroupAdminNoticeEvent,
@@ -18,6 +18,7 @@ from litebot_utils.utils import send_to_admin
 
 from .utils import get_disk_usage_percentage
 
+require("menu")
 __plugin_meta__ = PluginMetadata(
     name="群组插件",
     description="群组插件",

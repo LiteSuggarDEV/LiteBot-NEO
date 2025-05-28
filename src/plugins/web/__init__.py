@@ -1,7 +1,8 @@
-from nonebot.plugin import PluginMetadata
+from nonebot.plugin import PluginMetadata, require
 
 from . import nslookup, send_ping, whois, wping
 
+require("menu")
 __plugin_meta__ = PluginMetadata(
     name="Web功能插件插件",
     description="Web功能插件插件",

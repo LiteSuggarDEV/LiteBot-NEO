@@ -30,6 +30,7 @@ SUPERUSER_list = list(get_driver().config.superusers)
 
 load_dotenv()
 
+
 def default_filter(record: "Record"):
     """默认的日志过滤器，根据 `config.log_level` 配置改变日志等级。"""
     log_level = record["extra"].get("nonebot_log_level", "INFO")
@@ -84,4 +85,5 @@ nonebot.logger.add(AsyncErrorHandler(), level="ERROR")
 
 
 if __name__ == "__main__":
+    os.makedirs("user_plugins", exist_ok=True)
     nonebot.run()

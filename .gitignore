@@ -145,3 +145,4 @@ logs/
 .env
 .env.prod
 .env.dev
+user_plugins/

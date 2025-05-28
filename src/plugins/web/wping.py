@@ -8,8 +8,19 @@ from nonebot.params import CommandArg
 
 from litebot_utils.web_utils import is_ip_address, resolve_dns_records
 
+from ..menu.manager import MatcherData
 
-@on_command("httping", aliases={"wget", "curl", "wping"}).handle()
+
+@on_command(
+    "httping",
+    aliases={"wget", "curl", "wping"},
+    state=MatcherData(
+        rm_name="httping",
+        rm_usage="httping <uri>",
+        rm_desc="Get一个网站",
+        rm_related=None,
+    ).model_dump(),
+).handle()
 async def httping(matcher: Matcher, args: Message = CommandArg()):
     if arg := args.extract_plain_text().strip():
         if not is_ip_address(arg):

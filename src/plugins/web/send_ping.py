@@ -9,6 +9,8 @@ from ping3 import ping
 
 from litebot_utils.web_utils import resolve_dns_records
 
+from ..menu.manager import MatcherData
+
 
 def is_domain_refer_to_private_network(domain: str) -> bool:
     """
@@ -25,11 +27,13 @@ def is_domain_refer_to_private_network(domain: str) -> bool:
 @on_command(
     "ping",
     aliases={"PING"},
-    state={
-        "rm_name": "ping",
-        "rm_desc": "发送Ping包",
-        "rm_usage": "/ping <ip/domain> [次数（可选）]",
-    },
+    state=MatcherData(
+        **{
+            "rm_name": "ping",
+            "rm_desc": "发送Ping包",
+            "rm_usage": "/ping <ip/domain> [次数（可选）]",
+        }
+    ).model_dump(),
 ).handle()
 async def ping_runner(
     event: MessageEvent, matcher: Matcher, args: Message = CommandArg()
