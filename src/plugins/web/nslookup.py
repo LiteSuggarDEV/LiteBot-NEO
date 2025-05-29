@@ -7,7 +7,7 @@ from nonebot.adapters.onebot.v11 import Message, MessageEvent, MessageSegment
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
 
-from ..menu.manager import MatcherData
+from src.plugins.menu.manager import MatcherData
 
 
 def nslookup_all_records(domain):

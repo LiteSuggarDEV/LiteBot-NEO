@@ -5,7 +5,7 @@ from nonebot import logger, on_command
 from nonebot.adapters.onebot.v11 import MessageEvent, MessageSegment
 from nonebot.matcher import Matcher
 
-from ..menu.manager import MatcherData
+from src.plugins.menu.manager import MatcherData
 
 
 @on_command(
