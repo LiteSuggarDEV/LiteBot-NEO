@@ -1,6 +1,6 @@
 from nonebot.plugin import PluginMetadata
 
-from . import base64
+from . import base64, md5, qr, sha1, sha256
 
 __plugin_meta__ = PluginMetadata(
     name="数据插件",
@@ -9,6 +9,4 @@ __plugin_meta__ = PluginMetadata(
     type="application",
 )
 
-__all__ = [
-    "base64"
-]
+__all__ = ["base64", "md5", "qr", "sha1", "sha256"]
