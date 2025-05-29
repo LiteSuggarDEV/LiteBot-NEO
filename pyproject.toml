@@ -16,6 +16,7 @@ dependencies = [
     "psutil>=7.0.0",
     "pydantic>=2.11.5",
     "python-nmap>=0.7.1",
+    "qrcode>=8.2",
     "tortoise-orm[accel,asyncmy]>=0.25.0",
 ]
 

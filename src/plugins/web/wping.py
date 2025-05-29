@@ -7,8 +7,7 @@ from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
 
 from litebot_utils.web_utils import is_ip_address, resolve_dns_records
-
-from ..menu.manager import MatcherData
+from src.plugins.menu.manager import MatcherData
 
 
 @on_command(

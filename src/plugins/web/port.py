@@ -1,5 +1,3 @@
-import sys
-
 import dns.resolver as resolver
 import nmap
 from nonebot import logger, on_command
@@ -12,8 +10,7 @@ from litebot_utils.web_utils import (
     is_ip_address,
     is_ip_in_private_network,
 )
-
-from ..menu.manager import MatcherData
+from src.plugins.menu.manager import MatcherData
 
 nm = nmap.PortScanner()
 

@@ -11,8 +11,7 @@ from ping3 import ping
 from litebot_utils.web_utils import (
     is_domain_refer_to_private_network,
 )
-
-from ..menu.manager import MatcherData
+from src.plugins.menu.manager import MatcherData
 
 
 @on_command(
