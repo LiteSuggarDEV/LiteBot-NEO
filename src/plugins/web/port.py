@@ -1,5 +1,3 @@
-import sys
-
 import dns.resolver as resolver
 import nmap
 from nonebot import logger, on_command
