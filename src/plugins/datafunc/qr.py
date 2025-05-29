@@ -2,9 +2,8 @@ import io
 
 import qrcode
 from nonebot import logger, on_command
-from nonebot.adapters.onebot.v11 import Message, MessageEvent, MessageSegment
+from nonebot.adapters.onebot.v11 import MessageEvent, MessageSegment
 from nonebot.matcher import Matcher
-from nonebot.params import CommandArg
 
 from ..menu.manager import MatcherData
 
@@ -16,9 +15,7 @@ from ..menu.manager import MatcherData
         rm_name="qr", rm_usage="qr <text>", rm_desc="文本->二维码"
     ).model_dump(),
 ).handle()
-async def qr_runner(
-    matcher: Matcher, event: MessageEvent, args: Message = CommandArg()
-):
+async def qr_runner(matcher: Matcher, event: MessageEvent):
     if location := event.message.extract_plain_text().strip():
         try:
             img = qrcode.make(location)
