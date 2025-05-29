@@ -21,14 +21,12 @@ from ..menu.manager import MatcherData
 async def base64_runner(matcher: Matcher, args: Message = CommandArg()):
     if location := args.extract_plain_text():
         location = location.strip().split(maxsplit=1)
-        decode = ["decode", "DECODE", "Decode"]
-        encode = ["ENCODE", "encode", "Encode"]
         logger.debug(location)
-        if location[0] not in decode and location[0] not in encode:
+        if location[0].lower() != "decode" and location[0].lower() != "encode":
             await matcher.send("请输入正确选项！可用的：decode encode")
             return
         if len(location) > 1:
-            if location[0] in decode:
+            if location[0].lower() == "decode":
                 try:
                     finish = base64.b64decode(location[1].encode("utf-8"))
                     message = None
@@ -38,7 +36,7 @@ async def base64_runner(matcher: Matcher, args: Message = CommandArg()):
                     await matcher.send("不合法的Base64格式！")
                 except ValueError:
                     await matcher.send("不合法的Base64格式（非4倍数位）！")
-            elif location[0] in encode:
+            elif location[0].lower() == "encode":
                 finish = base64.b64encode(location[1].encode("utf-8"))
                 message = str(finish.decode("utf-8"))
                 await matcher.send(message)
