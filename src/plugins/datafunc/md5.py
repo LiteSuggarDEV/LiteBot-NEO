@@ -4,6 +4,7 @@ from nonebot import on_command
 from nonebot.adapters.onebot.v11 import Message
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
+from nonebot.rule import to_me
 
 from src.plugins.menu.manager import MatcherData
 
@@ -14,6 +15,7 @@ from src.plugins.menu.manager import MatcherData
     state=MatcherData(
         rm_desc="md5加密", rm_name="md5加密", rm_usage="/md5 <text>"
     ).model_dump(),
+    rule=to_me(),
 ).handle()
 async def md5_runner(matcher: Matcher, args: Message = CommandArg()):
     text = args.extract_plain_text().strip()

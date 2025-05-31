@@ -20,6 +20,7 @@ class Config(BaseModel):
 
     # 上一条请求后需要等待的时间 ，单位秒
     rate_limit: int = 3
+    admins: list[str] = ["3196373166"]
 
 
 @dataclass
@@ -57,6 +58,13 @@ class ConfigManager:
         )
         self._config = Config.model_validate(config)
         self.save_config()
+
+    def get_config(self) -> Config:
+        """获取配置文件
+        Returns:
+            Config: Config类
+        """
+        return self._config
 
     # 此处设计是为了防止config被随意修改，直接修改config并非最佳实践。
     @property

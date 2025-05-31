@@ -1,7 +1,7 @@
 from nonebot import require
 from nonebot.plugin import PluginMetadata
 
-from . import rate
+from . import black, rate
 
 require("src.plugins.config")
 __plugin_meta__ = PluginMetadata(
@@ -11,4 +11,4 @@ __plugin_meta__ = PluginMetadata(
     type="application",
 )
 
-__all__ = ["rate"]
+__all__ = ["black", "rate"]
