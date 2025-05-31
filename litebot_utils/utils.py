@@ -1,5 +1,6 @@
 
 import nonebot
+from nonebot import logger
 from nonebot.adapters.onebot.v11 import Bot
 
 
@@ -13,4 +14,4 @@ async def send_to_admin(message):
     bot = nonebot.get_bot()
     if isinstance(bot, Bot):
         await bot.send_group_msg(group_id=966016220, message=message)
-    print(f"Sending to admin: {message}")
+    logger.info(f"Sending to admin: {message}")

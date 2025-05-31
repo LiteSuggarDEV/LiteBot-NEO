@@ -131,7 +131,7 @@ class MenuManager:
                                         else ""
                                     )
             logger.info(f"\n{'=' * 40}")
-        logger.info("\n菜单打印完成")
+        logger.info("菜单打印完成")
 
 
 menu_mamager = MenuManager()
