@@ -11,10 +11,8 @@ from src.plugins.config.config import config_manager
 watch_group = {}
 watch_user = {}
 
-limiter = on_message(rule=to_me(), block=False)
 
-
-@limiter.handle()
+@on_message(rule=to_me(), block=False).handle()
 async def run(matcher: Matcher, event: MessageEvent):
     time_diff: int = config_manager.config.rate_limit
     too_fast_reply = (
@@ -39,4 +37,8 @@ async def run(matcher: Matcher, event: MessageEvent):
     else:
         ins_id = str(event.user_id)
     if has_limited(watch_group, ins_id):
-        await matcher.finish(random.choice(too_fast_reply))
+        try:
+            await matcher.send(random.choice(too_fast_reply))
+        except:  # noqa: E722
+            pass
+        matcher.stop_propagation()
