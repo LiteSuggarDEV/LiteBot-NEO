@@ -12,7 +12,7 @@ watch_group = {}
 watch_user = {}
 
 
-@on_message(rule=to_me(), block=False).handle()
+@on_message(rule=to_me(), block=False, priority=2).handle()
 async def run(matcher: Matcher, event: MessageEvent):
     time_diff: int = config_manager.config.rate_limit
     too_fast_reply = (

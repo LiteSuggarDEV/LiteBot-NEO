@@ -6,7 +6,7 @@ from litebot_utils.black import bl_manager
 from litebot_utils.utils import send_to_admin
 
 
-@on_message(block=False).handle()
+@on_message(block=False, priority=1).handle()
 async def handle_message(event: MessageEvent,matcher: Matcher,bot:Bot):
     if isinstance(event, GroupMessageEvent):
         if bl_manager.is_group_black(str(event.group_id)):
