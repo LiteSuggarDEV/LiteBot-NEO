@@ -1,3 +1,4 @@
+import contextlib
 import random
 import time
 
@@ -31,15 +32,10 @@ async def run(matcher: Matcher, event: MessageEvent):
             data[id] = time.time()
             return False
 
-    if isinstance(event, GroupMessageEvent):
-        ins_id = str(event.group_id)
-        data = watch_group
-    else:
-        ins_id = str(event.user_id)
-        data = watch_user
+    ins_id = str(event.group_id if isinstance(event, GroupMessageEvent) else event.user_id)
+    data = watch_group if isinstance(event, GroupMessageEvent) else watch_user
+
     if has_limited(data, ins_id):
-        try:
+        with contextlib.suppress(Exception):
             await matcher.send(random.choice(too_fast_reply))
-        except:  # noqa: E722
-            pass
         matcher.stop_propagation()
