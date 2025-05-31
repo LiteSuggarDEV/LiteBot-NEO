@@ -28,9 +28,8 @@ async def run(matcher: Matcher, event: MessageEvent):
         else:
             if time.time() - data[id] < time_diff:
                 return True
-            else:
-                data[id] = time.time()
-                return False
+            data[id] = time.time()
+            return False
 
     if isinstance(event, GroupMessageEvent):
         ins_id = str(event.group_id)
