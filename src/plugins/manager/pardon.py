@@ -4,13 +4,24 @@ from nonebot.params import CommandArg
 from nonebot.rule import to_me
 
 from litebot_utils.black import bl_manager
+from src.plugins.menu.manager import MatcherData
 
 from .rule import is_admin
 
 pardon = CommandGroup("pardon", priority=10, rule=to_me() & is_admin)
 
-pardon_group = pardon.command("-group")
-pardon_user = pardon.command("-user")
+pardon_group = pardon.command(
+    "-group",
+    state=MatcherData(
+        rm_name="解封群组", rm_desc="用于解封群", rm_usage="pardon-group <group-id>"
+    ).model_dump(),
+)
+pardon_user = pardon.command(
+    "-user",
+    state=MatcherData(
+        rm_name="解封用户", rm_desc="用于解封用户", rm_usage="pardon-user <user-id>"
+    ).model_dump(),
+)
 
 
 @pardon_group.handle()

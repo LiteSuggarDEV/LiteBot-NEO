@@ -15,7 +15,7 @@ from src.plugins.menu.manager import MatcherData
     aliases={"b64", "BASE64"},
     state=MatcherData(
         rm_name="base64",
-        rm_usage="/base64 encode/decode [content]",
+        rm_usage="base64 encode/decode [content]",
         rm_desc="Base64编码解码功能",
     ).model_dump(),
     rule=to_me(),

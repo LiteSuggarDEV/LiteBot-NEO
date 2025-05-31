@@ -1,9 +1,11 @@
 from nonebot import require
 from nonebot.plugin import PluginMetadata
 
-from . import black, rate
+from . import auto_clean, ban, black, leave, pardon, rate
 
 require("src.plugins.config")
+require("src.plugins.menu")
+
 __plugin_meta__ = PluginMetadata(
     name="管理插件",
     description="管理器",
@@ -11,4 +13,4 @@ __plugin_meta__ = PluginMetadata(
     type="application",
 )
 
-__all__ = ["black", "rate"]
+__all__ = ["auto_clean", "ban", "black", "leave", "pardon", "rate"]

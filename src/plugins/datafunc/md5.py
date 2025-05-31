@@ -13,7 +13,7 @@ from src.plugins.menu.manager import MatcherData
     "md5",
     aliases={"md5加密", "md5"},
     state=MatcherData(
-        rm_desc="md5加密", rm_name="md5加密", rm_usage="/md5 <text>"
+        rm_desc="md5加密", rm_name="md5加密", rm_usage="md5 <text>"
     ).model_dump(),
     rule=to_me(),
 ).handle()

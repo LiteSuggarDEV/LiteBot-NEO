@@ -53,7 +53,7 @@ SUPERUSER_list = list(get_driver().config.superusers)
 async def _(event: GroupMessageEvent, bot: Bot, matcher: Matcher):
     gid = event.group_id
     uid = event.user_id
-    if "/recall" not in event.raw_message:
+    if "recall" not in event.raw_message:
         return
     user_info = await bot.get_group_member_info(group_id=gid, user_id=uid)
     if user_info["role"] == "member" and str(uid) not in SUPERUSER_list:

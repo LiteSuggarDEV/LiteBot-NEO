@@ -4,13 +4,24 @@ from nonebot.params import CommandArg
 from nonebot.rule import to_me
 
 from litebot_utils.black import bl_manager
+from src.plugins.menu.manager import MatcherData
 
 from .rule import is_admin
 
 ban = CommandGroup("ban", priority=10, rule=to_me() & is_admin)
 
-ban_group = ban.command("-group")
-ban_user = ban.command("-user")
+ban_group = ban.command(
+    "-group",
+    state=MatcherData(
+        rm_name="封禁群", rm_usage="ban-group <group-id>", rm_desc="封禁聊群"
+    ).model_dump(),
+)
+ban_user = ban.command(
+    "-user",
+    state=MatcherData(
+        rm_name="封禁用户", rm_desc="用于封禁用户", rm_usage="ban-user <user-id>"
+    ).model_dump(),
+)
 
 
 @ban_group.handle()
