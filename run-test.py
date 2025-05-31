@@ -98,7 +98,9 @@ try:
     nonebot.run()
 
 except Exception as e:
-    logger.error("OOPS!There is something wrong while loading plugins!")
+    logger.error(
+        "OOPS!There is something wrong while pre-loading(Running on_startup hooks)!"
+    )
     logger.opt(exception=True).error("Error!：{}", type(e).__name__)
     exit(1)
 else:
