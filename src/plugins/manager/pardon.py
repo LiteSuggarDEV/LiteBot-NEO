@@ -37,7 +37,7 @@ async def _(bot: Bot, event: MessageEvent, args: Message = CommandArg()):
 @pardon_user.handle()
 async def pardon_user_handle(args: Message = CommandArg()):
     arg = args.extract_plain_text().strip()
-    if bl_manager.is_private_black(arg):
+    if not bl_manager.is_private_black(arg):
         await pardon_user.finish("该用户没有被封禁！")
     else:
         bl_manager.private_remove(arg)
