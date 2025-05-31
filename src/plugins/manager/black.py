@@ -12,7 +12,8 @@ async def handle_message(event: MessageEvent,matcher: Matcher,bot:Bot):
         if bl_manager.is_group_black(str(event.group_id)):
             await send_to_admin(f"尝试退出黑名单群组{event.group_id}.......")
             await bot.set_group_leave(group_id=event.group_id)
-    matcher.stop_propagation()
+    if bl_manager.is_private_black(str(event.user_id)):
+        matcher.stop_propagation()
 
 @get_driver ().on_startup
 async def load_black_list():
