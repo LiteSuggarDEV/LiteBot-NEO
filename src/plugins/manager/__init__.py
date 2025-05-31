@@ -1,10 +1,6 @@
-from nonebot import require
 from nonebot.plugin import PluginMetadata
 
 from . import auto_clean, ban, black, leave, pardon, rate
-
-require("src.plugins.config")
-require("src.plugins.menu")
 
 __plugin_meta__ = PluginMetadata(
     name="管理插件",
