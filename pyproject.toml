@@ -18,13 +18,18 @@ dependencies = [
     "python-nmap>=0.7.1",
     "qrcode>=8.2",
     "tortoise-orm[accel,asyncmy]>=0.25.0",
+    "watchdog>=6.0.0",
 ]
 
 [tool.nonebot]
 adapters = [
     { name = "OneBot V11", module_name = "nonebot.adapters.onebot.v11" },
 ]
-plugins = ["nonebot_plugin_tortoise_orm", "nonebot_plugin_mclib"]
+plugins = [
+    "nonebot_plugin_tortoise_orm",
+    "nonebot_plugin_mclib",
+    "nonebot_plugin_localstore",
+]
 plugin_dirs = ["src/plugins"]
 builtin_plugins = []
 

@@ -6,6 +6,7 @@ from nonebot import on_command
 from nonebot.adapters.onebot.v11 import Message, MessageEvent
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
+from nonebot.rule import to_me
 from ping3 import ping
 
 from litebot_utils.web_utils import (
@@ -22,6 +23,7 @@ from src.plugins.menu.manager import MatcherData
         rm_desc="发送Ping包",
         rm_usage="ping <ip/domain> [次数（可选）]",
     ).model_dump(),
+    rule=to_me(),
 ).handle()
 async def ping_runner(
     event: MessageEvent, matcher: Matcher, args: Message = CommandArg()

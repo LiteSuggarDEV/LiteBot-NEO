@@ -4,6 +4,7 @@ import qrcode
 from nonebot import logger, on_command
 from nonebot.adapters.onebot.v11 import MessageEvent, MessageSegment
 from nonebot.matcher import Matcher
+from nonebot.rule import to_me
 
 from src.plugins.menu.manager import MatcherData
 
@@ -14,6 +15,7 @@ from src.plugins.menu.manager import MatcherData
     state=MatcherData(
         rm_name="qr", rm_usage="qr <text>", rm_desc="文本->二维码"
     ).model_dump(),
+    rule=to_me(),
 ).handle()
 async def qr_runner(matcher: Matcher, event: MessageEvent):
     if location := event.message.extract_plain_text().strip():
