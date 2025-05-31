@@ -2,7 +2,9 @@ import json
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from nonebot import logger
+from nonebot import logger, require
+
+require("nonebot_plugin_localstore")
 from nonebot_plugin_localstore import get_config_dir
 from pydantic import BaseModel
 
