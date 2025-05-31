@@ -33,9 +33,11 @@ async def run(matcher: Matcher, event: MessageEvent):
 
     if isinstance(event, GroupMessageEvent):
         ins_id = str(event.group_id)
+        data = watch_group
     else:
         ins_id = str(event.user_id)
-    if has_limited(watch_group, ins_id):
+        data = watch_user
+    if has_limited(data, ins_id):
         try:
             await matcher.send(random.choice(too_fast_reply))
         except:  # noqa: E722
