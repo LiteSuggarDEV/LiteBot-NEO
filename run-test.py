@@ -78,7 +78,7 @@ try:
     nonebot.load_from_toml("pyproject.toml")
     logger.info("plugin import done!")
 except LoadError:
-    logger.error("Test FALIED!Good luck to you next time!")
+    logger.error("Test FAILED! Good luck to you next time!")
     exit(1)
 except Exception as e:
     logger.error("OOPS!There is something wrong while this process is running!")
