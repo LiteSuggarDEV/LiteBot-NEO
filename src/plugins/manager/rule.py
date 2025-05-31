@@ -1,7 +1,7 @@
 from nonebot.adapters.onebot.v11 import MessageEvent
 
-from src.plugins.config.config import config_manager
+from litebot_utils.config import ConfigManager
 
 
 async def is_admin(event: MessageEvent) -> bool:
-    return str(event.user_id) in config_manager.config.admins
+    return str(event.user_id) in ConfigManager.instance().config.admins

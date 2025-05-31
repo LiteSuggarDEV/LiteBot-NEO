@@ -7,7 +7,7 @@ from nonebot.adapters.onebot.v11 import GroupMessageEvent, MessageEvent
 from nonebot.matcher import Matcher
 from nonebot.rule import to_me
 
-from src.plugins.config.config import config_manager
+from litebot_utils.config import ConfigManager
 
 watch_group = {}
 watch_user = {}
@@ -15,7 +15,7 @@ watch_user = {}
 
 @on_message(rule=to_me(), block=False, priority=2).handle()
 async def run(matcher: Matcher, event: MessageEvent):
-    time_diff: int = config_manager.config.rate_limit
+    time_diff: int = ConfigManager.instance().config.rate_limit
     too_fast_reply = (
         "请不要频繁发送请求哦～",
         "请降低请求速度～",
