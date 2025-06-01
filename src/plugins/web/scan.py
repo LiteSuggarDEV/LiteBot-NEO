@@ -43,7 +43,7 @@ def scan_ports_sync(host,arg1:None|str=None):
             ips = resolve_dns_records(host)
             if not ips:
                 raise
-        except:  # noqa: E722
+        except Exception:
             return [
                 {
                     "port": -1,
@@ -126,10 +126,9 @@ async def _(event: MessageEvent, args: Message = CommandArg()):
         return
 
     cmd = location.split(maxsplit=1)
-    if not len(cmd) > 1:
+    if len(cmd) <= 1:
         cmd = []
-        cmd.append(location)
-        cmd.append("1-1023")
+        cmd.extend((location, "1-1023"))
     if "gov.cn" in cmd[0] or "gov.hk" in cmd[0]:
         await send_to_admin (f"{event.user_id} 尝试扫描gov网站！")
         return
