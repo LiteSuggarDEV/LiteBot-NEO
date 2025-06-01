@@ -1,3 +1,5 @@
+import base64
+import hashlib
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -12,6 +14,23 @@ from nonebot_plugin_htmlrender import md_to_pic
 from litebot_utils.utils import send_forward_msg
 
 dir_path = Path(__file__).parent
+_md_cache: dict[str, str] = {}
+
+
+def _hash_md(md: str) -> str:
+    return hashlib.sha256(md.encode("utf-8")).hexdigest()
+
+
+async def cached_md_to_pic(md: str, css_path: str) -> str:
+    key = _hash_md(md)
+    if key in _md_cache:
+        return _md_cache[key]
+
+    # 渲染图片，得到 base64
+    base64_img = f"base64://{base64.b64encode(await md_to_pic(md=md, css_path=css_path)).decode()}"
+
+    _md_cache[key] = base64_img
+    return base64_img
 
 
 class MatcherData(pydantic.BaseModel):
@@ -155,19 +174,14 @@ class MenuManager:
 menu_mamager = MenuManager()
 
 
-@nonebot.on_fullmatch(("menu", "菜单")).handle()
-async def show_menu(matcher: Matcher, bot: Bot, event: MessageEvent):
-    """显示菜单"""
-    if not menu_mamager.plugins:
-        await matcher.finish("菜单加载失败，请检查日志")
-
+def generate_markdown_menus(plugins: list[PluginData]) -> list[str]:
+    """生成 Markdown 菜单列表"""
     head = (
         "# LiteBot 菜单\n\n"
         + "> 这是 LiteBot 的菜单列表，包含所有可用的功能和用法。\n\n"
     )
-    # 列出模块
     head += "## 模块列表\n\n"
-    for plugin in menu_mamager.plugins:
+    for plugin in plugins:
         if not plugin.metadata or not plugin.matcher_grouping:
             continue
         plugin_name = plugin.metadata.name
@@ -175,8 +189,7 @@ async def show_menu(matcher: Matcher, bot: Bot, event: MessageEvent):
         head += f"\n\n- **{plugin_name}**: {plugin_desc}"
 
     markdown_menus: list[str] = [head.strip()]
-    # 每个模块的渲染
-    for plugin in menu_mamager.plugins:
+    for plugin in plugins:
         if not plugin.matcher_grouping or not plugin.metadata:
             continue
 
@@ -195,16 +208,25 @@ async def show_menu(matcher: Matcher, bot: Bot, event: MessageEvent):
                 if matcher_data.rm_usage:
                     plugin_markdown += f"\n    - 用法: `{matcher_data.rm_usage}`"
                 plugin_markdown += "\n\n"
-
         markdown_menus.append(plugin_markdown.strip())
 
-    # 用 md_to_pic 渲染 Markdown 菜单列表
+    return markdown_menus
+
+
+@nonebot.on_fullmatch(("menu", "菜单")).handle()
+async def show_menu(matcher: Matcher, bot: Bot, event: MessageEvent):
+    """显示菜单"""
+    if not menu_mamager.plugins:
+        await matcher.finish("菜单加载失败，请检查日志")
+
+    markdown_menus = generate_markdown_menus(menu_mamager.plugins)
+
     if not markdown_menus:
         await matcher.finish("没有可用的菜单")
 
     markdown_menus_pics = [
         MessageSegment.image(
-            file=await md_to_pic(
+            file=await cached_md_to_pic(
                 md=markdown_menus_string, css_path=str(dir_path / "dark.css")
             )
         )
@@ -225,6 +247,13 @@ driver = nonebot.get_driver()
 
 @driver.on_startup
 async def load_menus():
-    """加载菜单"""
+    """加载菜单并预渲染图片"""
     menu_mamager.load_menus()
     menu_mamager.print_menus()
+
+    markdown_menus = generate_markdown_menus(menu_mamager.plugins)
+
+    logger.info("开始预渲染菜单图片...")
+    for md_str in markdown_menus:
+        await cached_md_to_pic(md=md_str, css_path=str(dir_path / "dark.css"))
+    logger.info("菜单图片预渲染完成")
