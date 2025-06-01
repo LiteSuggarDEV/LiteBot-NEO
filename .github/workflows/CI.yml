@@ -3,12 +3,10 @@ name: CI/CD Pipeline
 on:
     push:
         branches:
-            - "**"
-        paths:
-            - "**"
+            - "main"
     pull_request:
         branches-ignore:
-            - "**"
+            - "*"
 
 jobs:
   runTest:
@@ -34,27 +32,26 @@ jobs:
 
       - name: Set environment
         run: |
-            uv venv
-            uv sync
+          uv venv
+          uv sync
 
       - uses: actions/checkout@v4
       - uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-            packages: nmap
-            version: 1.0
+          packages: nmap
+          version: 1.0
 
       - name: Get Python path
         run: |
-            PYTHON_BIN="$(uv run python -c 'import sys; print(sys.executable)')"
-            echo "PYTHON_BIN=$PYTHON_BIN" >> $GITHUB_ENV
-
+          PYTHON_BIN="$(uv run python -c 'import sys; print(sys.executable)')"
+          echo "PYTHON_BIN=$PYTHON_BIN" >> $GITHUB_ENV
 
       - name: Run Pyright
         uses: jakebailey/pyright-action@v2
         with:
-            python-path: ${{ env.PYTHON_BIN }}
-            pylance-version: latest-release
+          python-path: ${{ env.PYTHON_BIN }}
+          pylance-version: latest-release
 
       - name: Load test
         run: |
-            uv run run-test.py
+          uv run run-test.py
