@@ -1,10 +1,10 @@
 import asyncio
 import os
 import sys
+import traceback
 from typing import TYPE_CHECKING
 
 import nonebot
-import nonebot.log
 from dotenv import load_dotenv
 from nonebot import get_driver
 from nonebot.adapters.onebot.v11 import Adapter as ONEBOT_V11Adapter
@@ -66,17 +66,37 @@ nonebot.logger.add(
 
 class AsyncErrorHandler:
     def write(self, message):
-        # message 是一个 loguru 的 Message 对象
         asyncio.create_task(self.process(message))
 
     async def process(self, message):
         try:
             record = message.record
             if record["level"].name == "ERROR":
-                content = record["message"]
+                # 处理异常 traceback
+                if record["exception"]:
+                    exc_info = record["exception"]
+                    traceback_str = "".join(
+                        traceback.format_exception(
+                            exc_info.type, exc_info.value, exc_info.traceback
+                        )
+                    )
+                else:
+                    traceback_str = "无堆栈信息"
+
+                content = (
+                    f"错误信息: {record['message']}\n"
+                    f"时间: {record['time']}\n"
+                    f"模块: {record['name']}\n"
+                    f"文件: {record['file'].path}\n"
+                    f"行号: {record['line']}\n"
+                    f"函数: {record['function']}\n"
+                    f"堆栈信息:\n{traceback_str}"
+                )
+
                 bot = nonebot.get_bot()
                 if isinstance(bot, Bot):
                     await send_to_admin(content)
+
         except Exception as e:
             nonebot.logger.warning(f"发送群消息失败: {e}")
 
