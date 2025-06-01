@@ -5,7 +5,6 @@ from nonebot import logger, on_command
 from nonebot.adapters.onebot.v11 import Message
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
-from nonebot.rule import to_me
 
 from src.plugins.menu.manager import MatcherData
 
@@ -18,7 +17,6 @@ from src.plugins.menu.manager import MatcherData
         rm_usage="base64 encode/decode [content]",
         rm_desc="Base64编码解码功能",
     ).model_dump(),
-    rule=to_me(),
 ).handle()
 async def base64_runner(matcher: Matcher, args: Message = CommandArg()):
     if location := args.extract_plain_text():

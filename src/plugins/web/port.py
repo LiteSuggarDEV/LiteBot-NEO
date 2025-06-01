@@ -4,7 +4,6 @@ from nonebot import logger, on_command
 from nonebot.adapters.onebot.v11 import Message
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
-from nonebot.rule import to_me
 
 from src.plugins.menu.manager import MatcherData
 
@@ -45,7 +44,6 @@ async def nmap_port(address, port):
         rm_desc="扫描指定主机的端口",
         rm_usage="port [ip:port]",
     ).model_dump(),
-    rule=to_me(),
 ).handle()
 async def _(matcher: Matcher, args: Message = CommandArg()):
     if location := args.extract_plain_text():
