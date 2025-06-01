@@ -6,7 +6,6 @@ from nonebot import on_command
 from nonebot.adapters.onebot.v11 import Message, MessageEvent, MessageSegment
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
-from nonebot.rule import to_me
 
 from src.plugins.menu.manager import MatcherData
 
@@ -35,7 +34,6 @@ def nslookup_all_records(domain):
         rm_desc="域名记录查询",
         rm_usage="nslookup <域名/子域名>",
     ).model_dump(),
-    rule=to_me(),
 ).handle()
 async def nslookup_runner(
     event: MessageEvent, matcher: Matcher, args: Message = CommandArg()

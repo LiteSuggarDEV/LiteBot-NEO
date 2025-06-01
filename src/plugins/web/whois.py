@@ -3,7 +3,6 @@ from nonebot import logger, on_command
 from nonebot.adapters.onebot.v11 import Message, MessageEvent
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
-from nonebot.rule import to_me
 
 from src.plugins.menu.manager import MatcherData
 
@@ -16,7 +15,6 @@ from src.plugins.menu.manager import MatcherData
         rm_desc="域名WHOIS查询",
         rm_usage="whois <top_domain>",
     ).model_dump(),
-    rule=to_me(),
 ).handle()
 async def whois_runner(
     event: MessageEvent, matcher: Matcher, args: Message = CommandArg()

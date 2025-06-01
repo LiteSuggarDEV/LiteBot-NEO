@@ -1,14 +1,13 @@
 from nonebot import CommandGroup
 from nonebot.adapters.onebot.v11 import Bot, Message, MessageEvent
 from nonebot.params import CommandArg
-from nonebot.rule import to_me
 
 from litebot_utils.blacklist.black import bl_manager
 from src.plugins.menu.manager import MatcherData
 
 from .rule import is_admin
 
-pardon = CommandGroup("pardon", priority=10, rule=to_me() & is_admin)
+pardon = CommandGroup("pardon", priority=10, rule=is_admin)
 
 pardon_group = pardon.command(
     "-group",

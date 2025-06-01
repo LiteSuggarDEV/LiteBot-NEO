@@ -5,7 +5,6 @@ from nonebot import on_command
 from nonebot.adapters.onebot.v11 import Message
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
-from nonebot.rule import to_me
 
 from src.plugins.menu.manager import MatcherData
 
@@ -20,7 +19,6 @@ from .utils import is_ip_address, resolve_dns_records
         rm_usage="httping <uri>",
         rm_desc="Get一个网站",
     ).model_dump(),
-    rule=to_me(),
 ).handle()
 async def httping(matcher: Matcher, args: Message = CommandArg()):
     if arg := args.extract_plain_text().strip():
