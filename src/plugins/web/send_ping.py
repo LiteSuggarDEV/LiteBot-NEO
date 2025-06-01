@@ -68,7 +68,7 @@ async def ping_runner(
     result_msg = (
         f"已PING  {address} ({total}个具有64bytes大小发包):"
         + "".join(
-            f"\n第{i + 1}/{len(result)}次 来自 {address} 的响应：{f'{v:.2f}ms' if v is not None else '丢包！'}"
+            f"\n第{i + 1}/{len(result)}次 来自 {address} 的响应：{f'{v * 1000:.2f}ms' if v is not None else '丢包！'}"
             for i, v in enumerate(result)
         )
         + f"\n---统计数据---\n"
