@@ -146,3 +146,5 @@ logs/
 .env.prod
 .env.dev
 .vscode/launch.json
+run.sh
+run.bat
