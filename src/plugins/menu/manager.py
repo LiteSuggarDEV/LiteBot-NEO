@@ -1,9 +1,17 @@
 from dataclasses import dataclass, field
+from pathlib import Path
 
 import nonebot
 import pydantic
+from nonebot.adapters.onebot.v11 import Bot, MessageEvent, MessageSegment
 from nonebot.log import logger
+from nonebot.matcher import Matcher
 from nonebot.plugin import PluginMetadata
+from nonebot_plugin_htmlrender import md_to_pic
+
+from litebot_utils.utils import send_forward_msg
+
+dir_path = Path(__file__).parent
 
 
 class MatcherData(pydantic.BaseModel):
@@ -89,10 +97,16 @@ class MenuManager:
             for group_name, matchers in plugin.matcher_grouping.items():
                 # 只处理顶级菜单（组内所有matcher都没有rm_related）
                 if all(matcher.rm_related is None for matcher in matchers):
-                    for matcher in matchers:
-                        logger.info(f"  - {matcher.rm_name}: {matcher.rm_desc}")
-                        if matcher.rm_usage:
-                            logger.info(f"    └─ 用法:{matcher.rm_usage}" if matcher.rm_usage != "" else "")
+                    for matcher_data in matchers:
+                        logger.info(
+                            f"  - {matcher_data.rm_name}: {matcher_data.rm_desc}"
+                        )
+                        if matcher_data.rm_usage:
+                            logger.info(
+                                f"    └─ 用法:{matcher_data.rm_usage}"
+                                if matcher_data.rm_usage != ""
+                                else ""
+                            )
 
             # 然后打印有子菜单的顶级菜单
             for group_name, matchers in plugin.matcher_grouping.items():
@@ -114,7 +128,11 @@ class MenuManager:
                         if matcher.rm_related is None:
                             logger.info(f"  - {matcher.rm_name}: {matcher.rm_desc}")
                             if matcher.rm_usage != "":
-                                logger.info(f"    └─ 用法:{matcher.rm_usage}" if matcher.rm_usage != "" else "")
+                                logger.info(
+                                    f"    └─ 用法:{matcher.rm_usage}"
+                                    if matcher.rm_usage != ""
+                                    else ""
+                                )
 
                     # 然后打印子菜单
                     for other_matchers in plugin.matcher_grouping.values():
@@ -135,6 +153,72 @@ class MenuManager:
 
 
 menu_mamager = MenuManager()
+
+
+@nonebot.on_fullmatch(("menu", "菜单")).handle()
+async def show_menu(matcher: Matcher, bot: Bot, event: MessageEvent):
+    """显示菜单"""
+    if not menu_mamager.plugins:
+        await matcher.finish("菜单加载失败，请检查日志")
+
+    head = (
+        "# LiteBot 菜单\n\n"
+        + "> 这是 LiteBot 的菜单列表，包含所有可用的功能和用法。\n\n"
+    )
+    # 列出模块
+    head += "## 模块列表\n\n"
+    for plugin in menu_mamager.plugins:
+        if not plugin.metadata or not plugin.matcher_grouping:
+            continue
+        plugin_name = plugin.metadata.name
+        plugin_desc = plugin.metadata.description or "无描述"
+        head += f"\n\n- **{plugin_name}**: {plugin_desc}"
+
+    markdown_menus: list[str] = [head.strip()]
+    # 每个模块的渲染
+    for plugin in menu_mamager.plugins:
+        if not plugin.matcher_grouping or not plugin.metadata:
+            continue
+
+        plugin_title = f"## {plugin.metadata.name}\n"
+        plugin_description = (
+            f"> {plugin.metadata.description}\n\n"
+            if plugin.metadata.description
+            else ""
+        )
+        plugin_markdown = plugin_title + plugin_description
+        for matchers in plugin.matcher_grouping.values():
+            for matcher_data in matchers:
+                plugin_markdown += (
+                    f"- **{matcher_data.rm_name}**: {matcher_data.rm_desc}"
+                )
+                if matcher_data.rm_usage:
+                    plugin_markdown += f"\n    - 用法: `{matcher_data.rm_usage}`"
+                plugin_markdown += "\n\n"
+
+        markdown_menus.append(plugin_markdown.strip())
+
+    # 用 md_to_pic 渲染 Markdown 菜单列表
+    if not markdown_menus:
+        await matcher.finish("没有可用的菜单")
+
+    markdown_menus_pics = [
+        MessageSegment.image(
+            file=await md_to_pic(
+                md=markdown_menus_string, css_path=str(dir_path / "dark.css")
+            )
+        )
+        for markdown_menus_string in markdown_menus
+    ]
+
+    await send_forward_msg(
+        bot,
+        event,
+        name="LiteBot 菜单",
+        uin=str(bot.self_id),
+        msgs=markdown_menus_pics,
+    )
+
 
 driver = nonebot.get_driver()
 
