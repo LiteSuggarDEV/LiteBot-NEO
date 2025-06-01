@@ -21,9 +21,7 @@ jobs:
       - name: Cache virtualenv
         uses: actions/cache@v4
         with:
-          path: |
-            .venv
-            uv.cache
+          path: .venv
           key: ${{ runner.os }}-uv-${{ hashFiles('pyproject.toml', 'uv.lock') }}
           restore-keys: |
             ${{ runner.os }}-uv-
@@ -38,9 +36,8 @@ jobs:
 
       - uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-            packages: nmap
+            packages: nmap libblas-dev
             version: 1.0
-
 
       - name: Get Python path
         run: |
