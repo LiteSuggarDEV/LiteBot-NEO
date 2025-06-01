@@ -67,7 +67,14 @@ async def ping_runner(
         sum(valid_latency) / len(valid_latency) * 1000 if valid_latency else 0
     )  # 转换为毫秒
     latency_info = f"有效平均延迟: {avg_latency:.2f}ms"
-    result_msg = f"""已PING  {address} ({total}个具有64bytes大小发包):{"".join(f"\n第{i}/{len(result)}次 来自 {address} 的响应：{f'{v:2f}ms' if v is not None else '丢包！'}" for i, v in enumerate(result))}
----统计数据---
-共发{total}个包 其中{len([i for i in result if i is None])}个丢包 平均丢包率：{loss_rate} 共用时{time_used} {latency_info}"""
+    result_msg = (
+        f"已PING  {address} ({total}个具有64bytes大小发包):"
+        + "".join(
+            f"\n第{i + 1}/{len(result)}次 来自 {address} 的响应：{f'{v:.2f}ms' if v is not None else '丢包！'}"
+            for i, v in enumerate(result)
+        )
+        + f"\n---统计数据---\n"
+        f"共发{total}个包 其中{lost}个丢包 平均丢包率：{loss_rate} "
+        f"共用时{time_used} {latency_info}"
+    )
     await matcher.send(result_msg)
