@@ -5,6 +5,7 @@ from pathlib import Path
 
 import nonebot
 import pydantic
+from nonebot import get_driver
 from nonebot.adapters.onebot.v11 import Bot, MessageEvent, MessageSegment
 from nonebot.log import logger
 from nonebot.matcher import Matcher
@@ -213,7 +214,15 @@ def generate_markdown_menus(plugins: list[PluginData]) -> list[str]:
     return markdown_menus
 
 
-@nonebot.on_fullmatch(("menu", "菜单")).handle()
+command_start = get_driver().config.command_start
+
+
+@nonebot.on_fullmatch(
+    tuple(
+        [f"{prefix}menu" for prefix in command_start]
+        + [f"{prefix}菜单" for prefix in command_start]
+    )
+).handle()
 async def show_menu(matcher: Matcher, bot: Bot, event: MessageEvent):
     """显示菜单"""
     if not menu_mamager.plugins:
@@ -242,10 +251,7 @@ async def show_menu(matcher: Matcher, bot: Bot, event: MessageEvent):
     )
 
 
-driver = nonebot.get_driver()
-
-
-@driver.on_startup
+@get_driver().on_startup
 async def load_menus():
     """加载菜单并预渲染图片"""
     menu_mamager.load_menus()

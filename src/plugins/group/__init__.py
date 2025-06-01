@@ -25,10 +25,12 @@ __plugin_meta__ = PluginMetadata(
     type="application",
 )
 
+command_start = get_driver().config.command_start
 
-switch = on_fullmatch("switch")
+
+switch = on_fullmatch(tuple(f"{prefix}switch" for prefix in command_start))
 recall = on_message()
-welcome_switch = on_fullmatch("welcome")
+welcome_switch = on_fullmatch(tuple(f"{prefix}welcome" for prefix in command_start))
 
 
 @switch.handle()
