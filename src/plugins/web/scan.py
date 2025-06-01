@@ -13,7 +13,7 @@ from nonebot.adapters.onebot.v11 import (
 from nonebot.params import CommandArg
 
 from litebot_utils.utils import send_to_admin
-from plugins.menu.manager import MatcherData
+from src.plugins.menu.manager import MatcherData
 
 from .utils import (
     is_domain_refer_to_private_network,
