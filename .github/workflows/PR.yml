@@ -31,13 +31,12 @@ jobs:
 
       - name: Set environment
         run: |
-          uv venv
+          uv venv .venv
           uv sync
 
-      - uses: awalsh128/cache-apt-pkgs-action@latest
-        with:
-            packages: nmap libblas-dev
-            execute_install_scripts: true
+      - name: Install dependencies
+        run : |
+            sudo apt install nmap -y
 
       - name: Get Python path
         run: |
