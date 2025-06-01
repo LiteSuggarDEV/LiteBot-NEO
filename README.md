@@ -4,7 +4,7 @@
 
 ## LiteBot完全重构版
 
-## 如何开始？
+### 如何开始？
 
 1. 克隆仓库 `git clone https://github.com/LiteSuggarDEV/LiteBot-NEO.git`
 2. 打开文件夹 `cd LiteBot-NEO`
