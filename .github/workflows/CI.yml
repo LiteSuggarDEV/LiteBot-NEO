@@ -10,6 +10,7 @@ on:
 
 jobs:
   runTest:
+    name: Run Tests on Push
     if: ${{ !contains(github.event.head_commit.message, '[ci skip]') && !contains(github.event.head_commit.message, '[skip ci]') }}
     runs-on: ubuntu-latest
 

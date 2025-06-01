@@ -9,6 +9,7 @@ on:
 
 jobs:
   runTest:
+    name: Run Tests on Pull Request
     runs-on: ubuntu-latest
 
     steps:
