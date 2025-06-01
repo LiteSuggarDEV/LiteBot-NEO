@@ -16,9 +16,9 @@ nonebot.init()
 driver = nonebot.get_driver()
 driver.register_adapter(ONEBOT_V11Adapter)
 
-from litebot_utils.utils import send_to_admin
-
 nonebot.load_from_toml("pyproject.toml")
+
+from litebot_utils.utils import send_to_admin
 
 if TYPE_CHECKING:
     # avoid sphinx autodoc resolve annotation failed
