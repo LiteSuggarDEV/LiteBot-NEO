@@ -5,12 +5,12 @@ from pathlib import Path
 from typing import Optional
 
 from nonebot import logger, require
+
+require("nonebot_plugin_localstore")
 from nonebot_plugin_localstore import get_config_dir
 from pydantic import BaseModel
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
-
-require("nonebot_plugin_localstore")
 
 config_dir = get_config_dir("LiteBot")
 

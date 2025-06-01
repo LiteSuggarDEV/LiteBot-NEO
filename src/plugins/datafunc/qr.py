@@ -1,4 +1,5 @@
 import io
+import base64
 
 import qrcode
 from nonebot import logger, on_command
@@ -22,7 +23,10 @@ async def qr_runner(matcher: Matcher, event: MessageEvent):
             bytesio = io.BytesIO()
             img.save(bytesio, "PNG")
             qrbytes = bytesio.getvalue()
-            message = MessageSegment.image(qrbytes, cache=False, proxy=False)
+            base64_str = base64.b64encode(qrbytes).decode()
+            message = MessageSegment.image(
+                f"base64://{base64_str}", cache=False, proxy=False
+            )
             logger.debug(message)
             await matcher.send(message)
         except Exception as e:

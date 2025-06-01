@@ -145,3 +145,4 @@ logs/
 .env
 .env.prod
 .env.dev
+.vscode/launch.json

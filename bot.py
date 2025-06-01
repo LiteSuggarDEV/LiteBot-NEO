@@ -11,15 +11,14 @@ from nonebot.adapters.onebot.v11 import Adapter as ONEBOT_V11Adapter
 from nonebot.adapters.onebot.v11 import Bot
 from nonebot.log import default_format, logger_id
 
-from litebot_utils.utils import send_to_admin
-
 nonebot.init()
 
 driver = nonebot.get_driver()
 driver.register_adapter(ONEBOT_V11Adapter)
 
-
 nonebot.load_from_toml("pyproject.toml")
+
+from litebot_utils.utils import send_to_admin
 
 if TYPE_CHECKING:
     # avoid sphinx autodoc resolve annotation failed

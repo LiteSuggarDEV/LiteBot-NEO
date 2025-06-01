@@ -12,6 +12,7 @@ dependencies = [
     "nonebot-plugin-mclib>=0.0.3.post2",
     "nonebot-plugin-tortoise-orm>=0.1.4",
     "nonebot2[fastapi]>=2.4.2",
+    "pillow>=11.2.1",
     "ping3>=4.0.8",
     "pip>=25.1.1",
     "psutil>=7.0.0",
