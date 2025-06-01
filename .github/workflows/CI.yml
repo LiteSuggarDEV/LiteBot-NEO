@@ -35,7 +35,6 @@ jobs:
           uv venv
           uv sync
 
-      - uses: actions/checkout@v4
       - uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           packages: nmap
