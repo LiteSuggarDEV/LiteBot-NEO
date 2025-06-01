@@ -6,12 +6,13 @@ from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
 from nonebot.rule import to_me
 
-from litebot_utils.web_utils import (
+from src.plugins.menu.manager import MatcherData
+
+from .utils import (
     is_domain_refer_to_private_network,
     is_ip_address,
     is_ip_in_private_network,
 )
-from src.plugins.menu.manager import MatcherData
 
 nm = nmap.PortScanner()
 
