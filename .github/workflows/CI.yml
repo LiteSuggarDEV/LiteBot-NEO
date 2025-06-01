@@ -37,8 +37,11 @@ jobs:
             uv venv
             uv sync
 
-      - name: Install nmap
-        run: sudo apt-get install -y nmap
+      - uses: actions/checkout@v4
+      - uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+            packages: nmap
+            version: 1.0
 
       - name: Get Python path
         run: |
