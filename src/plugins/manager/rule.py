@@ -4,4 +4,4 @@ from litebot_utils.config import ConfigManager
 
 
 async def is_admin(event: MessageEvent) -> bool:
-    return str(event.user_id) in ConfigManager.instance().config.admins
+    return event.user_id in ConfigManager.instance().config.admins

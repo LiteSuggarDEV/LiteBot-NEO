@@ -22,8 +22,8 @@ async def _(bot: Bot, event: MessageEvent):
     await clean_groups.send("开始清理低群人数群组...")
     groups = await bot.get_group_list()
     for group in groups:
-        members = {
-            str(member["user_id"])
+        members: set[int] = {
+            member["user_id"]
             for member in await bot.get_group_member_list(group_id=group["group_id"])
         }
         admins = set(ConfigManager.instance().config.admins)
