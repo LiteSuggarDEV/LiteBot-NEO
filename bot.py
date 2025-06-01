@@ -66,7 +66,7 @@ nonebot.logger.add(
 
 class AsyncErrorHandler:
     def write(self, message):
-        asyncio.create_task(self.process(message))
+        self.task = asyncio.create_task(self.process(message))
 
     async def process(self, message):
         try:
