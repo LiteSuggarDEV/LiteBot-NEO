@@ -4,6 +4,8 @@ from nonebot.adapters.onebot.v11 import Bot
 from nonebot.adapters.onebot.v11.event import GroupMessageEvent, MessageEvent
 from nonebot.adapters.onebot.v11.message import MessageSegment
 
+from litebot_utils.config import ConfigManager
+
 
 async def send_to_admin(message):
     """
@@ -14,7 +16,8 @@ async def send_to_admin(message):
     """
     bot = nonebot.get_bot()
     if isinstance(bot, Bot):
-        await bot.send_group_msg(group_id=966016220, message=message)
+        for group_id in ConfigManager.instance().config.notify_group:
+            await bot.send_group_msg(group_id=group_id, message=message)
     logger.info(f"Sending to admin: {message}")
 
 
