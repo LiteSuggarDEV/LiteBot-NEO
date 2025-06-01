@@ -9,10 +9,11 @@ from nonebot.params import CommandArg
 from nonebot.rule import to_me
 from ping3 import ping
 
-from litebot_utils.web_utils import (
+from src.plugins.menu.manager import MatcherData
+
+from .utils import (
     is_domain_refer_to_private_network,
 )
-from src.plugins.menu.manager import MatcherData
 
 
 @on_command(
