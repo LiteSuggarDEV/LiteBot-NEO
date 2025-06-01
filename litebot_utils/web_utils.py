@@ -4,24 +4,6 @@ import dns.resolver
 from nonebot import logger
 
 
-def is_valid_domain(domain: str) -> bool:
-    """
-    检查字符串是否为有效的域名
-    :param domain: 要检查的字符串
-    :return: 如果是有效的域名返回True，否则返回False
-    """
-    try:
-        dns.resolver.resolve(domain, "A")
-        return True
-    except dns.resolver.NoAnswer:
-        return False
-    except dns.resolver.NXDOMAIN:
-        return False
-    except Exception as e:
-        logger.warning(f"DNS解析错误: {e!s}")
-        return False
-
-
 def is_domain_refer_to_private_network(domain: str) -> bool:
     """
     检查域名是否指向私有网络
