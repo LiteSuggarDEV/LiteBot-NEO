@@ -122,8 +122,7 @@ async def start_background_task(host, user_id, event,arg1):
 async def _(event: MessageEvent, args: Message = CommandArg()):
     location = args.extract_plain_text()
     if not location:
-        await map_scan.send("请输入地址！格式<host>")
-        return
+        await map_scan.finish("请输入地址！格式<host>")
 
     cmd = location.split(maxsplit=1)
     if len(cmd) <= 1:
@@ -132,31 +131,25 @@ async def _(event: MessageEvent, args: Message = CommandArg()):
     if "gov.cn" in cmd[0] or "gov.hk" in cmd[0]:
         await send_to_admin (f"{event.user_id} 尝试扫描gov网站！")
         return
-    if not 65535 > int(cmd[1]) > 0:
-        await map_scan.send("不合法端口范围！")
-        return
+    if not cmd[1].isdigit() or not 65535 > int(cmd[1]) > 0:
+        await map_scan.finish("不合法端口范围！")
     if (not is_valid_domain(cmd[0]) and not is_ip_address(cmd[0])) or (
         is_domain_refer_to_private_network(cmd[0]) or is_ip_in_private_network(cmd[0])
     ):
-        await map_scan.send("请输入正确地址！")
-        return
+        await map_scan.finish("请输入正确地址！")
     try:
         if not is_ip_address(cmd[0]):
             answers = resolve_dns_records(cmd[0])
             if  not answers:
-                await map_scan.send("请输入正确的地址！")
-                return
+                await map_scan.finish("请输入正确的地址！")
             for answer in answers:
                 if is_ip_in_private_network(str(answer)):
-                    await map_scan.send("不允许查询此地址！")
-                    return
+                    await map_scan.finish("不允许查询此地址！")
     except Exception:
-        await map_scan.send("无法查询该地址。")
-        return
+        await map_scan.finish("无法查询该地址。")
 
     if task_queue.full():
-        await map_scan.send("队列已经满！请稍后再尝试。")
-        return
+        await map_scan.finish("队列已经满！请稍后再尝试。")
 
     await map_scan.send("少女祈祷中（notice:此结果稍后会发送。）")
 
