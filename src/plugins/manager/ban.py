@@ -26,6 +26,10 @@ ban_user = ban.command(
 @ban_group.handle()
 async def _(bot: Bot, event: MessageEvent, args: Message = CommandArg()):
     arg_list = args.extract_plain_text().strip().split(maxsplit=1)
+    if not arg_list:
+        await ban_group.finish("参数不能为空。")
+    if not arg_list[0]:
+        await ban_group.finish("参数0不合法。")
     if await bl_manager.is_group_black(arg_list[0]):
         await ban_group.finish("该群已被封禁！")
     else:
@@ -38,6 +42,8 @@ async def _(bot: Bot, event: MessageEvent, args: Message = CommandArg()):
 @ban_user.handle()
 async def ban_user_handle(args: Message = CommandArg()):
     arg_list = args.extract_plain_text().strip().split(maxsplit=1)
+    if not arg_list[0]:
+        await ban_user.finish("参数0不合法。")
     if await bl_manager.is_private_black(arg_list[0]):
         await ban_user.finish("该用户已被封禁！")
     else:
