@@ -5,16 +5,26 @@ from pathlib import Path
 
 import nonebot
 import pydantic
-from nonebot import get_driver
-from nonebot.adapters.onebot.v11 import Bot, MessageEvent, MessageSegment
+from nonebot import get_driver, on_command
+from nonebot.adapters.onebot.v11 import (
+    Bot,
+    Message,
+    MessageEvent,
+    MessageSegment,
+)
 from nonebot.log import logger
 from nonebot.matcher import Matcher
+from nonebot.params import CommandArg
 from nonebot.plugin import PluginMetadata
 from nonebot_plugin_htmlrender import md_to_pic
+from nonebot_plugin_localstore import get_config_dir
 
 from litebot_utils.utils import send_forward_msg
 
 dir_path = Path(__file__).parent
+CSS_PATH = str(dir_path / "dark.css")
+PAGE_DIR = get_config_dir("LiteBot") / "pages"
+PAGE_DIR.mkdir(parents=True, exist_ok=True)
 _md_cache: dict[str, str] = {}
 
 
@@ -217,6 +227,58 @@ def generate_markdown_menus(plugins: list[PluginData]) -> list[str]:
 command_start = get_driver().config.command_start
 
 
+page_cmd = on_command(
+    "page",
+    aliases={"页面"},
+    state=MatcherData(
+        rm_name="page",
+        rm_desc="显示自定义页面",
+        rm_usage="page <name|list>",
+    ).model_dump(),
+)
+
+
+@page_cmd.handle()
+async def handle_page(matcher: Matcher, args: Message = CommandArg()):
+    arg = args.extract_plain_text().strip()
+    if not arg:
+        await matcher.finish("请输入页面名或 list")
+
+    if arg == "list":
+        if pages := [p.stem for p in PAGE_DIR.glob("*.md")]:
+            await matcher.finish("可用页面:\n" + "\n".join(pages))
+        await matcher.finish("暂无页面")
+
+    page_file = PAGE_DIR / f"{arg}.md"
+    if not page_file.exists():
+        await matcher.finish("页面不存在")
+
+    md_text = page_file.read_text(encoding="utf-8")
+    img = await cached_md_to_pic(md=md_text, css_path=str(CSS_PATH))
+    await matcher.finish(MessageSegment.image(file=img))
+
+
+md_cmd = on_command(
+    "md",
+    aliases={"markdown"},
+    state=MatcherData(
+        rm_name="md",
+        rm_desc="渲染 Markdown 为图片",
+        rm_usage="md <content>",
+    ).model_dump(),
+)
+
+
+@md_cmd.handle()
+async def handle_md(matcher: Matcher, args: Message = CommandArg()):
+    md_text = args.extract_plain_text().strip()
+    if not md_text:
+        await matcher.finish("请输入 Markdown 内容")
+
+    img = await cached_md_to_pic(md=md_text, css_path=str(CSS_PATH))
+    await matcher.finish(MessageSegment.image(file=img))
+
+
 @nonebot.on_fullmatch(
     tuple(
         [f"{prefix}menu" for prefix in command_start]
@@ -235,9 +297,7 @@ async def show_menu(matcher: Matcher, bot: Bot, event: MessageEvent):
 
     markdown_menus_pics = [
         MessageSegment.image(
-            file=await cached_md_to_pic(
-                md=markdown_menus_string, css_path=str(dir_path / "dark.css")
-            )
+            file=await cached_md_to_pic(md=markdown_menus_string, css_path=CSS_PATH)
         )
         for markdown_menus_string in markdown_menus
     ]
@@ -261,5 +321,5 @@ async def load_menus():
 
     logger.info("开始预渲染菜单图片...")
     for md_str in markdown_menus:
-        await cached_md_to_pic(md=md_str, css_path=str(dir_path / "dark.css"))
+        await cached_md_to_pic(md=md_str, css_path=CSS_PATH)
     logger.info("菜单图片预渲染完成")
