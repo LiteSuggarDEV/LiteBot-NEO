@@ -14,8 +14,8 @@ from nonebot.matcher import Matcher
 from nonebot.plugin import PluginMetadata
 
 from litebot_utils.models import GroupConfig
+from litebot_utils.rule import is_admin
 from litebot_utils.utils import send_to_admin
-from plugins.manager.rule import is_admin
 
 from .utils import get_disk_usage_percentage
 
@@ -47,7 +47,6 @@ async def _(event: GroupMessageEvent, matcher: Matcher):
     await matcher.send(
         f"该群LiteBot已经 {'开启' if group_config.switch else '关闭'} ！"
     )
-
 
 
 @recall.handle()

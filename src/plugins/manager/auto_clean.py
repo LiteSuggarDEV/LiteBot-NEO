@@ -1,10 +1,9 @@
-from nonebot import on_command, logger
+from nonebot import logger, on_command
 from nonebot.adapters.onebot.v11 import Bot, MessageEvent
 
 from litebot_utils.config import ConfigManager
+from litebot_utils.rule import is_admin
 from src.plugins.menu.manager import MatcherData
-
-from .rule import is_admin
 
 clean_groups = on_command(
     "clean_groups",
@@ -25,7 +24,9 @@ async def _(bot: Bot, event: MessageEvent):
         try:
             members: set[int] = {
                 member["user_id"]
-                for member in await bot.get_group_member_list(group_id=group["group_id"])
+                for member in await bot.get_group_member_list(
+                    group_id=group["group_id"]
+                )
             }
         except Exception as e:
             logger.error(f"获取群成员信息失败: {e!s}")
