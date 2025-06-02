@@ -66,6 +66,7 @@ class ConfigManager:
 
     async def reload_config(self) -> Config:
         await self.load_config()
+        logger.info("配置文件已重新加载")
         return self._config
 
     async def save_config(self) -> None:
