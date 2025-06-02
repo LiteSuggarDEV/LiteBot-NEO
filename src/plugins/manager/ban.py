@@ -26,6 +26,8 @@ ban_user = ban.command(
 @ban_group.handle()
 async def _(bot: Bot, event: MessageEvent, args: Message = CommandArg()):
     arg_list = args.extract_plain_text().strip().split(maxsplit=1)
+    if not arg_list:
+        await ban_group.finish("参数不能为空。")
     if not arg_list[0]:
         await ban_group.finish("参数0不合法。")
     if await bl_manager.is_group_black(arg_list[0]):
