@@ -26,7 +26,7 @@ ban_user = ban.command(
 @ban_group.handle()
 async def _(args: Message = CommandArg()):
     arg_list = args.extract_plain_text().strip().split(maxsplit=1)
-    if len(arg_list) != 1:
+    if not arg_list and len(arg_list) <= 2:
         await ban_group.finish("请提供要封禁的群ID！")
     if await bl_manager.is_group_black(arg_list[0]):
         await ban_group.finish("该群已被封禁！")
@@ -40,7 +40,7 @@ async def _(args: Message = CommandArg()):
 @ban_user.handle()
 async def ban_user_handle(args: Message = CommandArg()):
     arg_list = args.extract_plain_text().strip().split(maxsplit=1)
-    if len(arg_list) != 1:
+    if not arg_list and len(arg_list) <= 2:
         await ban_group.finish("请提供要封禁的用户ID！")
     if await bl_manager.is_private_black(arg_list[0]):
         await ban_user.finish("该用户已被封禁！")
