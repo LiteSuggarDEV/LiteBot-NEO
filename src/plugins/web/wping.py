@@ -35,7 +35,7 @@ async def httping(matcher: Matcher, args: Message = CommandArg()):
                 async with session.get(url) as response:
                     end_time = time.time()
                     latency = end_time - start_time
-                    await matcher.finish(
+                    await matcher.send(
                         f"{url}\nHttp版本{response.version}\n响应状态码：{response.status}\n延迟{latency:.2f}ms"
                     )
         except TimeoutError:
