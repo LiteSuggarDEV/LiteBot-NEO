@@ -3,9 +3,8 @@ from nonebot.adapters.onebot.v11 import Message
 from nonebot.params import CommandArg
 
 from litebot_utils.blacklist.black import bl_manager
+from litebot_utils.rule import is_admin
 from src.plugins.menu.manager import MatcherData
-
-from .rule import is_admin
 
 ban = CommandGroup("ban", rule=is_admin)
 

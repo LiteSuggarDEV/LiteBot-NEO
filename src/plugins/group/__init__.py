@@ -14,6 +14,7 @@ from nonebot.matcher import Matcher
 from nonebot.plugin import PluginMetadata
 
 from litebot_utils.models import GroupConfig
+from litebot_utils.rule import is_admin
 from litebot_utils.utils import send_to_admin
 
 from .utils import get_disk_usage_percentage
@@ -48,17 +49,14 @@ async def _(event: GroupMessageEvent, matcher: Matcher):
     )
 
 
-SUPERUSER_list = list(get_driver().config.superusers)
-
-
 @recall.handle()
 async def _(event: GroupMessageEvent, bot: Bot, matcher: Matcher):
-    gid = event.group_id
-    uid = event.user_id
     if "/recall" not in event.raw_message:
         return
+    gid = event.group_id
+    uid = event.user_id
     user_info = await bot.get_group_member_info(group_id=gid, user_id=uid)
-    if user_info["role"] == "member" and str(uid) not in SUPERUSER_list:
+    if user_info["role"] == "member" and not is_admin(event):
         await matcher.finish("你还没有权限执行")
 
     if not event.reply:

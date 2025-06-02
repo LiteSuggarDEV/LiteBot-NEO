@@ -3,10 +3,9 @@ from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, Message, Message
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
 
+from litebot_utils.rule import is_admin
 from litebot_utils.utils import send_to_admin
 from src.plugins.menu.manager import MatcherData
-
-from .rule import is_admin
 
 
 @on_command(
