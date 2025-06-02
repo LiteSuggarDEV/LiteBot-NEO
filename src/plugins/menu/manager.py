@@ -17,13 +17,13 @@ from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
 from nonebot.plugin import PluginMetadata
 from nonebot_plugin_htmlrender import md_to_pic
-from nonebot_plugin_localstore import get_plugin_data_dir
+from nonebot_plugin_localstore import get_config_dir
 
 from litebot_utils.utils import send_forward_msg
 
 dir_path = Path(__file__).parent
 CSS_PATH = str(dir_path / "dark.css")
-PAGE_DIR = get_plugin_data_dir() / "pages"
+PAGE_DIR = get_config_dir("LiteBot") / "pages"
 PAGE_DIR.mkdir(parents=True, exist_ok=True)
 _md_cache: dict[str, str] = {}
 
