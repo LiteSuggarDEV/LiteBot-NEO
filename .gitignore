@@ -148,3 +148,4 @@ logs/
 .vscode/launch.json
 run.sh
 run.bat
+config/
