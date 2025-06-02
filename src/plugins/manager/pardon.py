@@ -1,5 +1,5 @@
 from nonebot import CommandGroup
-from nonebot.adapters.onebot.v11 import Bot, Message, MessageEvent
+from nonebot.adapters.onebot.v11 import Message
 from nonebot.params import CommandArg
 
 from litebot_utils.blacklist.black import bl_manager
@@ -24,8 +24,10 @@ pardon_user = pardon.command(
 
 
 @pardon_group.handle()
-async def _(bot: Bot, event: MessageEvent, args: Message = CommandArg()):
+async def _(args: Message = CommandArg()):
     arg = args.extract_plain_text().strip()
+    if not arg:
+        await pardon_group.finish("请提供要解封的群ID！")
     if not await bl_manager.is_group_black(arg):
         await pardon_group.finish("该群未被封禁！")
     else:
@@ -36,6 +38,8 @@ async def _(bot: Bot, event: MessageEvent, args: Message = CommandArg()):
 @pardon_user.handle()
 async def pardon_user_handle(args: Message = CommandArg()):
     arg = args.extract_plain_text().strip()
+    if not arg:
+        await pardon_group.finish("请提供要解封的用户ID！")
     if not await bl_manager.is_private_black(arg):
         await pardon_user.finish("该用户没有被封禁！")
     else:
