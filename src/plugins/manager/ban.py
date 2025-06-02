@@ -7,7 +7,7 @@ from src.plugins.menu.manager import MatcherData
 
 from .rule import is_admin
 
-ban = CommandGroup("ban", priority=10, rule=is_admin)
+ban = CommandGroup("ban", priority=1, rule=is_admin)
 
 ban_group = ban.command(
     "-group",
