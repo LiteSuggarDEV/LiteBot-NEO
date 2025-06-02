@@ -30,7 +30,7 @@ command_start = get_driver().config.command_start
 
 
 switch = on_fullmatch(tuple(f"{prefix}switch" for prefix in command_start))
-recall = on_message(rule=is_admin)
+recall = on_message()
 welcome_switch = on_fullmatch(tuple(f"{prefix}welcome" for prefix in command_start))
 
 
@@ -51,10 +51,10 @@ async def _(event: GroupMessageEvent, matcher: Matcher):
 
 @recall.handle()
 async def _(event: GroupMessageEvent, bot: Bot, matcher: Matcher):
-    gid = event.group_id
-    uid = event.user_id
     if "/recall" not in event.raw_message:
         return
+    gid = event.group_id
+    uid = event.user_id
     user_info = await bot.get_group_member_info(group_id=gid, user_id=uid)
     if user_info["role"] == "member" and not is_admin(event):
         await matcher.finish("你还没有权限执行")
