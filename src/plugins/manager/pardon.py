@@ -31,8 +31,8 @@ async def _(args: Message = CommandArg()):
     if not await bl_manager.is_group_black(arg):
         await pardon_group.finish("该群未被封禁！")
     else:
-        await bl_manager.group_remove(arg_list)
-        await pardon_group.finish(f"解封禁群{arg_list}成功！")
+        await bl_manager.group_remove(arg)
+        await pardon_group.finish(f"解封禁群{arg}成功！")
 
 
 @pardon_user.handle()
@@ -43,5 +43,5 @@ async def pardon_user_handle(args: Message = CommandArg()):
     if not await bl_manager.is_private_black(arg):
         await pardon_user.finish("该用户没有被封禁！")
     else:
-        await bl_manager.private_remove(arg_list)
-        await pardon_user.finish(f"解封禁用户{arg_list}成功！")
+        await bl_manager.private_remove(arg)
+        await pardon_user.finish(f"解封禁用户{arg}成功！")
