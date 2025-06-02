@@ -7,7 +7,7 @@ from src.plugins.menu.manager import MatcherData
 
 from .rule import is_admin
 
-pardon = CommandGroup("pardon", priority=10, rule=is_admin)
+pardon = CommandGroup("pardon", priority=1, rule=is_admin)
 
 pardon_group = pardon.command(
     "-group",

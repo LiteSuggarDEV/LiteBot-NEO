@@ -148,3 +148,6 @@ logs/
 .vscode/launch.json
 run.sh
 run.bat
+config/
+data/nonebot_plugin_tortoise_orm/db.sqlite3-wal
+data/nonebot_plugin_tortoise_orm/db.sqlite3-shm
