@@ -10,6 +10,7 @@ from nonebot.adapters.onebot.v11 import (
     MessageEvent,
     MessageSegment,
 )
+from nonebot.exception import NoneBotException
 from nonebot.params import CommandArg
 
 from litebot_utils.utils import send_to_admin
@@ -34,7 +35,7 @@ map_scan = on_command(
 )
 
 
-def scan_ports_sync(host,arg1:None|str=None):
+def scan_ports_sync(host, arg1: None | str = None):
     nm = nmap.PortScanner()
     if arg1 is None:
         arg1 = "1-1023"
@@ -81,14 +82,14 @@ def scan_ports_sync(host,arg1:None|str=None):
     return port_info_list
 
 
-async def scan_ports(host, user_id, event,arg1 :None|str=None):
+async def scan_ports(host, user_id, event, arg1: None | str = None):
     try:
         # 在任务队列中等待获取任务
         await task_queue.put(user_id)
 
         # 此处确保 scan_ports_sync 返回一个可迭代对象
         info_list = await asyncio.get_event_loop().run_in_executor(
-            executor, scan_ports_sync, (host,arg1)
+            executor, scan_ports_sync, (host, arg1)
         )
 
         # 确保 port_info_list 是一个可迭代列表
@@ -111,9 +112,9 @@ async def scan_ports(host, user_id, event,arg1 :None|str=None):
         user_tasks.pop(user_id, None)
 
 
-async def start_background_task(host, user_id, event,arg1):
+async def start_background_task(host, user_id, event, arg1):
     if user_id not in user_tasks:  # 防止同一用户同时运行多个任务
-        await scan_ports(host, user_id, event,arg1)
+        await scan_ports(host, user_id, event, arg1)
     else:
         logger.info(f"用户 {user_id} 的任务正在运行中。")
 
@@ -129,10 +130,15 @@ async def _(event: MessageEvent, args: Message = CommandArg()):
         cmd = []
         cmd.extend((location, "1-1023"))
     if "gov.cn" in cmd[0] or "gov.hk" in cmd[0]:
-        await send_to_admin (f"{event.user_id} 尝试扫描gov网站！")
+        await send_to_admin(f"{event.user_id} 尝试扫描gov网站！")
         return
-    if not cmd[1].isdigit() or not 65535 > int(cmd[1]) > 0:
+    port_range = cmd[1].split("-")
+    if len(port_range) != 2:
+        await map_scan.finish("请输入正确的端口范围！")
+    if not port_range[0].isdigit() or not port_range[1].isdigit():
         await map_scan.finish("不合法端口范围！")
+    if not 65535 > int(port_range[0]) > 0 or not 65535 > int(port_range[1]) > 0:
+        await map_scan.finish("请输入正确的端口范围！")
     if (not is_valid_domain(cmd[0]) and not is_ip_address(cmd[0])) or (
         is_domain_refer_to_private_network(cmd[0]) or is_ip_in_private_network(cmd[0])
     ):
@@ -140,11 +146,13 @@ async def _(event: MessageEvent, args: Message = CommandArg()):
     try:
         if not is_ip_address(cmd[0]):
             answers = resolve_dns_records(cmd[0])
-            if  not answers:
+            if not answers:
                 await map_scan.finish("请输入正确的地址！")
             for answer in answers:
                 if is_ip_in_private_network(str(answer)):
                     await map_scan.finish("不允许查询此地址！")
+    except NoneBotException as e:
+        raise e
     except Exception:
         await map_scan.finish("无法查询该地址。")
 
@@ -155,4 +163,4 @@ async def _(event: MessageEvent, args: Message = CommandArg()):
 
     arg1 = cmd[1] if len(cmd) > 1 else None
     # 将任务放入队列，开始执行
-    await start_background_task(cmd[0], event.user_id, event,arg1)
+    await start_background_task(cmd[0], event.user_id, event, arg1)
