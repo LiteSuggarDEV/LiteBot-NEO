@@ -1,11 +1,10 @@
-import ipaddress
-import sys
+import re
 
 import dns.resolver
 from mcstatus import BedrockServer, JavaServer
-from mcstatus.status_response import BedrockStatusResponse
+from mcstatus.status_response import BedrockStatusResponse, JavaStatusResponse
 from nonebot import logger, on_command
-from nonebot.adapters.onebot.v11 import Bot, Message, MessageEvent
+from nonebot.adapters.onebot.v11 import Message
 from nonebot.params import CommandArg
 
 from src.plugins.menu.manager import MatcherData
@@ -36,12 +35,12 @@ async def resolve_srv_record(host: str):
         srv_ans = dns.resolver.resolve(query, "SRV")
         return [
             {
-                "priority": r.priority,  # type: ignore
-                "weight": r.weight,  # type: ignore
-                "port": r.port,  # type: ignore
-                "target": r.target.to_text(),  # type: ignore
+                "priority": r.priority,
+                "weight": r.weight,
+                "port": r.port,
+                "target": r.target.to_text(),
             }
-            for r in srv_ans
+            for r in srv_ans.response.answer[0].items
         ]
     except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN) as e:
         logger.warning(f"SRV lookup failed: {e!s}")
@@ -55,96 +54,109 @@ def parse_host_port(location: str) -> tuple[str, int]:
     return host, port
 
 
-async def get_server_status(host: str, port: int) -> tuple[JavaServer, dict]:
-    server = JavaServer.lookup(f"{host}:{port}")
-    status = server.status()
-    return server, status.raw  # type: ignore
+async def get_server_status(address: str) -> JavaStatusResponse:
+    server = await JavaServer.async_lookup(address)
+    return await server.async_status()
 
 
-def resolve_a_record(host: str) -> str:
-    return str(dns.resolver.resolve(host, "A")[0])
+async def get_ip(address: str) -> str:
+    """获取服务器IP地址"""
+    host, port = parse_host_port(address)
+    try:
+        a_record = dns.resolver.resolve(host, "A")[0]
+        logger.info(f"A record for {host}: {a_record}")
+        return str(a_record)
+    except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN):
+        srv_records = await resolve_srv_record(host)
+        logger.info(f"SRV records for {host}: {srv_records}")
+        if srv_records:
+            srv_host = srv_records[0]["target"]
+            try:
+                a_record = dns.resolver.resolve(srv_host, "A")[0]
+                return str(a_record)
+            except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN):
+                return srv_host
+        return host
 
 
-def format_be_status_message(raw: BedrockStatusResponse, address: str) -> str:
+def format_be_status_message(
+    address: str, status_response: BedrockStatusResponse
+) -> str:
+    # 正则过滤motd的颜色字符和多余的空格
+    motd = re.sub(
+        r"\n\s*",
+        "\n",
+        re.sub(
+            r"§[0-9a-fk-or]",
+            "",
+            status_response.motd.to_minecraft(),
+            flags=re.IGNORECASE,
+        ),
+    )
     return (
         "成功获取到服务器信息！\n"
         + f"服务器地址：{address}\n"
-        + f"服务器版本/信息：{raw.version}\n"
-        + f"延迟：{int(raw.latency)}ms\n"
-        + f"地图名称：{raw.map_name}\n"
-        + f"游戏模式：{raw.gamemode}\n"
-        + f"玩家数{raw.players.online}/{raw.players.max}\n"
-        + f"玩家数：{raw.players_online}/{raw.players_max}\n"  # type: ignore
-        + f"MOTD: {raw.motd}\n"
+        + f"服务器版本/信息：{status_response.version}\n"
+        + f"延迟：{int(status_response.latency)}ms\n"
+        + f"地图名称：{status_response.map_name}\n"
+        + f"游戏模式：{status_response.gamemode}\n"
+        + f"玩家数{status_response.players.online}/{status_response.players.max}\n"
+        + f"玩家数：{status_response.players.online}/{status_response.players.max}\n"
+        + f"MOTD: {motd}\n"
     )
 
 
 def format_status_message(
-    host: str, port: int, ip: str, data: dict, latency: float
+    address: str, ip: str, status_response: JavaStatusResponse
 ) -> str:
-    return f"""成功获取到服务器信息！
-服务器地址：{host}:{port}
-服务器IP：{ip}
-服务器延迟：{int(latency)}ms
-服务器协议版本：{data["version"]["protocol"]}
-服务端版本/信息：{data["version"]["name"]}
-MOTD: {data["description"].get("text", data["description"])}
-玩家数：{data["players"]["online"]}/{data["players"]["max"]}"""
+    # 正则过滤motd的颜色字符和多余的空格
+    motd = re.sub(
+        r"\n\s*",
+        "\n",
+        re.sub(
+            r"§[0-9a-fk-or]",
+            "",
+            status_response.motd.to_minecraft(),
+            flags=re.IGNORECASE,
+        ),
+    )
+    return (
+        "成功获取到服务器信息！\n"
+        + f"服务器地址：{address}\n"
+        + f"服务器IP：{ip}\n"
+        + f"服务器延迟：{status_response.latency}ms\n"
+        + f"服务器协议版本：{status_response.version.protocol}\n"
+        + f"服务端版本/信息：{status_response.version.name}\n"
+        + f"玩家数：{status_response.players.online}/{status_response.players.max}\n"
+        + f"MOTD: {motd}"
+    )
 
 
 @java_status.handle()
-async def _(event: MessageEvent, bot: Bot, args: Message = CommandArg()):
+async def _(args: Message = CommandArg()):
     if not (location := args.extract_plain_text()):
-        await java_status.send("请输入地址！格式：server_ip:port")
+        await java_status.send("请输入地址！")
         return
 
     try:
-        host, port = parse_host_port(location)
-
-        # 尝试直接连接
-        try:
-            server, data = await get_server_status(host, port)
-            ip = resolve_a_record(host)
-            return await java_status.send(
-                format_status_message(host, port, ip, data, server.status().latency)
-            )
-        except Exception as e:
-            logger.warning(f"Direct connection failed: {e!s}")
-
-        try:
-            ipaddress.ip_address(host)
-        except ValueError:
-            pass
-        else:
-            # 尝试SRV记录查询
-            srv_details = await resolve_srv_record(host)
-            if srv_details:
-                new_host = srv_details[0]["target"].rstrip(".")
-                new_port = srv_details[0]["port"]
-                server, data = await get_server_status(new_host, new_port)
-                ip = resolve_a_record(new_host)
-                return await java_status.send(
-                    format_status_message(
-                        new_host, new_port, ip, data, server.status().latency
-                    )
-                )
-
-        await java_status.send("服务器似乎不在线！")
-
+        status_response = await get_server_status(location)
+        ip = await get_ip(location)
     except Exception:
-        exc_type, exc_value, _ = sys.exc_info()
-        await java_status.send(f"发生错误！{exc_value}")
+        logger.exception("获取Java服务器状态失败")
+        await java_status.finish(
+            "获取失败（服务器不在线吗？）\n请检查地址格式是否正确。"
+        )
+    else:
+        await java_status.finish(format_status_message(location, ip, status_response))
 
 
 @be_status.handle()
-async def _(event: MessageEvent, bot: Bot, args: Message = CommandArg()):
+async def _(args: Message = CommandArg()):
     if not (location := args.extract_plain_text()):
-        await be_status.send("请输入地址！格式：server_ip:port")
-        return
-    host, port = parse_host_port(location)
+        await be_status.finish("请输入地址！")
     try:
-        server = BedrockServer.lookup(f"{host}:{port}")
-        status = server.status()
-        await be_status.send(format_be_status_message(status, f"{host}:{port}"))
+        server = BedrockServer.lookup(location)
+        status = await server.async_status()
+        await be_status.send(format_be_status_message(location, status))
     except Exception:
         await be_status.send("获取失败（服务器不在线吗？）")
