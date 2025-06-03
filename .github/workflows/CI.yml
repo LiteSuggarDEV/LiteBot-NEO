@@ -18,6 +18,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Check for ignored type checks
+        run: |
+          echo "Checking for ignored type annotations..."
+          IGNORE_COUNT=$(grep -r -E "# *(type|pyright): *ignore" ./src | wc -l)
+          if [ "$IGNORE_COUNT" -gt 0 ]; then
+            echo "::error::Found $IGNORE_COUNT ignored type checks. Please avoid using '# type: ignore' or '# pyright: ignore' unless absolutely necessary."
+            exit 1
+          fi
+
       - name: Cache virtualenv
         uses: actions/cache@v4
         with:
