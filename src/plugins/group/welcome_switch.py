@@ -8,11 +8,18 @@ from nonebot.params import CommandArg
 
 from litebot_utils.models import GroupConfig
 from litebot_utils.rule import is_group_admin
+from src.plugins.menu.manager import MatcherData
 
 command_start = get_driver().config.command_start
 
 welcome_switch = on_fullmatch(
-    tuple(f"{prefix}welcome" for prefix in command_start), rule=is_group_admin
+    tuple(f"{prefix}welcome" for prefix in command_start),
+    rule=is_group_admin,
+    state=MatcherData(
+        rm_name="切换LiteBot成员变动监听状态",
+        rm_desc="切换LiteBot成员变动监听状态",
+        rm_usage="welcome on/off",
+    ).model_dump(),
 )
 
 @welcome_switch.handle()

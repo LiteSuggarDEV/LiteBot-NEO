@@ -7,7 +7,7 @@ from nonebot.plugin import PluginMetadata
 
 from litebot_utils.models import GroupConfig
 
-from . import switch, welcome_switch
+from . import notice, recall, switch, welcome_switch
 
 __plugin_meta__ = PluginMetadata(
     name="群组插件",
@@ -16,7 +16,7 @@ __plugin_meta__ = PluginMetadata(
     type="application",
 )
 
-__all__ = ["switch", "welcome_switch"]
+__all__ = ["notice", "recall", "switch", "welcome_switch"]
 
 command_start = get_driver().config.command_start
 

@@ -6,8 +6,16 @@ from nonebot.adapters.onebot.v11 import (
 from nonebot.matcher import Matcher
 
 from litebot_utils.rule import is_group_admin
+from src.plugins.menu.manager import MatcherData
 
-recall = on_message(rule=is_group_admin)
+recall = on_message(
+    rule=is_group_admin,
+    state=MatcherData(
+        rm_name="撤回消息",
+        rm_desc="用机器人撤回一条消息",
+        rm_usage="<REPLY> /recall",
+    ).model_dump(),
+)
 
 @recall.handle()
 async def _(event: GroupMessageEvent, bot: Bot, matcher: Matcher):
