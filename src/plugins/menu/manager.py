@@ -283,7 +283,12 @@ async def handle_md(matcher: Matcher, args: Message = CommandArg()):
     tuple(
         [f"{prefix}menu" for prefix in command_start]
         + [f"{prefix}菜单" for prefix in command_start]
-    )
+    ),
+    state=MatcherData(
+        rm_name="Menu",
+        rm_desc="展示菜单",
+        rm_usage="menu",
+    ).model_dump(),
 ).handle()
 async def show_menu(matcher: Matcher, bot: Bot, event: MessageEvent):
     """显示菜单"""
@@ -300,6 +305,10 @@ async def show_menu(matcher: Matcher, bot: Bot, event: MessageEvent):
             file=await cached_md_to_pic(md=markdown_menus_string, css_path=CSS_PATH)
         )
         for markdown_menus_string in markdown_menus
+    ] + [
+        MessageSegment.text(
+            "LiteBot开源地址：https://github.com/LiteSuggarDEV/LiteBot-NEO/"
+        )
     ]
 
     await send_forward_msg(

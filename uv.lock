@@ -497,10 +497,10 @@ source = { virtual = "." }
 dependencies = [
     { name = "aiofiles" },
     { name = "aiohttp" },
+    { name = "mcstatus" },
     { name = "nonebot-adapter-onebot" },
     { name = "nonebot-plugin-htmlrender" },
     { name = "nonebot-plugin-localstore" },
-    { name = "nonebot-plugin-mclib" },
     { name = "nonebot-plugin-tortoise-orm" },
     { name = "nonebot2", extra = ["fastapi"] },
     { name = "pillow" },
@@ -517,10 +517,10 @@ dependencies = [
 requires-dist = [
     { name = "aiofiles", specifier = ">=24.1.0" },
     { name = "aiohttp", specifier = ">=3.12.2" },
+    { name = "mcstatus", specifier = ">=12.0.1" },
     { name = "nonebot-adapter-onebot", specifier = ">=2.4.6" },
     { name = "nonebot-plugin-htmlrender", specifier = ">=0.6.6" },
     { name = "nonebot-plugin-localstore", specifier = ">=0.7.4" },
-    { name = "nonebot-plugin-mclib", specifier = ">=0.0.3.post2" },
     { name = "nonebot-plugin-tortoise-orm", specifier = ">=0.1.4" },
     { name = "nonebot2", extras = ["fastapi"], specifier = ">=2.4.2" },
     { name = "pillow", specifier = ">=11.2.1" },
@@ -784,21 +784,6 @@ dependencies = [
 sdist = { url = "https://mirrors.aliyun.com/pypi/packages/63/22/67ec1e604c0385729bf2d71db406c032de9015363588785617113dfb76ac/nonebot_plugin_localstore-0.7.4.tar.gz", hash = "sha256:85ddc13814bfcd484ab311306823651390020bf44f4fb4733b343a58e72723ce" }
 wheels = [
     { url = "https://mirrors.aliyun.com/pypi/packages/7b/c8/0fcb2c6d994579e53342cbf11bf9326ddfab010d1a8063e1fc0cc19c13bf/nonebot_plugin_localstore-0.7.4-py3-none-any.whl", hash = "sha256:3b08030878eadcdd8b9ce3d079da0dc2d0e41dc91f0b2d8cf7fa862a27de9090" },
-]
-
-[[package]]
-name = "nonebot-plugin-mclib"
-version = "0.0.3.post2"
-source = { registry = "https://mirrors.aliyun.com/pypi/simple" }
-dependencies = [
-    { name = "aiohttp" },
-    { name = "mcstatus" },
-    { name = "nonebot-adapter-onebot" },
-    { name = "nonebot2" },
-]
-sdist = { url = "https://mirrors.aliyun.com/pypi/packages/30/46/dbbec031a694beff65cc00af1a65e399f6ef50d1f0cc356e7dcb82ef7b94/nonebot_plugin_mclib-0.0.3.post2.tar.gz", hash = "sha256:3eaeacf5af8caae6e956be0b85e46efc7a1ded25f81fae925b6a977bbd5e4237" }
-wheels = [
-    { url = "https://mirrors.aliyun.com/pypi/packages/c6/f2/61c2d166eea3391f1e4036011edd73d1d4786aa9921725277c06c6cdac68/nonebot_plugin_mclib-0.0.3.post2-py3-none-any.whl", hash = "sha256:ba9705f60f3967e9a0597933029e4ef4ada057a78fd8b0004ee8ca0e96db5475" },
 ]
 
 [[package]]

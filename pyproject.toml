@@ -9,7 +9,6 @@ dependencies = [
     "nonebot-adapter-onebot>=2.4.6",
     "nonebot-plugin-htmlrender>=0.6.6",
     "nonebot-plugin-localstore>=0.7.4",
-    "nonebot-plugin-mclib>=0.0.3.post2",
     "nonebot-plugin-tortoise-orm>=0.1.4",
     "nonebot2[fastapi]>=2.4.2",
     "pillow>=11.2.1",
@@ -20,7 +19,8 @@ dependencies = [
     "pydantic>=2.11.5",
     "python-nmap>=0.7.1",
     "qrcode>=8.2",
-    "tortoise-orm[accel,asyncmy]>=0.25.0"
+    "tortoise-orm[accel,asyncmy]>=0.25.0",
+    "mcstatus>=12.0.1",
 ]
 
 [tool.nonebot]
@@ -29,7 +29,6 @@ adapters = [
 ]
 plugins = [
     "nonebot_plugin_tortoise_orm",
-    "nonebot_plugin_mclib",
     "nonebot_plugin_localstore",
 ]
 plugin_dirs = ["src/plugins"]
