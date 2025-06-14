@@ -49,6 +49,8 @@ class CaptchaManager:
         group_id = str(gid)
         user_id = str(uid)
         task = asyncio.create_task(self.__waitter(group_id, user_id, bot, mins))
+        if group_id not in self.__task_data:
+            self.__task_data[group_id] = {}
         self.__task_data[group_id][user_id] = task
         return task
 
