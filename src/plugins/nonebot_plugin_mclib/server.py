@@ -1,12 +1,10 @@
-import ipaddress
-import sys
+import re
 
 import dns.resolver
 from mcstatus import BedrockServer, JavaServer
-from mcstatus.status_response import BedrockStatusResponse
+from mcstatus.status_response import BedrockStatusResponse, JavaStatusResponse
 from nonebot import logger, on_command
-from nonebot.adapters.onebot.v11 import Bot, Message, MessageEvent
-
+from nonebot.adapters.onebot.v11 import Message
 from nonebot.params import CommandArg
 
 from src.plugins.menu.manager import MatcherData
