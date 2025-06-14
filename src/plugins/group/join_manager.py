@@ -3,8 +3,8 @@ import random
 from nonebot import on_command, on_message, on_notice
 from nonebot.adapters.onebot.v11 import (
     Bot,
-    GroupMessageEvent,
     GroupIncreaseNoticeEvent,
+    GroupMessageEvent,
     Message,
     MessageSegment,
 )
@@ -63,6 +63,15 @@ async def checker(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
             )
             captcha_manager.remove(event.group_id, event.user_id)
             matcher.stop_propagation()
+        elif any(
+            (
+                msg.get("type") == "json"
+                or msg.get("type") == "xml"
+                or msg.get("type") == "share"
+            )
+            for msg in event.message
+        ):
+            await bot.delete_msg(message_id=event.message_id)
 
 
 @on_notice(priority=9, block=False).handle()
