@@ -1,4 +1,5 @@
 import random
+from typing import TypeAlias
 
 from nonebot import get_driver, on_notice
 from nonebot.adapters.onebot.v11 import (
@@ -19,14 +20,24 @@ from .utils import get_disk_usage_percentage
 
 command_start = get_driver().config.command_start
 
-notice = on_notice()
+notice = on_notice(priority=11)
+poke = on_notice()
+
+GroupEvent: TypeAlias = (
+    GroupAdminNoticeEvent
+    | GroupDecreaseNoticeEvent
+    | GroupIncreaseNoticeEvent
+    | GroupMessageEvent
+)
+
+
+@poke.handle()
+async def handle_poke(event: PokeNotifyEvent, bot: Bot, matcher: Matcher):
+    await matcher.finish(random.choice(generate_fun_response()))
+
 
 @notice.handle()
-async def handle_group_notice(event: GroupMessageEvent, bot: Bot, matcher: Matcher):
-    if isinstance(event, PokeNotifyEvent) and int(event.target_id) == int(
-        event.self_id
-    ):
-        await matcher.finish(random.choice(generate_fun_response()))
+async def handle_group_notice(event: GroupEvent, bot: Bot, matcher: Matcher):
 
     gid, uid, self_id = event.group_id, event.user_id, event.self_id
     group_config = await GroupConfig.get_or_none(group_id=gid)
@@ -68,13 +79,17 @@ def generate_fun_response():
         "未知物体敲击",
         "检测到未知电平变化",
         '机箱被敲口,口口口！\nNonePointerException:Because "status" is None!',
+        "戳瘪了",
+        "机箱被压扁了",
+        "电阻戳掉了",
+        "机箱炸了",
+        "再戳就让你飞起来！",
         "机箱受到打击",
-        "是铁御，我们有救啦！",
         "服务器被你踢炸了",
         "嘟嘟哒嘟嘟哒",
         "?",
         (
-            f"LiteBot V1.12.1 FullVersion\n"
+            f"LiteBot NEO\n"
             f"系统类型: {system_name}\n"
             f"系统版本: {system_version}\n"
             f"Python 版本: {python_version}\n"
@@ -95,7 +110,13 @@ async def handle_member_leave(
 ):
     cause = event.sub_type
     if cause == "leave":
-        message = f"{uid}[CQ:image,file=http://q.qlogo.cn/headimg_dl?dst_uin={uid}&spec=640&img_type=jpg] 离开了群聊。"
+        message = (
+            MessageSegment.text(str(uid))
+            + MessageSegment.image(
+                f"https://q.qlogo.cn/headimg_dl?dst_uin={uid}&spec=640&img_type=jpg"
+            )
+            + MessageSegment.text("退出了群聊")
+        )
     else:
         message = f"{uid} 被 {event.operator_id} 赠送了飞机票。"
     await bot.send_group_msg(group_id=gid, message=message)

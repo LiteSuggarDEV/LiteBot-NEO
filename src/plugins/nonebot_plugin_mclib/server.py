@@ -35,6 +35,7 @@ async def resolve_srv_record(host: str):
         srv_ans = dns.resolver.resolve(query, "SRV")
         return [
             {
+
                 "priority": r.priority,
                 "weight": r.weight,
                 "port": r.port,
@@ -52,6 +53,7 @@ def parse_host_port(location: str) -> tuple[str, int]:
     host = host_port_args[0]
     port = int(host_port_args[1]) if len(host_port_args) > 1 else 25565
     return host, port
+
 
 
 async def get_server_status(address: str) -> JavaStatusResponse:
@@ -103,10 +105,12 @@ def format_be_status_message(
         + f"玩家数{status_response.players.online}/{status_response.players.max}\n"
         + f"玩家数：{status_response.players.online}/{status_response.players.max}\n"
         + f"MOTD: {motd}\n"
+
     )
 
 
 def format_status_message(
+
     address: str, ip: str, status_response: JavaStatusResponse
 ) -> str:
     # 正则过滤motd的颜色字符和多余的空格
