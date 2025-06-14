@@ -64,7 +64,7 @@ async def checker(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
             captcha_manager.remove(event.group_id, event.user_id)
             matcher.stop_propagation()
         elif any(
-            msg.get("type") in ["json", "xml", "share"]
+            isinstance(msg, dict) and msg.get("type") in ["json", "xml", "share"]
             for msg in event.message
         ):
             await bot.delete_msg(message_id=event.message_id)
