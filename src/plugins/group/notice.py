@@ -33,7 +33,7 @@ GroupEvent: TypeAlias = (
 
 @poke.handle()
 async def handle_poke(event: PokeNotifyEvent, bot: Bot, matcher: Matcher):
-    if not event.target_id == bot.self_id:
+    if event.target_id != bot.self_id:
         return
     await matcher.finish(random.choice(generate_fun_response()))
 
