@@ -20,8 +20,8 @@ from .utils import get_disk_usage_percentage
 
 command_start = get_driver().config.command_start
 
-notice = on_notice(priority=11)
-poke = on_notice()
+notice = on_notice(priority=11, block=False)
+poke = on_notice(priority=10)
 
 GroupEvent: TypeAlias = (
     GroupAdminNoticeEvent
@@ -33,6 +33,8 @@ GroupEvent: TypeAlias = (
 
 @poke.handle()
 async def handle_poke(event: PokeNotifyEvent, bot: Bot, matcher: Matcher):
+    if event.target_id != bot.self_id:
+        return
     await matcher.finish(random.choice(generate_fun_response()))
 
 

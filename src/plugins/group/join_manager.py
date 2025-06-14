@@ -1,10 +1,10 @@
 import random
 
-from nonebot import on_command, on_message, on_request
+from nonebot import on_command, on_message, on_notice
 from nonebot.adapters.onebot.v11 import (
     Bot,
+    GroupIncreaseNoticeEvent,
     GroupMessageEvent,
-    GroupRequestEvent,
     Message,
     MessageSegment,
 )
@@ -63,10 +63,15 @@ async def checker(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
             )
             captcha_manager.remove(event.group_id, event.user_id)
             matcher.stop_propagation()
+        elif any(
+            isinstance(msg, dict) and msg.get("type") in ["json", "xml", "share"]
+            for msg in event.message
+        ):
+            await bot.delete_msg(message_id=event.message_id)
 
 
-@on_request(priority=10).handle()
-async def handle(event: GroupRequestEvent, bot: Bot, matcher: Matcher):
+@on_notice(priority=9, block=False).handle()
+async def handle_join(bot: Bot, event: GroupIncreaseNoticeEvent, matcher: Matcher):
     config, _ = await GroupConfig.get_or_create(group_id=event.group_id)
     if not config.auto_manage_join:
         return
@@ -77,7 +82,6 @@ async def handle(event: GroupRequestEvent, bot: Bot, matcher: Matcher):
     )["role"]
     if self_role == "member":
         return
-    await event.approve(bot)
     captcha = random.randint(10000, 99999)
     captcha_manager.add(event.group_id, event.user_id, captcha)
     captcha_manager.pending(event.group_id, event.user_id, bot)
@@ -87,3 +91,4 @@ async def handle(event: GroupRequestEvent, bot: Bot, matcher: Matcher):
             f"请完成以下操作，验证您是真人。\n请在5分钟内输入验证码 {captcha} ，否则您将被移出聊群\n继续之前，该群需要先检查您的账号安全性。"
         ),
     )
+    matcher.stop_propagation()

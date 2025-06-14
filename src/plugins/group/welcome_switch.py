@@ -1,4 +1,4 @@
-from nonebot import get_driver, on_fullmatch
+from nonebot import get_driver, on_command
 from nonebot.adapters.onebot.v11 import (
     GroupMessageEvent,
     Message,
@@ -12,8 +12,8 @@ from src.plugins.menu.manager import MatcherData
 
 command_start = get_driver().config.command_start
 
-welcome_switch = on_fullmatch(
-    tuple(f"{prefix}welcome" for prefix in command_start),
+welcome_switch = on_command(
+    "welcome",
     rule=is_group_admin,
     state=MatcherData(
         rm_name="切换LiteBot成员变动监听状态",
