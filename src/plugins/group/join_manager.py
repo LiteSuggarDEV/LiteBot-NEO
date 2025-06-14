@@ -95,3 +95,4 @@ async def handle_join(bot: Bot, event: GroupIncreaseNoticeEvent, matcher: Matche
             f"请完成以下操作，验证您是真人。\n请在5分钟内输入验证码 {captcha} ，否则您将被移出聊群\n继续之前，该群需要先检查您的账号安全性。"
         ),
     )
+    matcher.stop_propagation()
