@@ -17,11 +17,13 @@ if not Path(".env").exists():
         f.write(
             'ENVIRONMENT=dev\nDRIVER=~fastapi\nHOST=127.0.0.1\nPORT=14321\nLOCALSTORE_CONFIG_DIR=./config\nCOMMAND_SEP=[".", " ", ""]\n'
         )
+if not Path(".env.prod").exists():
     with open(".env.prod", "a") as f:
         f.write("LOG_LEVEL=INFO")
+if not Path(".env.dev").exists():
     with open(".env.dev", "a") as f:
         f.write("LOG_LEVEL=DEBUG")
-    load_dotenv()
+load_dotenv()
 
 nonebot.init()
 

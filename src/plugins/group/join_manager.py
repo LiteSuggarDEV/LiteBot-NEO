@@ -12,7 +12,6 @@ from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
 
 from litebot_utils.captcha_manager import captcha_manager
-from litebot_utils.config import ConfigManager
 from litebot_utils.models import GroupConfig
 from litebot_utils.rule import is_group_admin
 from src.plugins.menu.manager import MatcherData
@@ -52,7 +51,7 @@ async def checker(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
     config, _ = await GroupConfig.get_or_create(group_id=event.group_id)
     if not config.auto_manage_join:
         return
-    if captcha := captcha_manager.query(event.group_id, event.user_id) is not None:
+    if (captcha := captcha_manager.query(event.group_id, event.user_id)) is not None:
         message: str = event.message.extract_plain_text().strip()
         group_name: str = (await bot.get_group_info(group_id=event.group_id))[
             "group_name"
@@ -79,9 +78,6 @@ async def handle(event: GroupRequestEvent, bot: Bot, matcher: Matcher):
     if self_role == "member":
         return
     await event.approve(bot)
-    if event.user_id in ConfigManager.instance().config.admins:
-        await event.approve(bot)
-        return
     captcha = random.randint(10000, 99999)
     captcha_manager.add(event.group_id, event.user_id, captcha)
     captcha_manager.pending(event.group_id, event.user_id, bot)

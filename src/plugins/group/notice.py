@@ -1,7 +1,5 @@
 import random
-
 from typing import TypeAlias
-
 
 from nonebot import get_driver, on_notice
 from nonebot.adapters.onebot.v11 import (
