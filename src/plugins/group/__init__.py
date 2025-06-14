@@ -1,4 +1,5 @@
 from nonebot import get_driver, on_message, require
+
 from nonebot.adapters.onebot.v11 import (
     GroupMessageEvent,
 )
@@ -7,7 +8,9 @@ from nonebot.plugin import PluginMetadata
 
 from litebot_utils.models import GroupConfig
 
+
 from . import join_manager, notice, recall, switch, welcome_switch
+
 
 require("menu")
 __plugin_meta__ = PluginMetadata(
@@ -17,7 +20,9 @@ __plugin_meta__ = PluginMetadata(
     type="application",
 )
 
+
 __all__ = ["join_manager", "notice", "recall", "switch", "welcome_switch"]
+
 
 command_start = get_driver().config.command_start
 

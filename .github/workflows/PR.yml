@@ -19,6 +19,16 @@ jobs:
           fetch-depth: 0 # 获取完整提交历史
           ref: ${{ github.event.pull_request.head.sha }} # 明确指定PR分支的SHA
 
+      - name: Check for ignored type checks
+        run: |
+            echo "Checking for ignored type annotations..."
+            IGNORE_COUNT=$(grep -r -E "# *(type|pyright): *ignore" ./src | wc -l)
+            if [ "$IGNORE_COUNT" -gt 0 ]; then
+              echo "::error::Found $IGNORE_COUNT ignored type checks. Please avoid using '# type: ignore' or '# pyright: ignore' unless absolutely necessary."
+              exit 1
+            fi
+
+
       - name: Cache virtualenv
         uses: actions/cache@v4
         with:

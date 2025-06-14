@@ -1,5 +1,7 @@
 import random
+
 from typing import TypeAlias
+
 
 from nonebot import get_driver, on_notice
 from nonebot.adapters.onebot.v11 import (
@@ -38,6 +40,7 @@ async def handle_poke(event: PokeNotifyEvent, bot: Bot, matcher: Matcher):
 
 @notice.handle()
 async def handle_group_notice(event: GroupEvent, bot: Bot, matcher: Matcher):
+
     gid, uid, self_id = event.group_id, event.user_id, event.self_id
     group_config = await GroupConfig.get_or_none(group_id=gid)
     if not group_config or not group_config.switch or not group_config.welcome:
