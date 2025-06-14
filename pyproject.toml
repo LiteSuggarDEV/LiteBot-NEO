@@ -1,7 +1,7 @@
 [project]
-name = "litebot-new"
+name = "litebot-neo"
 version = "0.1.0"
-description = "litebot-new"
+description = "litebot-neo"
 readme = "README.md"
 requires-python = ">=3.11, <4.0"
 dependencies = [

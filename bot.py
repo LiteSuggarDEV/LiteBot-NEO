@@ -2,6 +2,7 @@ import asyncio
 import os
 import sys
 import traceback
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import nonebot
@@ -10,6 +11,17 @@ from nonebot import get_driver
 from nonebot.adapters.onebot.v11 import Adapter as ONEBOT_V11Adapter
 from nonebot.adapters.onebot.v11 import Bot
 from nonebot.log import default_format, logger_id
+
+if not Path(".env").exists():
+    with open(".env", "w") as f:
+        f.write(
+            'ENVIRONMENT=dev\nDRIVER=~fastapi\nHOST=127.0.0.1\nPORT=14321\nLOCALSTORE_CONFIG_DIR=./config\nCOMMAND_SEP=[".", " ", ""]\n'
+        )
+    with open(".env.prod", "a") as f:
+        f.write("LOG_LEVEL=INFO")
+    with open(".env.dev", "a") as f:
+        f.write("LOG_LEVEL=DEBUG")
+    load_dotenv()
 
 nonebot.init()
 

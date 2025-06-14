@@ -18,6 +18,7 @@ class GroupConfig(Model):
         default={"limit": 5, "interval": 5, "ban_time": 5, "enable": False}
     )
     anti_link = fields.BooleanField(default=False)
+    auto_manage_join = fields.BooleanField(default=False)
 
     class Meta:
         table = "group_config"
