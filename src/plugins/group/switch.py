@@ -1,5 +1,5 @@
 
-from nonebot import get_driver, on_fullmatch
+from nonebot import get_driver, on_command
 from nonebot.adapters.onebot.v11 import (
     GroupMessageEvent,
     Message,
@@ -12,7 +12,7 @@ from litebot_utils.rule import is_group_admin
 from src.plugins.menu.manager import MatcherData
 
 command_start = get_driver().config.command_start
-switch = on_fullmatch(
+switch = on_command(
     tuple(f"{prefix}switch" for prefix in command_start),
     rule=is_group_admin,
     state=MatcherData(

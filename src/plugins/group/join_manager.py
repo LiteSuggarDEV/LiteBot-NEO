@@ -1,10 +1,10 @@
 import random
 
-from nonebot import on_command, on_message, on_request
+from nonebot import on_command, on_message, on_notice
 from nonebot.adapters.onebot.v11 import (
     Bot,
     GroupMessageEvent,
-    GroupRequestEvent,
+    GroupIncreaseNoticeEvent,
     Message,
     MessageSegment,
 )
@@ -65,8 +65,8 @@ async def checker(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
             matcher.stop_propagation()
 
 
-@on_request(priority=10).handle()
-async def handle(event: GroupRequestEvent, bot: Bot, matcher: Matcher):
+@on_notice(priority=9, block=False).handle()
+async def handle_join(bot: Bot, event: GroupIncreaseNoticeEvent, matcher: Matcher):
     config, _ = await GroupConfig.get_or_create(group_id=event.group_id)
     if not config.auto_manage_join:
         return
@@ -77,7 +77,6 @@ async def handle(event: GroupRequestEvent, bot: Bot, matcher: Matcher):
     )["role"]
     if self_role == "member":
         return
-    await event.approve(bot)
     captcha = random.randint(10000, 99999)
     captcha_manager.add(event.group_id, event.user_id, captcha)
     captcha_manager.pending(event.group_id, event.user_id, bot)
