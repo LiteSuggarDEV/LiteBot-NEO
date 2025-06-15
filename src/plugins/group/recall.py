@@ -10,6 +10,8 @@ from src.plugins.menu.manager import MatcherData
 
 recall = on_command(
     "recall",
+    aliases={"撤回"},
+    permission=is_group_admin,
     state=MatcherData(
         rm_name="撤回消息",
         rm_desc="用机器人撤回一条消息",
