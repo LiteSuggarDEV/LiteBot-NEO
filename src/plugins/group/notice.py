@@ -40,7 +40,6 @@ async def handle_poke(event: PokeNotifyEvent, bot: Bot, matcher: Matcher):
 
 @notice.handle()
 async def handle_group_notice(event: GroupEvent, bot: Bot, matcher: Matcher):
-
     gid, uid, self_id = event.group_id, event.user_id, event.self_id
     group_config = await GroupConfig.get_or_none(group_id=gid)
     if not group_config or not group_config.switch or not group_config.welcome:
@@ -120,7 +119,7 @@ async def handle_member_leave(
             + MessageSegment.text("退出了群聊")
         )
     else:
-        message = f"{uid} 被 {event.operator_id} 赠送了飞机票。"
+        message = f"{uid}{' 被 ' + (str(event.operator_id) if event.operator_id != 0 else '')} 赠送了飞机票。"
     await bot.send_group_msg(group_id=gid, message=message)
 
 

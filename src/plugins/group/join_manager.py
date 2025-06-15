@@ -1,6 +1,6 @@
 import random
 
-from nonebot import on_command, on_message, on_notice
+from nonebot import get_driver, on_command, on_message, on_notice
 from nonebot.adapters.onebot.v11 import (
     Bot,
     GroupIncreaseNoticeEvent,
@@ -15,6 +15,8 @@ from litebot_utils.captcha_manager import captcha_manager
 from litebot_utils.models import GroupConfig
 from litebot_utils.rule import is_group_admin
 from src.plugins.menu.manager import MatcherData
+
+pending_cancelable_msg: dict[str, dict[str, str]] = {}
 
 
 @on_command(
@@ -62,12 +64,54 @@ async def checker(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
                 + MessageSegment.text(f"验证成功！欢迎加入{group_name}！"),
             )
             captcha_manager.remove(event.group_id, event.user_id)
+            for k, v in pending_cancelable_msg.items():
+                if (
+                    v.get("user_id") == event.user_id
+                    and v.get("group_id") == event.group_id
+                ):
+                    del pending_cancelable_msg[k]
             matcher.stop_propagation()
         elif any(
             isinstance(msg, dict) and msg.get("type") in ["json", "xml", "share"]
             for msg in event.message
         ):
             await bot.delete_msg(message_id=event.message_id)
+
+
+@on_message(
+    priority=10,
+    block=False,
+    state=MatcherData(
+        rm_name="取消验证",
+        rm_desc="引用机器人发送的验证消息取消单次验证",
+        rm_usage="<REPLY> /skip",
+    ).model_dump(),
+).handle()
+async def handle_cancel(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
+    if event.reply:
+        if str(event.reply.message_id) not in pending_cancelable_msg:
+            return
+        if event.reply.message.extract_plain_text().strip() not in (
+            f"{preix}skip" for preix in get_driver().config.command_start
+        ):
+            return
+        if not await is_group_admin(event, bot):
+            return
+        if (
+            await bot.get_group_member_info(
+                user_id=event.self_id, group_id=event.group_id
+            )
+        )["role"] == "member":
+            return
+        await bot.delete_msg(message_id=event.reply.message_id)
+        captcha_manager.remove(
+            event.group_id,
+            int(pending_cancelable_msg[str(event.reply.message_id)]["user_id"]),
+        )
+        del pending_cancelable_msg[str(event.reply.message_id)]
+
+        await matcher.send("已取消该验证！")
+        matcher.stop_propagation()
 
 
 @on_notice(priority=9, block=False).handle()
@@ -84,11 +128,18 @@ async def handle_join(bot: Bot, event: GroupIncreaseNoticeEvent, matcher: Matche
         return
     captcha = random.randint(10000, 99999)
     captcha_manager.add(event.group_id, event.user_id, captcha)
+    sended_msg_id: str = (
+        await matcher.send(
+            MessageSegment.at(event.user_id)
+            + MessageSegment.text(
+                f"请完成以下操作，验证您是真人。\n请在5分钟内输入验证码 {captcha} ，否则您将被移出聊群\n继续之前，该群需要先检查您的账号安全性。"
+            ),
+        )
+    )["message_id"]
     captcha_manager.pending(event.group_id, event.user_id, bot)
-    await matcher.send(
-        MessageSegment.at(event.user_id)
-        + MessageSegment.text(
-            f"请完成以下操作，验证您是真人。\n请在5分钟内输入验证码 {captcha} ，否则您将被移出聊群\n继续之前，该群需要先检查您的账号安全性。"
-        ),
-    )
+
+    pending_cancelable_msg[str(sended_msg_id)] = {
+        "group_id": str(event.group_id),
+        "user_id": str(event.user_id),
+    }
     matcher.stop_propagation()
