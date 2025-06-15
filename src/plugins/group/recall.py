@@ -18,8 +18,6 @@ recall = on_message(
 
 @recall.handle()
 async def _(event: GroupMessageEvent, bot: Bot, matcher: Matcher):
-    if not await is_group_admin(event, bot):
-        return
     if not event.reply:
         await matcher.finish("请回复消息选择撤回")
     if not await is_group_admin(event, bot):
