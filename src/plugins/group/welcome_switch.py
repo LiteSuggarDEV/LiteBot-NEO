@@ -1,5 +1,6 @@
 from nonebot import get_driver, on_command
 from nonebot.adapters.onebot.v11 import (
+    Bot,
     GroupMessageEvent,
     Message,
 )
@@ -14,7 +15,6 @@ command_start = get_driver().config.command_start
 
 welcome_switch = on_command(
     "welcome",
-    rule=is_group_admin,
     state=MatcherData(
         rm_name="切换LiteBot成员变动监听状态",
         rm_desc="切换LiteBot成员变动监听状态",
@@ -23,7 +23,11 @@ welcome_switch = on_command(
 )
 
 @welcome_switch.handle()
-async def _(event: GroupMessageEvent, matcher: Matcher, arg: Message = CommandArg()):
+async def _(
+    event: GroupMessageEvent, matcher: Matcher, bot: Bot, arg: Message = CommandArg()
+):
+    if not await is_group_admin(event, bot):
+        return
     """开关"""
     # 获取当前群组的开关状态
     gid = event.group_id

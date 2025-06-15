@@ -7,7 +7,7 @@ from src.plugins.menu.manager import MatcherData
 
 clean_groups = on_command(
     "clean_groups",
-    rule=is_admin,
+    permission=is_admin,
     state=MatcherData(
         rm_name="无用群组清理",
         rm_desc="清理人数小于20的无效聊群",

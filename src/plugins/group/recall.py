@@ -1,4 +1,4 @@
-from nonebot import on_message
+from nonebot import on_command
 from nonebot.adapters.onebot.v11 import (
     Bot,
     GroupMessageEvent,
@@ -8,8 +8,10 @@ from nonebot.matcher import Matcher
 from litebot_utils.rule import is_group_admin
 from src.plugins.menu.manager import MatcherData
 
-recall = on_message(
-    rule=is_group_admin,
+recall = on_command(
+    "recall",
+    aliases={"撤回"},
+    permission=is_group_admin,
     state=MatcherData(
         rm_name="撤回消息",
         rm_desc="用机器人撤回一条消息",
@@ -19,7 +21,7 @@ recall = on_message(
 
 @recall.handle()
 async def _(event: GroupMessageEvent, bot: Bot, matcher: Matcher):
-    if "/recall" not in event.raw_message:
+    if not await is_group_admin(event, bot):
         return
     if not event.reply:
         await matcher.finish("请回复消息选择撤回")
