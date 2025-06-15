@@ -20,7 +20,6 @@ from src.plugins.menu.manager import MatcherData
 @on_command(
     "入群验证",
     aliases={"robot_fight", "anti_robot"},
-    permission=is_group_admin,
     state=MatcherData(
         rm_name="入群验证",
         rm_desc="入群验证",
@@ -30,6 +29,8 @@ from src.plugins.menu.manager import MatcherData
 async def cmd(
     bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()
 ) -> None:
+    if not await is_group_admin(event, bot):
+        return
     config, _ = await GroupConfig.get_or_create(group_id=event.group_id)
     if arg := args.extract_plain_text().strip().lower():
         if arg in ("启用", "on", "enable", "开启", "yes", "y", "true"):

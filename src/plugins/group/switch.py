@@ -1,6 +1,7 @@
 
 from nonebot import get_driver, on_command
 from nonebot.adapters.onebot.v11 import (
+    Bot,
     GroupMessageEvent,
     Message,
 )
@@ -14,7 +15,6 @@ from src.plugins.menu.manager import MatcherData
 command_start = get_driver().config.command_start
 switch = on_command(
     "switch",
-    permission=is_group_admin,
     state=MatcherData(
         rm_name="切换LiteBot启用状态",
         rm_desc="切换LiteBot启用状态",
@@ -23,7 +23,11 @@ switch = on_command(
 )
 
 @switch.handle()
-async def _(event: GroupMessageEvent, matcher: Matcher, arg: Message = CommandArg()):
+async def _(
+    event: GroupMessageEvent, matcher: Matcher, bot: Bot, arg: Message = CommandArg()
+):
+    if not await is_group_admin(event, bot):
+        await switch.finish("你没有权限使用此命令！")
     """开关"""
     # 获取当前群组的开关状态
     group_id = event.group_id

@@ -10,7 +10,6 @@ from src.plugins.menu.manager import MatcherData
 
 recall = on_command(
     "recall",
-    permission=is_group_admin,
     state=MatcherData(
         rm_name="撤回消息",
         rm_desc="用机器人撤回一条消息",
@@ -20,6 +19,8 @@ recall = on_command(
 
 @recall.handle()
 async def _(event: GroupMessageEvent, bot: Bot, matcher: Matcher):
+    if not await is_group_admin(event, bot):
+        return
     if not event.reply:
         await matcher.finish("请回复消息选择撤回")
 
