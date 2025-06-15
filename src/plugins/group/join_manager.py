@@ -65,7 +65,8 @@ async def checker(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
                 + MessageSegment.text(f"验证成功！欢迎加入{group_name}！"),
             )
             captcha_manager.remove(event.group_id, event.user_id)
-            for k, v in pending_cancelable_msg.items():
+            for k in list(pending_cancelable_msg):
+                v = pending_cancelable_msg[k]
                 if (
                     v.get("user_id") == str(event.user_id)
                     and v.get("group_id") == str(event.group_id)
