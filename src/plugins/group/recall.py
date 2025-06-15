@@ -1,4 +1,4 @@
-from nonebot import on_message
+from nonebot import get_driver, on_message
 from nonebot.adapters.onebot.v11 import (
     Bot,
     GroupMessageEvent,
@@ -14,13 +14,20 @@ recall = on_message(
         rm_desc="用机器人撤回一条消息",
         rm_usage="<REPLY> /recall",
     ).model_dump(),
+    block=False,
 )
+
 
 @recall.handle()
 async def _(event: GroupMessageEvent, bot: Bot, matcher: Matcher):
-    if not event.reply:
-        await matcher.finish("请回复消息选择撤回")
-    if not await is_group_admin(event, bot):
-        return
-    await bot.delete_msg(message_id=event.reply.message_id)
-    await matcher.finish("已尝试撤回消息！")
+    if event.reply:
+        if event.reply.message.extract_plain_text().strip() not in (
+            f"{prefix}recall" for prefix in get_driver().config.command_start
+        ):
+            return
+        if not await is_group_admin(event, bot):
+            return
+
+        await bot.delete_msg(message_id=event.reply.message_id)
+        await matcher.send("已尝试撤回消息！")
+        matcher.stop_propagation()
