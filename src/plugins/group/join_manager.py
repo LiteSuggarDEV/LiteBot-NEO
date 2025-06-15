@@ -2,6 +2,7 @@ import random
 
 from nonebot import get_driver, on_command, on_message, on_notice
 from nonebot.adapters.onebot.v11 import (
+    ActionFailed,
     Bot,
     GroupIncreaseNoticeEvent,
     GroupMessageEvent,
@@ -94,7 +95,7 @@ async def handle_cancel(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
     if event.reply:
         if str(event.reply.message_id) not in pending_cancelable_msg:
             return
-        if event.reply.message.extract_plain_text().strip() not in (
+        if event.message.extract_plain_text().strip() not in (
             f"{preix}skip" for preix in get_driver().config.command_start
         ):
             return
@@ -106,7 +107,10 @@ async def handle_cancel(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
             )
         )["role"] == "member":
             return
-        await bot.delete_msg(message_id=event.reply.message_id)
+        try:
+            await bot.delete_msg(message_id=event.reply.message_id)
+        except ActionFailed:
+            pass
         captcha_manager.remove(
             event.group_id,
             int(pending_cancelable_msg[str(event.reply.message_id)]["user_id"]),
