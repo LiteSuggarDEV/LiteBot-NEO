@@ -130,7 +130,7 @@ async def handle_join(bot: Bot, event: GroupIncreaseNoticeEvent, matcher: Matche
         return
     captcha = random.randint(10000, 99999)
     captcha_manager.add(event.group_id, event.user_id, captcha)
-    sended_msg_id: str = (
+    sended_msg_id: int = (
         await matcher.send(
             MessageSegment.at(event.user_id)
             + MessageSegment.text(
