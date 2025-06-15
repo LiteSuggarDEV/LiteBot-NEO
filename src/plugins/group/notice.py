@@ -119,7 +119,10 @@ async def handle_member_leave(
             + MessageSegment.text("退出了群聊")
         )
     else:
-        message = f"{uid}{' 被 ' + (str(event.operator_id) if event.operator_id != 0 else '')} 赠送了飞机票。"
+        if event.operator_id == 0:
+            message = f"{uid} 被赠送了飞机票。"
+        else:
+            message = f"{uid} 被 {event.operator_id} 赠送了飞机票。"
     await bot.send_group_msg(group_id=gid, message=message)
 
 
