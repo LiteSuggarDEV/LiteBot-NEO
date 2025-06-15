@@ -96,7 +96,7 @@ async def handle_cancel(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
         if str(event.reply.message_id) not in pending_cancelable_msg:
             return
         if event.message.extract_plain_text().strip() not in (
-            f"{preix}skip" for preix in get_driver().config.command_start
+            f"{prefix}skip" for prefix in get_driver().config.command_start
         ):
             return
         if not await is_group_admin(event, bot):
