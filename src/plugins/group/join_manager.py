@@ -71,6 +71,7 @@ async def checker(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
                     and v.get("group_id") == event.group_id
                 ):
                     del pending_cancelable_msg[k]
+                    break
             matcher.stop_propagation()
         elif any(
             isinstance(msg, dict) and msg.get("type") in ["json", "xml", "share"]
