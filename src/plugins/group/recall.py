@@ -1,4 +1,4 @@
-from nonebot import on_command
+from nonebot import on_message
 from nonebot.adapters.onebot.v11 import (
     Bot,
     GroupMessageEvent,
