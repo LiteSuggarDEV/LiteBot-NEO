@@ -14,7 +14,7 @@ command_start = get_driver().config.command_start
 
 welcome_switch = on_command(
     "welcome",
-    rule=is_group_admin,
+    permission=is_group_admin,
     state=MatcherData(
         rm_name="切换LiteBot成员变动监听状态",
         rm_desc="切换LiteBot成员变动监听状态",

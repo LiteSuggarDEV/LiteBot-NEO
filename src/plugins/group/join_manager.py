@@ -20,7 +20,7 @@ from src.plugins.menu.manager import MatcherData
 @on_command(
     "入群验证",
     aliases={"robot_fight", "anti_robot"},
-    rule=is_group_admin,
+    permission=is_group_admin,
     state=MatcherData(
         rm_name="入群验证",
         rm_desc="入群验证",

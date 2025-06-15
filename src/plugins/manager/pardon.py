@@ -6,7 +6,7 @@ from litebot_utils.blacklist.black import bl_manager
 from litebot_utils.rule import is_admin
 from src.plugins.menu.manager import MatcherData
 
-pardon = CommandGroup("pardon", rule=is_admin)
+pardon = CommandGroup("pardon", permission=is_admin)
 
 pardon_group = pardon.command(
     "group",
