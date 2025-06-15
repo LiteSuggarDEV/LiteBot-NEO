@@ -1,4 +1,4 @@
-from nonebot import on_message
+from nonebot import on_command
 from nonebot.adapters.onebot.v11 import (
     Bot,
     GroupMessageEvent,
@@ -18,7 +18,7 @@ recall = on_message(
 
 @recall.handle()
 async def _(event: GroupMessageEvent, bot: Bot, matcher: Matcher):
-    if "/recall" not in event.raw_message:
+    if not await is_group_admin(event, bot):
         return
     if not event.reply:
         await matcher.finish("请回复消息选择撤回")

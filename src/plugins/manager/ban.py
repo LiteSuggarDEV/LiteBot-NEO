@@ -6,7 +6,7 @@ from litebot_utils.blacklist.black import bl_manager
 from litebot_utils.rule import is_admin
 from src.plugins.menu.manager import MatcherData
 
-ban = CommandGroup("ban", rule=is_admin)
+ban = CommandGroup("ban", permission=is_admin)
 
 ban_group = ban.command(
     "group",

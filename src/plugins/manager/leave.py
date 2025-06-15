@@ -10,7 +10,7 @@ from src.plugins.menu.manager import MatcherData
 
 @on_command(
     "set_leave",
-    rule=is_admin,
+    permission=is_admin,
     state=MatcherData(
         rm_name="退出指定聊群",
         rm_desc="用于退出聊群",
