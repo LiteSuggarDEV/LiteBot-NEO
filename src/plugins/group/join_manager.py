@@ -130,7 +130,7 @@ async def handle_join(bot: Bot, event: GroupIncreaseNoticeEvent, matcher: Matche
         return
     captcha = random.randint(10000, 99999)
     captcha_manager.add(event.group_id, event.user_id, captcha)
-    sended_msg_id: int = (
+    sent_msg_id: int = (
         await matcher.send(
             MessageSegment.at(event.user_id)
             + MessageSegment.text(
@@ -140,7 +140,7 @@ async def handle_join(bot: Bot, event: GroupIncreaseNoticeEvent, matcher: Matche
     )["message_id"]
     captcha_manager.pending(event.group_id, event.user_id, bot)
 
-    pending_cancelable_msg[str(sended_msg_id)] = {
+    pending_cancelable_msg[str(sent_msg_id)] = {
         "group_id": str(event.group_id),
         "user_id": str(event.user_id),
     }
