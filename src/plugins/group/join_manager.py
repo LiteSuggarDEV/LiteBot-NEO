@@ -67,8 +67,8 @@ async def checker(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
             captcha_manager.remove(event.group_id, event.user_id)
             for k, v in pending_cancelable_msg.items():
                 if (
-                    v.get("user_id") == event.user_id
-                    and v.get("group_id") == event.group_id
+                    v.get("user_id") == str(event.user_id)
+                    and v.get("group_id") == str(event.group_id)
                 ):
                     del pending_cancelable_msg[k]
                     break
