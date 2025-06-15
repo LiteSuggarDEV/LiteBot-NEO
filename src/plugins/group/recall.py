@@ -22,7 +22,7 @@ recall = on_message(
 async def _(event: GroupMessageEvent, bot: Bot, matcher: Matcher):
     if event.reply:
         if event.reply.message.extract_plain_text().strip() not in (
-            f"{prefix}skip" for prefix in get_driver().config.command_start
+            f"{prefix}recall" for prefix in get_driver().config.command_start
         ):
             return
         if not await is_group_admin(event, bot):
