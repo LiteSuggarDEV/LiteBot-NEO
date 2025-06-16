@@ -1,4 +1,3 @@
-import random
 
 from nonebot import get_driver, on_notice
 from nonebot.adapters.onebot.v11 import (
@@ -7,7 +6,6 @@ from nonebot.adapters.onebot.v11 import (
     GroupDecreaseNoticeEvent,
     GroupIncreaseNoticeEvent,
     MessageSegment,
-    PokeNotifyEvent,
 )
 from nonebot.matcher import Matcher
 
@@ -15,22 +13,10 @@ from litebot_utils.event import GroupEvent
 from litebot_utils.models import GroupConfig
 from litebot_utils.utils import send_to_admin
 
-from .utils import get_disk_usage_percentage
-
 command_start = get_driver().config.command_start
 
 notice = on_notice(priority=11, block=False)
 poke = on_notice(priority=10)
-
-
-@poke.handle()
-async def handle_poke(event: PokeNotifyEvent, bot: Bot, matcher: Matcher):
-    if not event.group_id:
-        return
-    if event.target_id != bot.self_id:
-        return
-    await matcher.finish(random.choice(generate_fun_response()))
-
 
 @notice.handle()
 async def handle_group_notice(event: GroupEvent, bot: Bot, matcher: Matcher):
@@ -49,55 +35,6 @@ async def handle_group_notice(event: GroupEvent, bot: Bot, matcher: Matcher):
         await handle_admin_change(bot, event, gid, uid, self_id)
 
 
-def generate_fun_response():
-    # 动态导入
-    import os
-    import platform
-    import sys
-
-    import psutil
-
-    system_name = platform.system()
-    system_version = platform.version()
-    cpu_name = platform.processor()
-    python_version = sys.version
-    memory = psutil.virtual_memory()
-    cpu_usage = psutil.cpu_percent(interval=1)
-    logical_cores = psutil.cpu_count(logical=True)
-    physical_cores = psutil.cpu_count(logical=False)
-    current_dir = os.getcwd()
-    disk_usage = get_disk_usage_percentage(current_dir)
-
-    return [
-        "检测到机箱疑似遭受到黑👇暗👆森～～林～～打击",
-        "机箱发生弹性形变！",
-        "未知物体敲击",
-        "检测到未知电平变化",
-        '机箱被敲口,口口口！\nNonePointerException:Because "status" is None!',
-        "戳瘪了",
-        "机箱被压扁了",
-        "电阻戳掉了",
-        "机箱炸了",
-        "再戳就让你飞起来！",
-        "机箱受到打击",
-        "服务器被你踢炸了",
-        "嘟嘟哒嘟嘟哒",
-        "?",
-        (
-            f"LiteBot NEO\n"
-            f"系统类型: {system_name}\n"
-            f"系统版本: {system_version}\n"
-            f"Python 版本: {python_version}\n"
-            f"磁盘存储占用：{disk_usage:.2f}%\n"
-            f"CPU架构：{cpu_name}\n"
-            f"CPU 已使用: {cpu_usage}%\n"
-            f"CPU 物理核心：{physical_cores}\n"
-            f"CPU 总核心: {logical_cores}\n"
-            f"已用内存: {memory.percent}%\n"
-            f"总共内存: {memory.total / (1024**3):.2f} GB\n"
-            f"可用内存: {memory.available / (1024**3):.2f} GB"
-        ),
-    ]
 
 
 async def handle_member_leave(
