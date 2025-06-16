@@ -1,5 +1,4 @@
 import random
-from typing import TypeAlias
 
 from nonebot import get_driver, on_notice
 from nonebot.adapters.onebot.v11 import (
@@ -7,12 +6,12 @@ from nonebot.adapters.onebot.v11 import (
     GroupAdminNoticeEvent,
     GroupDecreaseNoticeEvent,
     GroupIncreaseNoticeEvent,
-    GroupMessageEvent,
     MessageSegment,
     PokeNotifyEvent,
 )
 from nonebot.matcher import Matcher
 
+from litebot_utils.event import GroupEvent
 from litebot_utils.models import GroupConfig
 from litebot_utils.utils import send_to_admin
 
@@ -23,16 +22,11 @@ command_start = get_driver().config.command_start
 notice = on_notice(priority=11, block=False)
 poke = on_notice(priority=10)
 
-GroupEvent: TypeAlias = (
-    GroupAdminNoticeEvent
-    | GroupDecreaseNoticeEvent
-    | GroupIncreaseNoticeEvent
-    | GroupMessageEvent
-)
-
 
 @poke.handle()
 async def handle_poke(event: PokeNotifyEvent, bot: Bot, matcher: Matcher):
+    if not event.group_id:
+        return
     if event.target_id != bot.self_id:
         return
     await matcher.finish(random.choice(generate_fun_response()))

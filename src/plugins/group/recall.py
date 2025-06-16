@@ -5,7 +5,7 @@ from nonebot.adapters.onebot.v11 import (
 )
 from nonebot.matcher import Matcher
 
-from litebot_utils.rule import is_group_admin
+from litebot_utils.rule import is_group_admin, is_self_admin
 from src.plugins.menu.manager import MatcherData
 
 recall = on_message(
@@ -27,7 +27,8 @@ async def _(event: GroupMessageEvent, bot: Bot, matcher: Matcher):
             return
         if not await is_group_admin(event, bot):
             return
-
+        if not is_self_admin(event, bot):
+            return
         await bot.delete_msg(message_id=event.reply.message_id)
         await matcher.send("已尝试撤回消息！")
         matcher.stop_propagation()
