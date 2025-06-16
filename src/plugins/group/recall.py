@@ -21,7 +21,7 @@ recall = on_message(
 @recall.handle()
 async def _(event: GroupMessageEvent, bot: Bot, matcher: Matcher):
     if event.reply:
-        if event.reply.message.extract_plain_text().strip() not in (
+        if event.message.extract_plain_text().strip() not in (
             f"{prefix}recall" for prefix in get_driver().config.command_start
         ):
             return
