@@ -8,6 +8,33 @@ from src.plugins.menu.manager import MatcherData
 
 
 @on_command(
+    "解禁",
+    aliases={"unmute"},
+    state=MatcherData(
+        rm_name="解禁",
+        rm_desc="解除指定群员的禁言",
+        rm_usage="/unmute @user",
+    ).model_dump(),
+).handle()
+async def _(
+    bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()
+):
+    if not await is_group_admin(event, bot):
+        return
+    if not await is_self_admin(event, bot):
+        return
+    for segment in args:
+        if segment.type == "at":
+            uid = segment.data["qq"]
+            await bot.set_group_ban(
+                group_id=event.group_id, user_id=int(uid), duration=0
+            )
+            break
+    else:
+        return await matcher.finish("请指定要解禁的人")
+
+
+@on_command(
     "禁言",
     aliases={"mute"},
     state=MatcherData(
@@ -36,5 +63,5 @@ async def _(
     except ValueError:
         return await matcher.finish("请输入合法的正整数(分钟)")
     await bot.set_group_ban(
-        group_id=event.group_id, user_id=uid, duration=int(arg_text) * 60
+        group_id=event.group_id, user_id=int(uid), duration=int(arg_text) * 60
     )
