@@ -283,6 +283,7 @@ async def handle_md(matcher: Matcher, args: Message = CommandArg()):
     tuple(
         [f"{prefix}menu" for prefix in command_start]
         + [f"{prefix}菜单" for prefix in command_start]
+        + [f"{prefix}help" for prefix in command_start]
     ),
     state=MatcherData(
         rm_name="Menu",
