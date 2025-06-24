@@ -78,8 +78,7 @@ product:{maps["product"]}
 版本：{maps["version"]}"""
 
         except Exception:
-            logger.exception("过程发生了错误")
-            await matcher.finish("过程发生了错误，请检查日志以获取详细信息。")
+            await matcher.finish("过程发生了错误。")
         await matcher.send(message)
     else:
         await matcher.send("请输入地址！格式<host>:<port>")

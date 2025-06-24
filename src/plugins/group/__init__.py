@@ -40,3 +40,5 @@ async def checher(event: GroupMessageEvent, matcher: Matcher):
     config, _ = await GroupConfig.get_or_create(group_id=event.group_id)
     if not config.switch:
         matcher.stop_propagation()
+
+

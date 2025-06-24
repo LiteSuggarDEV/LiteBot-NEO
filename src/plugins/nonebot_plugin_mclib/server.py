@@ -146,7 +146,6 @@ async def _(args: Message = CommandArg()):
         status_response = await get_server_status(location)
         ip = await get_ip(location)
     except Exception:
-        logger.exception("获取Java服务器状态失败")
         await java_status.finish(
             "获取失败（服务器不在线吗？）\n请检查地址格式是否正确。"
         )

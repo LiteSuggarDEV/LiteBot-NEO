@@ -3,7 +3,6 @@ from concurrent.futures import ThreadPoolExecutor
 
 import nmap
 import nonebot
-import ping3
 from nonebot import logger, on_command
 from nonebot.adapters.onebot.v11 import (
     Message,
@@ -42,28 +41,18 @@ def scan_ports_sync(host, arg1: None | str = None):
     if not is_ip_address(host):
         try:
             ips = resolve_dns_records(host)
-            if not ips:
-                raise
-        except Exception:
+            if ips is None:
+                raise Exception("DNS解析失败")
+        except Exception as e:
             return [
                 {
                     "port": -1,
                     "state": "Error",
-                    "name": "Resolve failed",
+                    "name": f"Resolve failed {''.join(e.args)!s}",
                     "product": "N/A",
                     "version": "N/A",
                 }
             ]
-    if ping3.ping(host, timeout=2) is None:
-        return [
-            {
-                "port": -1,
-                "state": "Error",
-                "name": "Connect failed",
-                "product": "N/A",
-                "version": "N/A",
-            }
-        ]
     nm.scan(host, arguments=f"-p {arg1} -sS -Pn")
     port_info_list = []
 

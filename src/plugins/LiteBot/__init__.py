@@ -1,14 +1,15 @@
 from nonebot.plugin import PluginMetadata, require
 
 require("menu")
-from . import status
+from . import database, status
 
 __plugin_meta__ = PluginMetadata(
     name="LiteBot插件",
-    description="包含LiteBot本体相关功能的插件",
+    description="LiteBot本体相关功能插件",
     usage="LiteBot插件",
     type="application",
 )
 __all__ = [
+    "database",
     "status",
 ]

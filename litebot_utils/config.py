@@ -17,6 +17,7 @@ config_dir = get_config_dir("LiteBot")
 
 class Config(BaseModel):
     rate_limit: int = 3
+    auto_database_migrate: bool = True
     admins: list[int] = [3196373166]
     notify_group: list[int] = [938229422]
 

@@ -1,6 +1,6 @@
 from aiohttp import ClientSession
 from nonebot import logger, on_command
-from nonebot.adapters.onebot.v11 import Message, MessageEvent
+from nonebot.adapters.onebot.v11 import Message
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
 

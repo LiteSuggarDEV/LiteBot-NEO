@@ -21,6 +21,7 @@ dependencies = [
     "qrcode>=8.2",
     "tortoise-orm[accel,asyncmy]>=0.25.0",
     "mcstatus>=12.0.1",
+    "tqdm>=4.67.1",
 ]
 
 [tool.nonebot]
