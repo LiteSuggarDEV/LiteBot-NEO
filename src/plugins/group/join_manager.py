@@ -25,20 +25,21 @@ async def captacha(
     bot: Bot, matcher: Matcher, event: GroupEvent, uid: int | None = None
 ):
     captcha = random.randint(10000, 99999)
-    captcha_manager.add(event.group_id, event.user_id if uid is None else uid, captcha)
+    user_id = event.user_id if uid is None else uid
+    captcha_manager.add(event.group_id, user_id, captcha)
     sent_msg_id: int = (
         await matcher.send(
-            MessageSegment.at(event.user_id)
+            MessageSegment.at(user_id)
             + MessageSegment.text(
                 f"请完成以下操作，验证您是真人。\n请在5分钟内输入验证码 {captcha} ，否则您将被移出聊群\n继续之前，该群需要先检查您的账号安全性。"
             ),
         )
     )["message_id"]
-    captcha_manager.pending(event.group_id, event.user_id, bot)
+    captcha_manager.pending(event.group_id, user_id, bot)
 
     pending_cancelable_msg[str(sent_msg_id)] = {
         "group_id": str(event.group_id),
-        "user_id": str(event.user_id),
+        "user_id": str(user_id),
     }
     matcher.stop_propagation()
 
