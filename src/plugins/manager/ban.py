@@ -4,7 +4,7 @@ from nonebot.params import CommandArg
 
 from litebot_utils.blacklist.black import bl_manager
 from litebot_utils.rule import is_admin
-from src.plugins.menu.manager import MatcherData
+from src.plugins.menu.models import MatcherData
 
 ban = CommandGroup("ban", permission=is_admin)
 

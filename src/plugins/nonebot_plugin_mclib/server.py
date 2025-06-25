@@ -7,7 +7,7 @@ from nonebot import logger, on_command
 from nonebot.adapters.onebot.v11 import Message
 from nonebot.params import CommandArg
 
-from src.plugins.menu.manager import MatcherData
+from src.plugins.menu.models import MatcherData
 
 java_status = on_command(
     "mc_java",
@@ -146,7 +146,6 @@ async def _(args: Message = CommandArg()):
         status_response = await get_server_status(location)
         ip = await get_ip(location)
     except Exception:
-        logger.exception("获取Java服务器状态失败")
         await java_status.finish(
             "获取失败（服务器不在线吗？）\n请检查地址格式是否正确。"
         )

@@ -5,7 +5,7 @@ from nonebot.adapters.onebot.v11 import Message
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
 
-from src.plugins.menu.manager import MatcherData
+from src.plugins.menu.models import MatcherData
 
 from .utils import (
     is_domain_refer_to_private_network,
@@ -78,7 +78,6 @@ product:{maps["product"]}
 版本：{maps["version"]}"""
 
         except Exception:
-            logger.exception("过程发生了错误")
             await matcher.finish("过程发生了错误，请检查日志以获取详细信息。")
         await matcher.send(message)
     else:

@@ -16,7 +16,7 @@ from litebot_utils.captcha_manager import captcha_manager
 from litebot_utils.event import GroupEvent
 from litebot_utils.models import GroupConfig
 from litebot_utils.rule import is_group_admin, is_self_admin
-from src.plugins.menu.manager import MatcherData
+from src.plugins.menu.models import MatcherData
 
 pending_cancelable_msg: dict[str, dict[str, str]] = {}
 
