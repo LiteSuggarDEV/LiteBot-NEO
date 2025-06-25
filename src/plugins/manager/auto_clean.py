@@ -3,7 +3,7 @@ from nonebot.adapters.onebot.v11 import Bot, MessageEvent
 
 from litebot_utils.config import ConfigManager
 from litebot_utils.rule import is_admin
-from src.plugins.menu.manager import MatcherData
+from src.plugins.menu.models import MatcherData
 
 clean_groups = on_command(
     "clean_groups",

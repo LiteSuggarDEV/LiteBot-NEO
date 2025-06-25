@@ -10,7 +10,7 @@ from nonebot.params import CommandArg
 
 from litebot_utils.models import GroupConfig
 from litebot_utils.rule import is_group_admin
-from src.plugins.menu.manager import MatcherData
+from src.plugins.menu.models import MatcherData
 
 command_start = get_driver().config.command_start
 switch = on_command(

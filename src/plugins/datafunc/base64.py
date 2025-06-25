@@ -6,7 +6,7 @@ from nonebot.adapters.onebot.v11 import Message
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
 
-from src.plugins.menu.manager import MatcherData
+from src.plugins.menu.models import MatcherData
 
 
 @on_command(

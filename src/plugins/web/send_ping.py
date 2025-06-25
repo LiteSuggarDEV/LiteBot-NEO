@@ -8,7 +8,7 @@ from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
 from ping3 import ping
 
-from src.plugins.menu.manager import MatcherData
+from src.plugins.menu.models import MatcherData
 
 from .utils import is_domain_refer_to_private_network
 

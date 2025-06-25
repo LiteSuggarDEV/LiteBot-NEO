@@ -12,7 +12,7 @@ from nonebot.adapters.onebot.v11 import (
 )
 from nonebot.params import CommandArg
 
-from src.plugins.menu.manager import MatcherData
+from src.plugins.menu.models import MatcherData
 
 mc_body = on_command(
     "mc_body",

@@ -5,7 +5,7 @@ from nonebot.params import CommandArg
 
 from litebot_utils.rule import is_admin
 from litebot_utils.utils import send_to_admin
-from src.plugins.menu.manager import MatcherData
+from src.plugins.menu.models import MatcherData
 
 
 @on_command(

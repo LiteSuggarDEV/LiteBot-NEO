@@ -4,7 +4,7 @@ from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
 
 from litebot_utils.rule import is_group_admin, is_self_admin
-from src.plugins.menu.manager import MatcherData
+from src.plugins.menu.models import MatcherData
 
 
 @on_command(

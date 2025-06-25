@@ -3,7 +3,6 @@ from concurrent.futures import ThreadPoolExecutor
 
 import nmap
 import nonebot
-import ping3
 from nonebot import logger, on_command
 from nonebot.adapters.onebot.v11 import (
     Message,
@@ -14,7 +13,7 @@ from nonebot.exception import NoneBotException
 from nonebot.params import CommandArg
 
 from litebot_utils.utils import send_to_admin
-from src.plugins.menu.manager import MatcherData
+from src.plugins.menu.models import MatcherData
 
 from .utils import (
     is_domain_refer_to_private_network,
@@ -42,7 +41,7 @@ def scan_ports_sync(host, arg1: None | str = None):
     if not is_ip_address(host):
         try:
             ips = resolve_dns_records(host)
-            if not ips:
+            if ips is None:
                 raise
         except Exception:
             return [
@@ -54,16 +53,6 @@ def scan_ports_sync(host, arg1: None | str = None):
                     "version": "N/A",
                 }
             ]
-    if ping3.ping(host, timeout=2) is None:
-        return [
-            {
-                "port": -1,
-                "state": "Error",
-                "name": "Connect failed",
-                "product": "N/A",
-                "version": "N/A",
-            }
-        ]
     nm.scan(host, arguments=f"-p {arg1} -sS -Pn")
     port_info_list = []
 

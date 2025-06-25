@@ -60,36 +60,39 @@ def is_ip_in_private_network(address: str) -> bool:
 
 
 def resolve_dns_records(domain: str) -> list[str] | None:
-        """
-        解析域名的A和AAAA记录
-        :param domain: 要解析的域名（如 'example.com'）
-        :return: 包含所有IPv4/IPv6地址的列表，解析失败返回None
-        """
-        resolver = dns.resolver.Resolver()
-        resolver.timeout = 10  # 设置超时时间
+    """
+    解析域名的A和AAAA记录
+    :param domain: 要解析的域名（如 'example.com'）
+    :return: 包含所有IPv4/IPv6地址的列表，解析失败返回None
+    """
+    resolver = dns.resolver.Resolver()
+    resolver.timeout = 10  # 设置超时时间
+    resolver.nameservers = [
+        "1.1.1.1",
+        "8.8.8.8",
+    ]
+    records = []
 
-        records = []
+    try:
+        # 解析A记录（IPv4）
+        a_answers = resolver.resolve(domain, "A")
+        records.extend([answer.to_text() for answer in a_answers])
 
-        try:
-            # 解析A记录（IPv4）
-            a_answers = resolver.resolve(domain, "A")
-            records.extend([answer.to_text() for answer in a_answers])
+        # 解析AAAA记录（IPv6）
+        aaaa_answers = resolver.resolve(domain, "AAAA")
+        records.extend([answer.to_text() for answer in aaaa_answers])
 
-            # 解析AAAA记录（IPv6）
-            aaaa_answers = resolver.resolve(domain, "AAAA")
-            records.extend([answer.to_text() for answer in aaaa_answers])
+        return records
 
-            return records
-
-        except dns.resolver.NoAnswer:
-            # 没有对应记录时返回空列表
-            return records or None
-        except dns.resolver.NXDOMAIN:
-            logger.warning(f"域名不存在: {domain}")
-            return None
-        except dns.resolver.Timeout:
-            logger.warning("DNS查询超时")
-            return None
-        except Exception as e:
-            logger.warning(f"DNS解析错误: {e!s}")
-            return None
+    except dns.resolver.NoAnswer:
+        # 没有对应记录时返回空列表
+        return records or None
+    except dns.resolver.NXDOMAIN:
+        logger.warning(f"域名不存在: {domain}")
+        return None
+    except dns.resolver.Timeout:
+        logger.warning("DNS查询超时")
+        return None
+    except Exception as e:
+        logger.warning(f"DNS解析错误: {e!s}")
+        return None
