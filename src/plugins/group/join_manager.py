@@ -1,3 +1,4 @@
+import contextlib
 import random
 
 from nonebot import get_driver, on_command, on_message, on_notice
@@ -14,7 +15,7 @@ from nonebot.params import CommandArg
 
 from litebot_utils.captcha_manager import captcha_manager
 from litebot_utils.event import GroupEvent
-from litebot_utils.models import GroupConfig
+from litebot_utils.models import get_or_create_group_config
 from litebot_utils.rule import is_group_admin, is_self_admin
 from src.plugins.menu.models import MatcherData
 
@@ -58,12 +59,18 @@ async def _(
 ):
     if not await is_group_admin(event, bot):
         return
-    config, _ = await GroupConfig.get_or_create(group_id=event.group_id)
+    config, _ = await get_or_create_group_config(group_id=event.group_id)
 
     if not await is_self_admin(event, bot):
         config.auto_manage_join = False
         await matcher.send("LiteBot为普通群成员！")
-        return await config.save()
+        # 在 SQLAlchemy 中需要通过 session 来保存
+        from nonebot_plugin_orm import get_session
+
+        async with get_session() as session:
+            session.add(config)
+            await session.commit()
+        return
     for segment in args:
         if segment.type == "at":
             uid = segment.data["qq"]
@@ -87,20 +94,25 @@ async def cmd(
 ) -> None:
     if not await is_group_admin(event, bot):
         return
-    config, _ = await GroupConfig.get_or_create(group_id=event.group_id)
+    config, _ = await get_or_create_group_config(group_id=event.group_id)
     if arg := args.extract_plain_text().strip().lower():
-        if arg in ("启用", "on", "enable", "开启", "yes", "y", "true"):
-            if not await is_self_admin(event, bot):
+        from nonebot_plugin_orm import get_session
+
+        async with get_session() as session:
+            session.add(config)
+            if arg in ("启用", "on", "enable", "开启", "yes", "y", "true"):
+                if not await is_self_admin(event, bot):
+                    config.auto_manage_join = False
+                    await matcher.send("LiteBot为普通群成员，无法开启！")
+                    await session.commit()
+                    return
+                config.auto_manage_join = True
+                await session.commit()
+            elif arg in ("关闭", "off", "disable", "关闭", "no", "n", "false"):
                 config.auto_manage_join = False
-                await matcher.send("LiteBot为普通群成员，无法开启！")
-                return await config.save()
-            config.auto_manage_join = True
-            await config.save()
-        elif arg in ("关闭", "off", "disable", "关闭", "no", "n", "false"):
-            config.auto_manage_join = False
-            await config.save()
-        else:
-            await matcher.finish("请输入 on/off 来开启或关闭！")
+                await session.commit()
+            else:
+                await matcher.finish("请输入 on/off 来开启或关闭！")
 
     await matcher.send(
         f"群组进群验证码已 {'开启' if config.auto_manage_join else '关闭'} ！"
@@ -109,7 +121,7 @@ async def cmd(
 
 @on_message(priority=5, block=False).handle()
 async def checker(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
-    config, _ = await GroupConfig.get_or_create(group_id=event.group_id)
+    config, _ = await get_or_create_group_config(group_id=event.group_id)
     if not config.auto_manage_join:
         return
     if (captcha := captcha_manager.query(event.group_id, event.user_id)) is not None:
@@ -148,40 +160,39 @@ async def checker(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
     ).model_dump(),
 ).handle()
 async def handle_cancel(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
-    if event.reply:
-        if str(event.reply.message_id) not in pending_cancelable_msg:
-            return
-        if event.message.extract_plain_text().strip() not in (
-            f"{prefix}skip" for prefix in get_driver().config.command_start
-        ):
-            return
-        if not await is_group_admin(event, bot):
-            return
-        if (
-            await bot.get_group_member_info(
-                user_id=event.self_id, group_id=event.group_id
-            )
-        )["role"] == "member":
-            return
-        try:
-            await bot.delete_msg(message_id=event.reply.message_id)
-        except ActionFailed:
-            pass
-        captcha_manager.remove(
-            event.group_id,
-            int(pending_cancelable_msg[str(event.reply.message_id)]["user_id"]),
+    if not event.reply:
+        return
+    if str(event.reply.message_id) not in pending_cancelable_msg:
+        return
+    if event.message.extract_plain_text().strip() not in (
+        f"{prefix}skip" for prefix in get_driver().config.command_start
+    ):
+        return
+    if not await is_group_admin(event, bot):
+        return
+    if (
+        await bot.get_group_member_info(
+            user_id=event.self_id, group_id=event.group_id
         )
-        del pending_cancelable_msg[str(event.reply.message_id)]
+    )["role"] == "member":
+        return
+    with contextlib.suppress(ActionFailed):
+        await bot.delete_msg(message_id=event.reply.message_id)
+    captcha_manager.remove(
+        event.group_id,
+        int(pending_cancelable_msg[str(event.reply.message_id)]["user_id"]),
+    )
+    del pending_cancelable_msg[str(event.reply.message_id)]
 
-        await matcher.send("已取消该验证！")
-        matcher.stop_propagation()
+    await matcher.send("已取消该验证！")
+    matcher.stop_propagation()
 
 
 @on_notice(priority=9, block=False).handle()
 async def handle_join(bot: Bot, event: GroupIncreaseNoticeEvent, matcher: Matcher):
     if event.user_id == event.self_id:
         return
-    config, _ = await GroupConfig.get_or_create(group_id=event.group_id)
+    config, _ = await get_or_create_group_config(group_id=event.group_id)
     if not config.auto_manage_join:
         return
     if not await is_self_admin(event, bot):
