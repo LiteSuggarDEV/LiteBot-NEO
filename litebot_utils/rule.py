@@ -1,4 +1,9 @@
+from nonebot import require
 from nonebot.adapters.onebot.v11 import Bot, Event, GroupMessageEvent
+from sqlalchemy import select
+
+require("nonebot_plugin_orm")
+from nonebot_plugin_orm import get_session
 
 from litebot_utils.config import ConfigManager
 from litebot_utils.event import GroupEvent, UserIDEvent
@@ -9,12 +14,16 @@ async def rule_switch(event: Event):
     """开关"""
     if isinstance(event, GroupMessageEvent):
         group_id = event.group_id
-        group_config = await GroupConfig.get_or_none(group_id=group_id)
-        return group_config.switch if group_config else True
+        async with get_session() as session:
+            stmt = select(GroupConfig).where(GroupConfig.group_id == group_id)
+            result = await session.execute(stmt)
+            group_config = result.scalar_one_or_none()
+            return group_config.switch if group_config else True
 
 
 async def is_admin(event: UserIDEvent) -> bool:
     return event.user_id in ConfigManager.instance().config.admins
+
 
 async def is_group_admin(event: GroupEvent, bot: Bot) -> bool:
     return (
