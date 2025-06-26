@@ -6,13 +6,11 @@ from nonebot.adapters.onebot.v11 import (
 )
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
-from sqlalchemy import select
-from sqlalchemy.dialects.sqlite import insert
 
 require("nonebot_plugin_orm")
 from nonebot_plugin_orm import get_session
 
-from litebot_utils.models import GroupConfig
+from litebot_utils.models import get_or_create_group_config
 from litebot_utils.rule import is_group_admin
 from src.plugins.menu.models import MatcherData
 
@@ -39,20 +37,8 @@ async def _(
     str_arg = arg.extract_plain_text().strip()
 
     async with get_session() as session:
-        # 获取现有配置
-        stmt = select(GroupConfig).where(GroupConfig.group_id == group_id)
-        result = await session.execute(stmt)
-        group_config = result.scalar_one_or_none()
-
-        # 不存在创建配置
-        if not group_config:
-            stmt = insert(GroupConfig).values(group_id=group_id)
-            await session.execute(stmt)
-            await session.commit()
-            # 重取创建配置
-            stmt = select(GroupConfig).where(GroupConfig.group_id == group_id)
-            result = await session.execute(stmt)
-            group_config = result.scalar_one()
+        # 使用工具函数获取或创建配置
+        group_config, _ = await get_or_create_group_config(group_id)
 
         if not str_arg:
             await matcher.send(
