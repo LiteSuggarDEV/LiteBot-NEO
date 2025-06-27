@@ -124,7 +124,9 @@ async def checker(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
     config, _ = await get_or_create_group_config(group_id=event.group_id)
     if not config.auto_manage_join:
         return
-    if (captcha := captcha_manager.query(event.group_id, event.user_id)) is not None:
+    if (
+        captcha := await captcha_manager.query(event.group_id, event.user_id)
+    ) is not None:
         message: str = event.message.extract_plain_text().strip()
         group_name: str = (await bot.get_group_info(group_id=event.group_id))[
             "group_name"

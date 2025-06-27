@@ -11,6 +11,8 @@ class CaptchaManager:
         self.__lock: asyncio.Lock = asyncio.Lock()
 
     async def add(self, gid: int, uid: int, captcha: int) -> "CaptchaManager":
+        if await self._get_task(gid, uid) is not None:
+            await self._cancel_task(gid, uid)
         async with self.__lock:
             group_id = str(gid)
             user_id = str(uid)
@@ -64,7 +66,7 @@ class CaptchaManager:
 
     async def __waitter(self, gid: str, uid: str, bot: Bot, time: int):
         await asyncio.sleep(time)
-        if self.query(int(gid), int(uid)) is not None:
+        if await self.query(int(gid), int(uid)) is not None:
             await bot.send_group_msg(
                 group_id=int(gid),
                 message=MessageSegment.at(user_id=int(uid))
