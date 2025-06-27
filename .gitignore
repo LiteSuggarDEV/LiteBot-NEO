@@ -151,4 +151,4 @@ run.bat
 config/
 db.*
 .DS_Store
-data.db
+*.db
