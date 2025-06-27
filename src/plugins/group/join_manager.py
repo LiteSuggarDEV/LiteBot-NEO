@@ -27,7 +27,7 @@ async def captacha(
 ):
     captcha = random.randint(10000, 99999)
     user_id = event.user_id if uid is None else uid
-    captcha_manager.add(event.group_id, user_id, captcha)
+    await captcha_manager.add(event.group_id, user_id, captcha)
     sent_msg_id: int = (
         await matcher.send(
             MessageSegment.at(user_id)
@@ -36,7 +36,7 @@ async def captacha(
             ),
         )
     )["message_id"]
-    captcha_manager.pending(event.group_id, user_id, bot)
+    await captcha_manager.pending(event.group_id, user_id, bot)
 
     pending_cancelable_msg[str(sent_msg_id)] = {
         "group_id": str(event.group_id),
@@ -134,7 +134,7 @@ async def checker(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
                 MessageSegment.at(event.user_id)
                 + MessageSegment.text(f"验证成功！欢迎加入{group_name}！"),
             )
-            captcha_manager.remove(event.group_id, event.user_id)
+            await captcha_manager.remove(event.group_id, event.user_id)
             for k in list(pending_cancelable_msg):
                 v = pending_cancelable_msg[k]
                 if v.get("user_id") == str(event.user_id) and v.get("group_id") == str(
@@ -178,7 +178,7 @@ async def handle_cancel(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
         return
     with contextlib.suppress(ActionFailed):
         await bot.delete_msg(message_id=event.reply.message_id)
-    captcha_manager.remove(
+    await captcha_manager.remove(
         event.group_id,
         int(pending_cancelable_msg[str(event.reply.message_id)]["user_id"]),
     )

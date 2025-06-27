@@ -8,51 +8,59 @@ class CaptchaManager:
     def __init__(self):
         self.__data: dict[str, dict[str, str]] = {}
         self.__task_data: dict[str, dict[str, asyncio.Task]] = {}
+        self.__lock: asyncio.Lock = asyncio.Lock()
 
-    def add(self, gid: int, uid: int, captcha: int) -> "CaptchaManager":
-        group_id = str(gid)
-        user_id = str(uid)
-        if gid not in self.__data:
-            self.__data[group_id] = {}
-        self.__data[group_id][user_id] = str(captcha)
-        return self
+    async def add(self, gid: int, uid: int, captcha: int) -> "CaptchaManager":
+        async with self.__lock:
+            group_id = str(gid)
+            user_id = str(uid)
+            if gid not in self.__data:
+                self.__data[group_id] = {}
+            self.__data[group_id][user_id] = str(captcha)
+            return self
 
-    def remove(self, gid: int, uid: int) -> "CaptchaManager":
+    async def remove(self, gid: int, uid: int) -> "CaptchaManager":
         group_id = str(gid)
         user_id = str(uid)
         if group_id in self.__data and user_id in self.__data.get(group_id, {}):
             del self.__data[group_id][user_id]
-            self._cancel_task(gid, uid)
+            await self._cancel_task(gid, uid)
         return self
 
-    def _cancel_task(self, gid: int, uid: int):
-        task = self._get_task(gid, uid)
-        if task is not None:
-            try:
-                task.cancel()
-            except Exception:
-                pass
-            del self.__task_data[str(gid)][str(uid)]
+    async def _cancel_task(self, gid: int, uid: int):
+        task = await self._get_task(gid, uid)
+        async with self.__lock:
+            if task is not None:
+                try:
+                    task.cancel()
+                except Exception:
+                    pass
+                del self.__task_data[str(gid)][str(uid)]
 
-    def query(self, gid: int, uid: int) -> str | None:
-        group_id = str(gid)
-        user_id = str(uid)
-        if group_id in self.__data and user_id in self.__data.get(group_id, {}):
-            return self.__data[group_id][user_id]
+    async def query(self, gid: int, uid: int) -> str | None:
+        async with self.__lock:
+            group_id = str(gid)
+            user_id = str(uid)
+            if group_id in self.__data and user_id in self.__data.get(group_id, {}):
+                return self.__data[group_id][user_id]
 
-    def _get_task(self, gid: int, uid: int) -> asyncio.Task | None:
-        if str(gid) in self.__task_data:
-            return self.__task_data[str(gid)].get(str(uid), None)
+    async def _get_task(self, gid: int, uid: int) -> asyncio.Task | None:
+        async with self.__lock:
+            if str(gid) in self.__task_data:
+                return self.__task_data[str(gid)].get(str(uid), None)
 
-    def pending(self, gid: int, uid: int, bot: Bot, time: int = 5) -> asyncio.Task:
-        mins = time * 60
-        group_id = str(gid)
-        user_id = str(uid)
-        task = asyncio.create_task(self.__waitter(group_id, user_id, bot, mins))
-        if group_id not in self.__task_data:
-            self.__task_data[group_id] = {}
-        self.__task_data[group_id][user_id] = task
-        return task
+    async def pending(
+        self, gid: int, uid: int, bot: Bot, time: int = 5
+    ) -> asyncio.Task:
+        async with self.__lock:
+            mins = time * 60
+            group_id = str(gid)
+            user_id = str(uid)
+            task = asyncio.create_task(self.__waitter(group_id, user_id, bot, mins))
+            if group_id not in self.__task_data:
+                self.__task_data[group_id] = {}
+            self.__task_data[group_id][user_id] = task
+            return task
 
     async def __waitter(self, gid: str, uid: str, bot: Bot, time: int):
         await asyncio.sleep(time)
@@ -65,7 +73,7 @@ class CaptchaManager:
             await bot.set_group_kick(
                 group_id=int(gid), user_id=int(uid), reject_add_request=False
             )
-            self.remove(int(gid), int(uid))
+            await self.remove(int(gid), int(uid))
 
     @property
     def data(self):
