@@ -48,6 +48,7 @@ jobs:
       - name: Install dependencies
         run : |
             sudo apt install nmap -y
+            pipx install nb-cli
 
       - name: Get Python path
         run: |
@@ -59,6 +60,11 @@ jobs:
         with:
           python-path: ${{ env.PYTHON_BIN }}
           pylance-version: latest-release
+
+      - name: Setup database
+        run: |
+          echo "Setting up database for CI..."
+          uv run nb orm upgrade head
 
       - name: Load test
         run: |

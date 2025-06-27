@@ -1,5 +1,4 @@
-
-from nonebot import get_driver, on_notice
+from nonebot import get_driver, on_notice, require
 from nonebot.adapters.onebot.v11 import (
     Bot,
     GroupAdminNoticeEvent,
@@ -8,6 +7,10 @@ from nonebot.adapters.onebot.v11 import (
     MessageSegment,
 )
 from nonebot.matcher import Matcher
+from sqlalchemy import select
+
+require("nonebot_plugin_orm")
+from nonebot_plugin_orm import get_session
 
 from litebot_utils.event import GroupEvent
 from litebot_utils.models import GroupConfig
@@ -18,23 +21,26 @@ command_start = get_driver().config.command_start
 notice = on_notice(priority=11, block=False)
 poke = on_notice(priority=10)
 
+
 @notice.handle()
 async def handle_group_notice(event: GroupEvent, bot: Bot, matcher: Matcher):
     gid, uid, self_id = event.group_id, event.user_id, event.self_id
-    group_config = await GroupConfig.get_or_none(group_id=gid)
-    if not group_config or not group_config.switch or not group_config.welcome:
-        return
+    async with get_session() as session:
+        stmt = select(GroupConfig).where(GroupConfig.group_id == gid)
+        result = await session.execute(stmt)
+        group_config = result.scalar_one_or_none()
 
-    if isinstance(event, GroupDecreaseNoticeEvent):
-        await handle_member_leave(bot, gid, uid, event)
+        if not group_config or not group_config.switch or not group_config.welcome:
+            return
 
-    elif isinstance(event, GroupIncreaseNoticeEvent):
-        await handle_member_join(bot, event, gid, uid)
+        if isinstance(event, GroupDecreaseNoticeEvent):
+            await handle_member_leave(bot, gid, uid, event)
 
-    elif isinstance(event, GroupAdminNoticeEvent):
-        await handle_admin_change(bot, event, gid, uid, self_id)
+        elif isinstance(event, GroupIncreaseNoticeEvent):
+            await handle_member_join(bot, event, gid, uid)
 
-
+        elif isinstance(event, GroupAdminNoticeEvent):
+            await handle_admin_change(bot, event, gid, uid, self_id)
 
 
 async def handle_member_leave(
@@ -49,11 +55,10 @@ async def handle_member_leave(
             )
             + MessageSegment.text("退出了群聊")
         )
+    elif event.operator_id == 0:
+        message = f"{uid} 被赠送了飞机票。"
     else:
-        if event.operator_id == 0:
-            message = f"{uid} 被赠送了飞机票。"
-        else:
-            message = f"{uid} 被 {event.operator_id} 赠送了飞机票。"
+        message = f"{uid} 被 {event.operator_id} 赠送了飞机票。"
     await bot.send_group_msg(group_id=gid, message=message)
 
 

@@ -10,6 +10,7 @@ from nonebot.utils import escape_tag
 
 __name__ = "LiteBot CI/CD Test Process"
 
+
 class LoadError(Exception):
     def __init__(self, data: Any):
         self.data = data
@@ -59,12 +60,13 @@ def _load_plugin(self, name: str) -> Plugin | None:
         logger.opt(colors=True, exception=e).error(
             f'<r><bg #f8bbd0>Failed to import "{escape_tag(name)}"</bg #f8bbd0></r>'
         )
-        raise LoadError(e)
+        raise LoadError(e) from e
 
 
 nonebot.plugin.manager.PluginManager.load_plugin = _load_plugin
 
 os.environ["LOG_LEVEL"] = "DEBUG"
+os.environ["ALEMBIC_STARTUP_CHECK"] = "false"
 logger = nonebot.logger
 
 logger.info("Start testing LiteBot...")

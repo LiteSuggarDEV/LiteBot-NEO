@@ -1,21 +1,20 @@
-from nonebot_plugin_tortoise_orm import add_model
-from tortoise import fields
-from tortoise.models import Model
+from nonebot import require
+from sqlalchemy import String, Text
+from sqlalchemy.orm import Mapped, mapped_column
 
-add_model(__name__)
+require("nonebot_plugin_orm")
+from nonebot_plugin_orm import Model
 
 
 class GroupBlacklist(Model):
-    group_id = fields.CharField(max_length=50, pk=True)
-    reason = fields.TextField()
+    group_id: Mapped[str] = mapped_column(String(50), primary_key=True)
+    reason: Mapped[str] = mapped_column(Text)
 
-    class Meta:
-        table = "group_blacklist"
+    __tablename__ = "group_blacklist"
 
 
 class PrivateBlacklist(Model):
-    user_id = fields.CharField(max_length=50, pk=True)
-    reason = fields.TextField()
+    user_id: Mapped[str] = mapped_column(String(50), primary_key=True)
+    reason: Mapped[str] = mapped_column(Text)
 
-    class Meta:
-        table = "private_blacklist"
+    __tablename__ = "private_blacklist"
