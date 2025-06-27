@@ -14,7 +14,7 @@ class CaptchaManager:
         self._loop = asyncio.get_event_loop()
 
     async def add(
-        self, gid: int, uid: int, captcha_code: int, bot: Bot, cap_timeout: int = 5
+        self, gid: int, uid: int, captcha_code: int, bot: Bot, timeout_minutes: int = 5
     ) -> "CaptchaManager":
         group_id = str(gid)
         user_id = str(uid)
@@ -24,7 +24,7 @@ class CaptchaManager:
         async with self._data_lock:
             self._data.setdefault(group_id, {})[user_id] = str(captcha_code)
 
-        delay = cap_timeout * 60
+        delay = timeout_minutes * 60
         handle = self._loop.call_later(
             delay, lambda: asyncio.create_task(self._expire(group_id, user_id, bot))
         )
