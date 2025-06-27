@@ -12,6 +12,7 @@ from nonebot.adapters.onebot.v11 import (
 )
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
+from nonebot_plugin_orm import get_session
 
 from litebot_utils.captcha_manager import captcha_manager
 from litebot_utils.event import GroupEvent
@@ -25,19 +26,17 @@ pending_cancelable_msg: dict[str, dict[str, str]] = {}
 async def captacha(
     bot: Bot, matcher: Matcher, event: GroupEvent, uid: int | None = None
 ):
-    captcha = random.randint(10000, 99999)
+    captcha_code = random.randint(10000, 99999)
     user_id = event.user_id if uid is None else uid
-    await captcha_manager.add(event.group_id, user_id, captcha)
     sent_msg_id: int = (
         await matcher.send(
             MessageSegment.at(user_id)
             + MessageSegment.text(
-                f"请完成以下操作，验证您是真人。\n请在5分钟内输入验证码 {captcha} ，否则您将被移出聊群\n继续之前，该群需要先检查您的账号安全性。"
+                f"请完成以下操作，验证您是真人。\n请在5分钟内输入验证码 {captcha_code} ，否则您将被移出聊群\n继续之前，该群需要先检查您的账号安全性。"
             ),
         )
     )["message_id"]
-    await captcha_manager.pending(event.group_id, user_id, bot)
-
+    await captcha_manager.add(event.group_id, user_id, captcha_code, bot)
     pending_cancelable_msg[str(sent_msg_id)] = {
         "group_id": str(event.group_id),
         "user_id": str(user_id),
@@ -96,8 +95,6 @@ async def cmd(
         return
     config, _ = await get_or_create_group_config(group_id=event.group_id)
     if arg := args.extract_plain_text().strip().lower():
-        from nonebot_plugin_orm import get_session
-
         async with get_session() as session:
             session.add(config)
             if arg in ("启用", "on", "enable", "开启", "yes", "y", "true"):
@@ -173,9 +170,7 @@ async def handle_cancel(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
     if not await is_group_admin(event, bot):
         return
     if (
-        await bot.get_group_member_info(
-            user_id=event.self_id, group_id=event.group_id
-        )
+        await bot.get_group_member_info(user_id=event.self_id, group_id=event.group_id)
     )["role"] == "member":
         return
     with contextlib.suppress(ActionFailed):
