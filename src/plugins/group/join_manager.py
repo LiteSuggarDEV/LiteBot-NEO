@@ -23,7 +23,7 @@ from src.plugins.menu.models import MatcherData
 pending_cancelable_msg: dict[str, dict[str, str]] = {}
 
 
-async def captacha(
+async def captcha(
     bot: Bot, matcher: Matcher, event: GroupEvent, uid: int | None = None
 ):
     captcha_code = random.randint(10000, 99999)
@@ -73,7 +73,7 @@ async def _(
     for segment in args:
         if segment.type == "at":
             uid = segment.data["qq"]
-            await captacha(bot, matcher, event, int(uid))
+            await captcha(bot, matcher, event, int(uid))
             break
     else:
         await matcher.finish("请at需要验证的人。")
@@ -194,4 +194,4 @@ async def handle_join(bot: Bot, event: GroupIncreaseNoticeEvent, matcher: Matche
         return
     if not await is_self_admin(event, bot):
         return
-    await captacha(bot, matcher, event)
+    await captcha(bot, matcher, event)
