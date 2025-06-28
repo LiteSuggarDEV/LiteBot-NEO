@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import nonebot
-from dotenv import load_dotenv
+from dotenv import dotenv_values, load_dotenv
 from nonebot import get_driver
 from nonebot.adapters.onebot.v11 import Adapter as ONEBOT_V11Adapter
 from nonebot.adapters.onebot.v11 import Bot
@@ -14,9 +14,7 @@ from nonebot.log import default_format, logger_id
 
 if not Path(".env").exists():
     with open(".env", "w") as f:
-        f.write(
-            'ENVIRONMENT=dev\nDRIVER=~fastapi\nHOST=127.0.0.1\nPORT=14321\nLOCALSTORE_CONFIG_DIR=./config\nCOMMAND_SEP=[".", " ", ""]\n'
-        )
+        f.write("".join(f"{k}={v}\n" for k, v in dotenv_values(".env.example").items()))
 if not Path(".env.prod").exists():
     with open(".env.prod", "a") as f:
         f.write("LOG_LEVEL=INFO")
