@@ -12,6 +12,7 @@ from nonebot.adapters.onebot.v11 import (
 )
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
+from nonebot_plugin_orm import get_session
 
 from litebot_utils.captcha_manager import captcha_manager
 from litebot_utils.event import GroupEvent
@@ -22,22 +23,20 @@ from src.plugins.menu.models import MatcherData
 pending_cancelable_msg: dict[str, dict[str, str]] = {}
 
 
-async def captacha(
+async def captcha(
     bot: Bot, matcher: Matcher, event: GroupEvent, uid: int | None = None
 ):
-    captcha = random.randint(10000, 99999)
+    captcha_code = random.randint(10000, 99999)
     user_id = event.user_id if uid is None else uid
-    captcha_manager.add(event.group_id, user_id, captcha)
     sent_msg_id: int = (
         await matcher.send(
             MessageSegment.at(user_id)
             + MessageSegment.text(
-                f"请完成以下操作，验证您是真人。\n请在5分钟内输入验证码 {captcha} ，否则您将被移出聊群\n继续之前，该群需要先检查您的账号安全性。"
+                f"请完成以下操作，验证您是真人。\n请在5分钟内输入验证码 {captcha_code} ，否则您将被移出聊群\n继续之前，该群需要先检查您的账号安全性。"
             ),
         )
     )["message_id"]
-    captcha_manager.pending(event.group_id, user_id, bot)
-
+    await captcha_manager.add(event.group_id, user_id, captcha_code, bot)
     pending_cancelable_msg[str(sent_msg_id)] = {
         "group_id": str(event.group_id),
         "user_id": str(user_id),
@@ -74,7 +73,7 @@ async def _(
     for segment in args:
         if segment.type == "at":
             uid = segment.data["qq"]
-            await captacha(bot, matcher, event, int(uid))
+            await captcha(bot, matcher, event, int(uid))
             break
     else:
         await matcher.finish("请at需要验证的人。")
@@ -96,8 +95,6 @@ async def cmd(
         return
     config, _ = await get_or_create_group_config(group_id=event.group_id)
     if arg := args.extract_plain_text().strip().lower():
-        from nonebot_plugin_orm import get_session
-
         async with get_session() as session:
             session.add(config)
             if arg in ("启用", "on", "enable", "开启", "yes", "y", "true"):
@@ -124,7 +121,9 @@ async def checker(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
     config, _ = await get_or_create_group_config(group_id=event.group_id)
     if not config.auto_manage_join:
         return
-    if (captcha := captcha_manager.query(event.group_id, event.user_id)) is not None:
+    if (
+        captcha := await captcha_manager.query(event.group_id, event.user_id)
+    ) is not None:
         message: str = event.message.extract_plain_text().strip()
         group_name: str = (await bot.get_group_info(group_id=event.group_id))[
             "group_name"
@@ -134,7 +133,7 @@ async def checker(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
                 MessageSegment.at(event.user_id)
                 + MessageSegment.text(f"验证成功！欢迎加入{group_name}！"),
             )
-            captcha_manager.remove(event.group_id, event.user_id)
+            await captcha_manager.remove(event.group_id, event.user_id)
             for k in list(pending_cancelable_msg):
                 v = pending_cancelable_msg[k]
                 if v.get("user_id") == str(event.user_id) and v.get("group_id") == str(
@@ -171,14 +170,12 @@ async def handle_cancel(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
     if not await is_group_admin(event, bot):
         return
     if (
-        await bot.get_group_member_info(
-            user_id=event.self_id, group_id=event.group_id
-        )
+        await bot.get_group_member_info(user_id=event.self_id, group_id=event.group_id)
     )["role"] == "member":
         return
     with contextlib.suppress(ActionFailed):
         await bot.delete_msg(message_id=event.reply.message_id)
-    captcha_manager.remove(
+    await captcha_manager.remove(
         event.group_id,
         int(pending_cancelable_msg[str(event.reply.message_id)]["user_id"]),
     )
@@ -197,4 +194,4 @@ async def handle_join(bot: Bot, event: GroupIncreaseNoticeEvent, matcher: Matche
         return
     if not await is_self_admin(event, bot):
         return
-    await captacha(bot, matcher, event)
+    await captcha(bot, matcher, event)
