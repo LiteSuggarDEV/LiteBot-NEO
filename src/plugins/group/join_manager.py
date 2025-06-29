@@ -139,6 +139,7 @@ async def checker(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
                 if v.get("user_id") == str(event.user_id) and v.get("group_id") == str(
                     event.group_id
                 ):
+                    await bot.delete_msg(message_id=int(k))
                     del pending_cancelable_msg[k]
                     break
             matcher.stop_propagation()

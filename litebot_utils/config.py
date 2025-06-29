@@ -17,8 +17,12 @@ config_dir = get_config_dir("LiteBot")
 
 class Config(BaseModel):
     rate_limit: int = 3
-    admins: list[int] = [3196373166]
-    notify_group: list[int] = [938229422]
+    admins: list[int] = [
+        3196373166,
+    ]
+    notify_group: list[int] = [
+        1002495699,
+    ]
 
 
 @dataclass
