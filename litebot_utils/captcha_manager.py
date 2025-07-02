@@ -1,4 +1,5 @@
 import asyncio
+import time
 
 from nonebot.adapters.onebot.v11 import Bot, MessageSegment
 
@@ -25,8 +26,9 @@ class CaptchaManager:
             self._data.setdefault(group_id, {})[user_id] = str(captcha_code)
 
         delay = timeout_minutes * 60
-        handle = self._loop.call_later(
-            delay, lambda: asyncio.create_task(self._expire(group_id, user_id, bot))
+        handle = self._loop.call_at(
+            int(time.time()) + delay,
+            lambda: asyncio.create_task(self._expire(group_id, user_id, bot)),
         )
 
         async with self._tasks_lock:
