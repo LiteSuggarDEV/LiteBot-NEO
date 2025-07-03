@@ -59,4 +59,4 @@ async def run(matcher: Matcher, event: MessageEvent):
 
         with contextlib.suppress(Exception):
             await matcher.send(random.choice(too_fast_reply))
-        raise IgnoredException("some reason")
+        raise IgnoredException("Too fast!")

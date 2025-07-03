@@ -22,6 +22,11 @@ class GroupConfig(Model):
     )
     anti_link: Mapped[bool] = mapped_column(Boolean, default=False)
     auto_manage_join: Mapped[bool] = mapped_column(Boolean, default=False)
+    captcha_timeout: Mapped[int] = mapped_column(BigInteger, default=5)
+    captcha_format: Mapped[int] = mapped_column(
+        Text, default=0
+    )  # 0:纯数字 1:字母数字混合 3:纯字母 注：字母均为大小写组合
+    captcha_length: Mapped[int] = mapped_column(BigInteger, default=6)
 
     __tablename__ = "group_config"
 
@@ -45,3 +50,8 @@ async def get_or_create_group_config(group_id: int) -> tuple[GroupConfig, bool]:
         config = result.scalar_one()
 
         return config, True
+
+async def commit_config(config: GroupConfig) -> None:
+    async with get_session() as session:
+        session.add(config)
+        await session.commit()
