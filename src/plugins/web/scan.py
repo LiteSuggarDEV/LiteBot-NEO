@@ -40,15 +40,15 @@ def scan_ports_sync(host, arg1: None | str = None):
         arg1 = "1-1023"
     if not is_ip_address(host):
         try:
-            ips = resolve_dns_records(host)
+            ips = resolve_dns_records(host, True)
             if ips is None:
-                raise
-        except Exception:
+                raise RuntimeWarning("DNS解析失败")
+        except Exception as e:
             return [
                 {
                     "port": -1,
                     "state": "Error",
-                    "name": "Resolve failed",
+                    "name": f"Resolve failed{''.join(a for a in e.args)}",
                     "product": "N/A",
                     "version": "N/A",
                 }
@@ -80,11 +80,6 @@ async def scan_ports(host, user_id, event, arg1: None | str = None):
         info_list = await asyncio.get_event_loop().run_in_executor(
             executor, scan_ports_sync, (host, arg1)
         )
-
-        # 确保 port_info_list 是一个可迭代列表
-        if not isinstance(info_list, list):
-            raise TypeError("scan_ports_sync 需要返回一个可迭代对象")
-
         message = MessageSegment.text(f"主机：{host}\n端口：\n")
         for one_port in info_list:
             message += MessageSegment.text(

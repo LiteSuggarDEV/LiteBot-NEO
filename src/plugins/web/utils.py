@@ -3,6 +3,12 @@ from ipaddress import ip_address
 import dns.resolver
 from nonebot import logger
 
+resolver = dns.resolver.Resolver()
+resolver.timeout = 5  # 设置超时时间
+resolver.nameservers = [
+    "1.1.1.1",
+    "8.8.8.8",
+]
 
 def is_valid_domain(domain: str) -> bool:
     """
@@ -11,7 +17,7 @@ def is_valid_domain(domain: str) -> bool:
     :return: 如果是有效的域名返回True，否则返回False
     """
     try:
-        dns.resolver.resolve(domain, "A")
+        resolver.resolve(domain, "A")
         return True
     except dns.resolver.NoAnswer:
         return False
@@ -59,18 +65,17 @@ def is_ip_in_private_network(address: str) -> bool:
         return False
 
 
-def resolve_dns_records(domain: str) -> list[str] | None:
+def resolve_dns_records(domain: str, v4only: bool = False) -> list[str] | None:
+    """解析A/AAAA记录
+
+    Args:
+        domain (str): 域名
+        v4only (bool, optional): 是否仅解析V4. Defaults to False.
+
+    Returns:
+        list[str] | None: 如果失败返回None,成功返回列表
     """
-    解析域名的A和AAAA记录
-    :param domain: 要解析的域名（如 'example.com'）
-    :return: 包含所有IPv4/IPv6地址的列表，解析失败返回None
-    """
-    resolver = dns.resolver.Resolver()
-    resolver.timeout = 10  # 设置超时时间
-    resolver.nameservers = [
-        "1.1.1.1",
-        "8.8.8.8",
-    ]
+
     records = []
 
     try:
@@ -78,9 +83,10 @@ def resolve_dns_records(domain: str) -> list[str] | None:
         a_answers = resolver.resolve(domain, "A")
         records.extend([answer.to_text() for answer in a_answers])
 
-        # 解析AAAA记录（IPv6）
-        aaaa_answers = resolver.resolve(domain, "AAAA")
-        records.extend([answer.to_text() for answer in aaaa_answers])
+        if not v4only:
+            # 解析AAAA记录（IPv6）
+            aaaa_answers = resolver.resolve(domain, "AAAA")
+            records.extend([answer.to_text() for answer in aaaa_answers])
 
         return records
 

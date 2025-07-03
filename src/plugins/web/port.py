@@ -1,3 +1,7 @@
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
+from typing import Any
+
 import dns.resolver as resolver
 import nmap
 from nonebot import logger, on_command
@@ -14,14 +18,14 @@ from .utils import (
 )
 
 nm = nmap.PortScanner()
+executor = ThreadPoolExecutor(max_workers=10)
 
 
-async def nmap_port(address, port):
+def scan_ports(address, port) -> dict[str, Any]:
     nm.scan(address, arguments=f"-p {port} -Pn")
 
     # 准备一个列表用于存储结果
 
-    # 遍历扫描结果
     print()
     for protocol in nm[address].all_protocols():
         ports = nm[address][protocol].keys()
@@ -35,6 +39,21 @@ async def nmap_port(address, port):
             }
 
     return port_info
+
+
+async def send_nmap_port(matcher: Matcher, data: asyncio.Future[dict[Any, Any]]):
+    try:
+        port_info = data.result()
+        message = f"""结果：
+端口：{port_info["port"]}
+状态：{port_info["state"]}
+服务：{port_info["name"]}
+product:{port_info["product"]}
+版本：{port_info["version"]}"""
+        await matcher.send(message)
+    except Exception:
+        await matcher.send("发生错误！请查看日志！")
+        logger.opt()
 
 
 @on_command(
@@ -69,16 +88,14 @@ async def _(matcher: Matcher, args: Message = CommandArg()):
 
             else:
                 answers = [url[0]]
-            maps = await nmap_port(answers[0], url[1])
-            message = f"""结果：
-端口：{maps["port"]}
-状态：{maps["state"]}
-服务：{maps["name"]}
-product:{maps["product"]}
-版本：{maps["version"]}"""
+
+                asyncio.get_running_loop().run_in_executor(
+                    executor, lambda: scan_ports(answers[0], url[1])
+                ).add_done_callback(
+                    lambda future: asyncio.create_task(send_nmap_port(matcher, future))
+                )
 
         except Exception:
             await matcher.finish("过程发生了错误，请检查日志以获取详细信息。")
-        await matcher.send(message)
     else:
         await matcher.send("请输入地址！格式<host>:<port>")

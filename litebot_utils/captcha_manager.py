@@ -9,10 +9,9 @@ class CaptchaManager:
         # 存储验证码数据: {group_id: {user_id: code}}
         self._data: dict[str, dict[str, str]] = {}
         # 存储定时器句柄: {group_id: {user_id: Handle}}
-        self._tasks: dict[str, dict[str, asyncio.Handle]] = {}
+        self._tasks: dict[str, dict[str, asyncio.Task]] = {}
         self._data_lock = asyncio.Lock()
         self._tasks_lock = asyncio.Lock()
-        self._loop = asyncio.get_event_loop()
 
     async def add(
         self, gid: int, uid: int, captcha_code: int, bot: Bot, timeout_minutes: int = 5
@@ -26,13 +25,11 @@ class CaptchaManager:
             self._data.setdefault(group_id, {})[user_id] = str(captcha_code)
 
         delay = timeout_minutes * 60
-        handle = self._loop.call_at(
-            int(time.time()) + delay,
-            lambda: asyncio.create_task(self._expire(group_id, user_id, bot)),
+        task = asyncio.create_task(
+            self._expire(group_id, user_id, bot, int(time.time()) + delay)
         )
-
         async with self._tasks_lock:
-            self._tasks.setdefault(group_id, {})[user_id] = handle
+            self._tasks.setdefault(group_id, {})[user_id] = task
 
         return self
 
@@ -65,7 +62,8 @@ class CaptchaManager:
     async def query(self, gid: int, uid: int) -> str | None:
         return self._data.get(str(gid), {}).get(str(uid))
 
-    async def _expire(self, group_id: str, user_id: str, bot: Bot):
+    async def _expire(self, group_id: str, user_id: str, bot: Bot, time: int):
+        await asyncio.sleep(time)
         if await self.query(int(group_id), int(user_id)) is not None:
             await bot.send_group_msg(
                 group_id=int(group_id),
