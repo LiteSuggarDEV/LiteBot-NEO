@@ -11,13 +11,13 @@ ban = CommandGroup("ban", permission=is_admin)
 ban_group = ban.command(
     "group",
     state=MatcherData(
-        rm_name="封禁群", rm_usage="ban-group <group-id> [原因]", rm_desc="封禁聊群"
+        rm_name="封禁群", rm_usage="ban.group <group-id> [原因]", rm_desc="封禁聊群"
     ).model_dump(),
 )
 ban_user = ban.command(
     "user",
     state=MatcherData(
-        rm_name="封禁用户", rm_desc="用于封禁用户", rm_usage="ban-user <user-id> [原因]"
+        rm_name="封禁用户", rm_desc="用于封禁用户", rm_usage="ban.user <user-id> [原因]"
     ).model_dump(),
 )
 

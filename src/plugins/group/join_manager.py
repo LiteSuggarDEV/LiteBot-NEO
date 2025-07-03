@@ -1,5 +1,6 @@
 import contextlib
 import random
+import string
 
 from nonebot import get_driver, on_command, on_message, on_notice
 from nonebot.adapters.onebot.v11 import (
@@ -16,17 +17,43 @@ from nonebot_plugin_orm import get_session
 
 from litebot_utils.captcha_manager import captcha_manager
 from litebot_utils.event import GroupEvent
-from litebot_utils.models import get_or_create_group_config
+from litebot_utils.models import commit_config, get_or_create_group_config
 from litebot_utils.rule import is_group_admin, is_self_admin
 from src.plugins.menu.models import MatcherData
 
 pending_cancelable_msg: dict[str, dict[str, str]] = {}
 
 
+def generate_captcha(length: int, format: int):
+    match format:
+        case 0:
+            captcha = ""
+            for _ in range(length):
+                captcha += str(random.randint(0, 9))
+            return captcha
+        case 1:
+            captcha = ""
+            for _ in range(length):
+                if random.randint(0, 1) == 1:
+                    captcha += random.choice(string.ascii_letters)
+                else:
+                    captcha += str(random.randint(0, 9))
+            return captcha
+        case 2:
+            captcha = ""
+            for _ in range(length):
+                captcha += random.choice(string.ascii_letters)
+            return captcha
+        case _:
+            captcha = "-1"
+    return captcha
+
+
 async def captcha(
     bot: Bot, matcher: Matcher, event: GroupEvent, uid: int | None = None
 ):
-    captcha_code = random.randint(10000, 99999)
+    config, _ = await get_or_create_group_config(event.group_id)
+    captcha_code = generate_captcha(config.captcha_length, config.captcha_format)
     user_id = event.user_id if uid is None else uid
     sent_msg_id: int = (
         await matcher.send(
@@ -36,7 +63,9 @@ async def captcha(
             ),
         )
     )["message_id"]
-    await captcha_manager.add(event.group_id, user_id, captcha_code, bot)
+    await captcha_manager.add(
+        event.group_id, user_id, captcha_code, bot, config.captcha_timeout
+    )
     pending_cancelable_msg[str(sent_msg_id)] = {
         "group_id": str(event.group_id),
         "user_id": str(user_id),
@@ -80,6 +109,64 @@ async def _(
 
 
 @on_command(
+    "set_captcha",
+    aliases={"验证码设置"},
+    state=MatcherData(
+        rm_name="验证码设置",
+        rm_desc="入群验证码的配置文件设置(format:0:纯数字 1:字母数字混合 2:纯字母 注：字母均为大小写组合)",
+        rm_usage="set_captcha <参数[length|timeout|format]> <值>",
+    ).model_dump(),
+).handle()
+async def set_captcha(
+    bot: Bot, event: GroupMessageEvent, matcher: Matcher, arg: Message = CommandArg()
+):
+    if not await is_group_admin(event, bot):
+        return await matcher.finish("请使用管理员权限执行此命令")
+    args = arg.extract_plain_text().strip().split()
+    config, _ = await get_or_create_group_config(event.group_id)
+    if len(args) < 2:
+        await matcher.send(
+            "请输入参数[length|timeout|format]，以及参数值！\n"
+            + "参数length：设置验证码长度，默认为6\n"
+            + "参数timeout：设置验证码超时时间，默认为5分钟\n"
+            + "参数format：设置验证码格式，默认为0;0:纯数字 1:字母数字混合 2:纯字母 注：字母均为大小写组合\n"
+        )
+        return
+    match args[0]:
+        case "length":
+            if not args[1].isdigit():
+                await matcher.finish("请输入长度(4~10)！")
+            if captcha_length := int(args[1]) >= 4 and int(args[1]) <= 10:
+                config.captcha_length = captcha_length
+                await commit_config(config)
+                await matcher.finish("已设置长度为：" + args[1])
+            else:
+                await matcher.finish("请输入长度(4~10)！")
+        case "timeout":
+            if not args[1].isdigit():
+                await matcher.finish("请输入超时时间！")
+            if timeout := int(args[1]) >= 1 and int(args[1]) <= 30:
+                config.captcha_timeout = timeout
+                await commit_config(config)
+                await matcher.finish("已设置超时时间为：" + args[1])
+            else:
+                await matcher.finish("请输入超时(1~30) 单位：分钟！")
+        case "format":
+            if not args[1].isdigit():
+                await matcher.finish(
+                    "请输入验证码格式！0:纯数字 1:字母数字混合 2:纯字母 注：字母均为大小写组合"
+                )
+            if format := int(args[1]) in range(0, 3):
+                config.captcha_format = format
+                await commit_config(config)
+                await matcher.finish("已设置验证码格式为：" + args[1])
+            else:
+                await matcher.finish(
+                    "请输入验证码格式！0:纯数字 1:字母数字混合 2:纯字母 注：字母均为大小写组合"
+                )
+
+
+@on_command(
     "入群验证",
     aliases={"robot_fight", "anti_robot"},
     state=MatcherData(
@@ -93,7 +180,7 @@ async def cmd(
 ) -> None:
     if not await is_group_admin(event, bot):
         return
-    config, _ = await get_or_create_group_config(group_id=event.group_id)
+    config, _ = await get_or_create_group_config(event.group_id)
     if arg := args.extract_plain_text().strip().lower():
         async with get_session() as session:
             session.add(config)

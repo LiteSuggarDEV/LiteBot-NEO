@@ -44,4 +44,3 @@ class PluginData:
                 )
                 if not found:
                     self.matcher_grouping[matcher.rm_related].append(matcher)
-

@@ -1,5 +1,5 @@
 import asyncio
-import time
+from asyncio import Lock, Task
 
 from nonebot.adapters.onebot.v11 import Bot, MessageSegment
 
@@ -8,27 +8,25 @@ class CaptchaManager:
     def __init__(self):
         # 存储验证码数据: {group_id: {user_id: code}}
         self._data: dict[str, dict[str, str]] = {}
-        # 存储定时器句柄: {group_id: {user_id: Handle}}
-        self._tasks: dict[str, dict[str, asyncio.Task]] = {}
-        self._data_lock = asyncio.Lock()
-        self._tasks_lock = asyncio.Lock()
+        # 存储定时器句柄: {group_id: {user_id: Task}}
+        self._tasks: dict[str, dict[str, Task[None]]] = {}
+        self.__data_lock: Lock = asyncio.Lock()
+        self.__tasks_lock: Lock = asyncio.Lock()
 
     async def add(
-        self, gid: int, uid: int, captcha_code: int, bot: Bot, timeout_minutes: int = 5
+        self, gid: int, uid: int, captcha_code: str, bot: Bot, timeout_minutes: int = 5
     ) -> "CaptchaManager":
         group_id = str(gid)
         user_id = str(uid)
 
         await self._cancel_handle(gid, uid)
 
-        async with self._data_lock:
-            self._data.setdefault(group_id, {})[user_id] = str(captcha_code)
+        async with self.__data_lock:
+            self._data.setdefault(group_id, {})[user_id] = captcha_code
 
         delay = timeout_minutes * 60
-        task = asyncio.create_task(
-            self._expire(group_id, user_id, bot, int(time.time()) + delay)
-        )
-        async with self._tasks_lock:
+        task = asyncio.create_task(self._expire(group_id, user_id, bot, delay))
+        async with self.__tasks_lock:
             self._tasks.setdefault(group_id, {})[user_id] = task
 
         return self
@@ -37,10 +35,10 @@ class CaptchaManager:
         group_id = str(gid)
         user_id = str(uid)
 
-        async with self._data_lock:
+        async with self.__data_lock:
             if group_id in self._data and user_id in self._data[group_id]:
                 del self._data[group_id][user_id]
-                if not self._data[group_id]:
+                if not self._data.get(group_id) == {}:
                     del self._data[group_id]
                 await self._cancel_handle(gid, uid)
 
@@ -50,17 +48,21 @@ class CaptchaManager:
         group_id = str(gid)
         user_id = str(uid)
 
-        async with self._tasks_lock:
+        async with self.__tasks_lock:
             handles = self._tasks.get(group_id)
             if not handles:
                 return
             if handle := handles.pop(user_id, None):
-                handle.cancel()
+                try:
+                    handle.cancel()
+                except Exception:
+                    pass
             if not handles:
                 self._tasks.pop(group_id, None)
 
     async def query(self, gid: int, uid: int) -> str | None:
-        return self._data.get(str(gid), {}).get(str(uid))
+        async with self.__data_lock:
+            return self._data.get(str(gid), {}).get(str(uid))
 
     async def _expire(self, group_id: str, user_id: str, bot: Bot, time: int):
         await asyncio.sleep(time)
