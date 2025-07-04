@@ -47,6 +47,8 @@ async def _(
     async with get_session() as session:
         config, _ = await get_or_create_group_config(event.group_id)
         session.add(config)
+        if config.sub_admins is None:
+            config.sub_admins = []
         match action:
             case "add" | "set" | "append":
                 if this_is_admin(who):
