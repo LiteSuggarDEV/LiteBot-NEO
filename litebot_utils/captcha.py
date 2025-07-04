@@ -2,7 +2,9 @@ import random
 import string
 
 
-def generate_captcha(length: int, format: int):
+def generate_captcha(length: int | str, format: int | str):
+    format = int(format)
+    length = int(length)
     match format:
         case 0:
             captcha = ""
