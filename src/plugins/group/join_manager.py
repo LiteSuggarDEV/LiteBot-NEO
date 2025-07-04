@@ -33,18 +33,21 @@ async def captcha(
             config.auto_manage_join = False
             await session.commit()
             return
-    captcha_code = generate_captcha(config.captcha_length, config.captcha_format)
+        captcha_length = config.captcha_length
+        captcha_format = config.captcha_format
+        captcha_timeout = config.captcha_timeout
+    captcha_code = generate_captcha(captcha_length, captcha_format)
     user_id = event.user_id if uid is None else uid
     sent_msg_id: int = (
         await matcher.send(
             MessageSegment.at(user_id)
             + MessageSegment.text(
-                f"请完成以下操作，验证您是真人。\n请在{config.captcha_timeout}分钟内输入验证码 {captcha_code} ，否则您将被移出聊群\n继续之前，该群需要先检查您的账号安全性。"
+                f"请完成以下操作，验证您是真人。\n请在{captcha_timeout}分钟内输入验证码 {captcha_code} ，否则您将被移出聊群\n继续之前，该群需要先检查您的账号安全性。"
             ),
         )
     )["message_id"]
     await captcha_manager.add(
-        event.group_id, user_id, captcha_code, bot, config.captcha_timeout
+        event.group_id, user_id, captcha_code, bot, captcha_timeout
     )
     pending_cancelable_msg[str(sent_msg_id)] = {
         "group_id": str(event.group_id),
@@ -102,50 +105,50 @@ async def set_captcha(
 
     if len(args) < 2:
         await matcher.send(
-            "请输入参数[length|timeout|format]，以及参数值！\n"
+            "⚠️ 请输入参数[length|timeout|format]，以及参数值！\n"
             + "参数length：设置验证码长度，默认为6\n"
             + "参数timeout：设置验证码超时时间，默认为5分钟\n"
             + "参数format：设置验证码格式，默认为0;0:纯数字 1:字母数字混合 2:纯字母 注：字母均为大小写组合\n"
         )
         return
+
+    action: str = args[0]
+    value: str = args[1]
+
     async with get_session() as session:
         config, _ = await get_or_create_group_config(event.group_id)
         session.add(config)
         try:
-            match args[0]:
+            match action:
                 case "length":
-                    if not args[1].isdigit():
-                        await matcher.finish("请输入长度(4~10)！")
-                    if captcha_length := int(args[1]) >= 4 and int(args[1]) <= 10:
-                        config.captcha_length = int(captcha_length)
+                    if int(value) >= 4 and int(value) <= 10:
+                        config.captcha_length = int(value)
                         await session.commit()
-                        await matcher.finish("已设置长度为：" + args[1])
+                        await matcher.finish("✅ 已设置长度为：" + value)
                     else:
-                        await matcher.finish("请输入长度(4~10)！")
+                        await matcher.finish("⚠️ 请输入长度(4~10)！")
                 case "timeout":
-                    if not args[1].isdigit():
-                        await matcher.finish("请输入超时时间！")
-                    if timeout := int(args[1]) >= 1 and int(args[1]) <= 30:
-                        config.captcha_timeout = int(timeout)
+                    if int(value) >= 1 and int(value) <= 30:
+                        config.captcha_timeout = int(value)
                         await session.commit()
-                        await matcher.finish("已设置超时时间为：" + args[1])
+                        await matcher.finish("✅ 已设置超时时间为：" + value)
                     else:
-                        await matcher.finish("请输入超时(1~30) 单位：分钟！")
+                        await matcher.finish("⚠️ 请输入超时(1~30) 单位：分钟！")
                 case "format":
-                    if not args[1].isdigit():
-                        await matcher.finish(
-                            "请输入验证码格式！0:纯数字 1:字母数字混合 2:纯字母 注：字母均为大小写组合"
-                        )
-                    if format := int(args[1]) in range(0, 3):
-                        config.captcha_format = int(format)
+                    if int(value) in (0, 1, 2):
+                        config.captcha_format = int(value)
                         await session.commit()
-                        await matcher.finish("已设置验证码格式为：" + args[1])
+                        await matcher.finish(
+                            "✅ 已设置验证码格式"
+                            + "(0:纯数字 1:字母数字混合 2:纯字母"
+                            + f"为：{value}"
+                        )
                     else:
                         await matcher.finish(
-                            "请输入验证码格式！0:纯数字 1:字母数字混合 2:纯字母 注：字母均为大小写组合"
+                            "⚠️ 请输入验证码格式！0:纯数字 1:字母数字混合 2:纯字母 注：字母均为大小写组合"
                         )
         except ValueError:
-            await matcher.finish("请输入正确的数字！")
+            await matcher.finish("⚠️ 请输入正确的数字！")
 
 @on_command(
     "入群验证",
