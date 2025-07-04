@@ -152,3 +152,4 @@ config/
 db.*
 .DS_Store
 *.db
+data/

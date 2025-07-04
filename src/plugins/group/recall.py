@@ -30,5 +30,5 @@ async def _(event: GroupMessageEvent, bot: Bot, matcher: Matcher):
         if not is_self_admin(event, bot):
             return
         await bot.delete_msg(message_id=event.reply.message_id)
-        await matcher.send("已尝试撤回消息！")
+        await matcher.send("⚠️ 已尝试撤回消息！")
         matcher.stop_propagation()

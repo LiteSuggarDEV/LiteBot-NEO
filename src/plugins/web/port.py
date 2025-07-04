@@ -22,7 +22,7 @@ executor = ThreadPoolExecutor(max_workers=10)
 
 
 def scan_ports(address, port) -> dict[str, Any]:
-    nm.scan(address, arguments=f"-p {port} -Pn")
+    nm.scan(address, arguments=f"-p {port} -Pn -T5")
 
     # 准备一个列表用于存储结果
 

@@ -30,7 +30,7 @@ async def _(bot: Bot, event: MessageEvent):
         "黑名单列表",
         str(event.self_id),
         [
-            MessageSegment.text(f"群黑名单列表：\n{group_list_str}"),
-            MessageSegment.text(f"用户黑名单列表：\n{private_blacklist_str}"),
+            MessageSegment.text(f"⚠️ 群黑名单列表：\n{group_list_str}"),
+            MessageSegment.text(f"⚠️ 用户黑名单列表：\n{private_blacklist_str}"),
         ],
     )

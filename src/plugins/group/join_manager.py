@@ -42,7 +42,7 @@ async def captcha(
         await matcher.send(
             MessageSegment.at(user_id)
             + MessageSegment.text(
-                f"请完成以下操作，验证您是真人。\n请在{captcha_timeout}分钟内输入验证码 {captcha_code} ，否则您将被移出聊群\n继续之前，该群需要先检查您的账号安全性。"
+                f"⚠️ 请完成以下操作，验证您是真人。\n请在{captcha_timeout}分钟内输入验证码 {captcha_code} ，否则您将被移出聊群\n继续之前，该群需要先检查您的账号安全性。"
             ),
         )
     )["message_id"]
@@ -77,14 +77,14 @@ async def _(
         if not await is_self_admin(event, bot):
             config.auto_manage_join = False
             await session.commit()
-            await matcher.send("LiteBot为普通群成员！")
+            await matcher.send("⛔ LiteBot为普通群成员！")
     for segment in args:
         if segment.type == "at":
             uid = segment.data["qq"]
             await captcha(bot, matcher, event, int(uid))
             break
     else:
-        await matcher.finish("请at需要验证的人。")
+        await matcher.finish("⚠️ 请at需要验证的人。")
 
 
 @on_command(
@@ -138,11 +138,7 @@ async def set_captcha(
                     if int(value) in (0, 1, 2):
                         config.captcha_format = int(value)
                         await session.commit()
-                        await matcher.finish(
-                            "✅ 已设置验证码格式"
-                            + "(0:纯数字 1:字母数字混合 2:纯字母"
-                            + f"为：{value}"
-                        )
+                        await matcher.finish(f"✅ 已设置验证码格式为：{value}")
                     else:
                         await matcher.finish(
                             "⚠️ 请输入验证码格式！0:纯数字 1:字母数字混合 2:纯字母 注：字母均为大小写组合"
@@ -174,16 +170,18 @@ async def cmd(
                 if not await is_self_admin(event, bot):
                     config.auto_manage_join = is_enable
                     await session.commit()
-                    await matcher.send("LiteBot为普通群成员，无法开启！")
+                    await matcher.send("⛔ LiteBot为普通群成员，无法开启！")
                     return
                 is_enable = True
             elif arg in ("关闭", "off", "disable", "关闭", "no", "n", "false"):
                 is_enable = False
             else:
-                await matcher.finish("请输入 on/off 来开启或关闭！")
+                await matcher.finish("⚠️ 请输入 on/off 来开启或关闭！")
             config.auto_manage_join = is_enable
             await session.commit()
-            await matcher.send(f"群组进群验证码已 {'开启' if is_enable else '关闭'} ！")
+            await matcher.send(
+                f"✅ 群组进群验证码已 {'开启' if is_enable else '关闭'} ！"
+            )
 
 
 @on_message(priority=5, block=False).handle()
@@ -201,7 +199,7 @@ async def checker(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
         if str(captcha) == message:
             await matcher.send(
                 MessageSegment.at(event.user_id)
-                + MessageSegment.text(f"验证成功！欢迎加入{group_name}！"),
+                + MessageSegment.text(f"✅ 验证成功！欢迎加入{group_name}！"),
             )
             await captcha_manager.remove(event.group_id, event.user_id)
             for k in list(pending_cancelable_msg):
@@ -252,7 +250,7 @@ async def handle_cancel(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
     )
     del pending_cancelable_msg[str(event.reply.message_id)]
 
-    await matcher.send("已取消该验证！")
+    await matcher.send("⚠️ 已取消该验证！")
     matcher.stop_propagation()
 
 
