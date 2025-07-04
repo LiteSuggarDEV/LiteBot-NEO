@@ -39,7 +39,7 @@ async def _(
     async with get_session() as session:
         # 使用工具函数获取或创建配置
         group_config, _ = await get_or_create_group_config(group_id)
-
+        session.add(group_config)
         if not str_arg:
             await matcher.send(
                 f"该群LiteBot已经 {'开启' if group_config.switch else '关闭'} ！"
