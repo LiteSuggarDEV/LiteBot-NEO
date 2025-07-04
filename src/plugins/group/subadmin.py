@@ -9,7 +9,7 @@ from nonebot.params import CommandArg
 from nonebot_plugin_orm import get_session
 
 from litebot_utils.models import get_or_create_group_config
-from litebot_utils.rule import is_group_admin, this_is_admin
+from litebot_utils.rule import is_group_admin, this_is_group_admin
 from src.plugins.menu.models import MatcherData
 
 subadmin = on_command(
@@ -47,6 +47,7 @@ async def _(
         await matcher.finish("⚠️ 请指定要操作的成员（at或者输入QQ号）。")
 
     action: str = arg_list[0]
+    group_id = event.group_id
 
     async with get_session() as session:
         config, _ = await get_or_create_group_config(event.group_id)
@@ -55,14 +56,14 @@ async def _(
             config.sub_admins = []
         match action:
             case "add" | "set" | "append":
-                if this_is_admin(who):
+                if await this_is_group_admin(group_id, who, bot):
                     await matcher.finish("⛔ 该用户已经持有管理员权限，请勿重复添加！")
                 else:
                     config.sub_admins.append(who)
                     await session.commit()
                     await matcher.finish(f"✅ 已添加 {who} 为群组协管！")
             case "remove" | "delete" | "del" | "unset":
-                if not this_is_admin(who):
+                if not await this_is_group_admin(group_id, who, bot):
                     await matcher.finish("⛔ 该用户没有管理员权限，无法删除！")
                 elif who in config.sub_admins:
                     config.sub_admins.remove(who)
@@ -72,7 +73,7 @@ async def _(
                     await matcher.finish("⛔ 该用户不持有管理权限！")
             case "has" | "query":
                 await matcher.finish(
-                    f"该用户{'持有' if await this_is_admin(who) else '未持有'}管理权限！"
+                    f"该用户{'持有' if await this_is_group_admin(group_id, who, bot) else '未持有'}管理权限！"
                 )
             case "list":
                 await matcher.finish(
