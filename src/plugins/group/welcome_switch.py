@@ -38,6 +38,7 @@ async def _(
 
     async with get_session() as session:
         group_config, _ = await get_or_create_group_config(group_id=gid)
+        session.add(group_config)
         # 切换开关状态
         if not str_arg:
             await matcher.send(
@@ -45,13 +46,10 @@ async def _(
             )
         elif str_arg in ("on", "enable", "开启"):
             group_config.welcome = True
-            session.add(group_config)
             await session.commit()
             await matcher.send("成员变动提醒已开启！")
         elif str_arg in ("off", "disable", "关闭"):
             group_config.welcome = False
-
-            session.add(group_config)
             await session.commit()
             await matcher.send("成员变动提醒已关闭！")
         else:
