@@ -20,9 +20,9 @@ black_list = on_command(
 async def _(bot: Bot, event: MessageEvent):
     group_blacklist = await bl_manager.get_group_blacklist()
     private_blacklist = await bl_manager.get_private_blacklist()
-    group_list_str = "".join(f"群：{k} 原因：{v}\n" for k, v in group_blacklist)
+    group_list_str = "".join(f"群：{k} 原因：{v}\n" for k, v in group_blacklist.items())
     private_blacklist_str = "".join(
-        f"用户：{k} 原因：{v}\n" for k, v in private_blacklist
+        f"用户：{k} 原因：{v}\n" for k, v in private_blacklist.items()
     )
     await send_forward_msg(
         bot,
@@ -30,7 +30,12 @@ async def _(bot: Bot, event: MessageEvent):
         "黑名单列表",
         str(event.self_id),
         [
-            MessageSegment.text(f"⚠️ 群黑名单列表：\n{group_list_str}"),
-            MessageSegment.text(f"⚠️ 用户黑名单列表：\n{private_blacklist_str}"),
+            MessageSegment.text(
+                "⚠️ 群黑名单列表：" + (f"\n{group_list_str}" if group_list_str else "无")
+            ),
+            MessageSegment.text(
+                "⚠️ 用户黑名单列表："
+                + (f"\n{private_blacklist_str}" if private_blacklist_str else "无")
+            ),
         ],
     )
