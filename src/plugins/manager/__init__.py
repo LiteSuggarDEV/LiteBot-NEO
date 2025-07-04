@@ -1,6 +1,6 @@
 from nonebot.plugin import PluginMetadata
 
-from . import add, auto_clean, ban, black, leave, pardon, rate
+from . import add, auto_clean, ban, black, leave, list_black, pardon, rate
 
 __plugin_meta__ = PluginMetadata(
     name="机器人管理插件",
@@ -15,6 +15,7 @@ __all__ = [
     "ban",
     "black",
     "leave",
+    "list_black",
     "pardon",
     "rate",
 ]
