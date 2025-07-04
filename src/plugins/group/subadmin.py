@@ -29,11 +29,13 @@ async def _(
     if not await is_group_admin(event, bot):
         await matcher.finish("⛔ 你没有权限使用此命令！")
     arg_list: list[str] = arg.extract_plain_text().strip().split()
-    action: str = arg_list[0]
-    if not len(arg_list) > 1:
+
+    if not len(arg_list) >= 1:
+        await matcher.finish("请输入操作！")
+    elif not len(arg_list) > 1:
         try:
             who: int = int(
-                next(seg.data["id"] for seg in event.message if seg.type == "at")
+                next(seg.data["qq"] for seg in event.message if seg.type == "at")
             )
         except StopIteration:
             await matcher.finish("⚠️ 请指定要操作的成员。")
@@ -43,6 +45,8 @@ async def _(
             await matcher.finish("⚠️ 请输入正确的QQ号！")
     else:
         await matcher.finish("⚠️ 请指定要操作的成员（at或者输入QQ号）。")
+
+    action: str = arg_list[0]
 
     async with get_session() as session:
         config, _ = await get_or_create_group_config(event.group_id)
