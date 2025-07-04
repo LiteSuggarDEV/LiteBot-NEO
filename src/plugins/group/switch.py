@@ -1,4 +1,4 @@
-from nonebot import get_driver, on_command, require
+from nonebot import on_command
 from nonebot.adapters.onebot.v11 import (
     Bot,
     GroupMessageEvent,
@@ -6,15 +6,12 @@ from nonebot.adapters.onebot.v11 import (
 )
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
-
-require("nonebot_plugin_orm")
 from nonebot_plugin_orm import get_session
 
 from litebot_utils.models import get_or_create_group_config
 from litebot_utils.rule import is_group_admin
 from src.plugins.menu.models import MatcherData
 
-command_start = get_driver().config.command_start
 switch = on_command(
     "switch",
     state=MatcherData(
@@ -30,7 +27,7 @@ async def _(
     event: GroupMessageEvent, matcher: Matcher, bot: Bot, arg: Message = CommandArg()
 ):
     if not await is_group_admin(event, bot):
-        await switch.finish("你没有权限使用此命令！")
+        await switch.finish("⛔ 你没有权限使用此命令！")
     """开关"""
     # 获取当前群组的开关状态
     group_id = event.group_id
@@ -42,15 +39,15 @@ async def _(
         session.add(config)
         if not str_arg:
             await matcher.send(
-                f"该群LiteBot已经 {'开启' if config.switch else '关闭'} ！"
+                f"✅ 该群LiteBot已经 {'开启' if config.switch else '关闭'} ！"
             )
         elif str_arg in ("on", "enable", "开启"):
             config.switch = True
             await session.commit()
-            await matcher.finish("已开启本群LiteBot！")
+            await matcher.finish("✅ 已开启本群LiteBot！")
         elif str_arg in ("off", "disable", "关闭"):
             config.switch = False
             await session.commit()
-            await matcher.finish("已关闭本群LiteBot！")
+            await matcher.finish("✅ 已关闭本群LiteBot！")
         else:
-            await matcher.finish("请输入正确参数！")
+            await matcher.finish("⚠️ 请输入正确参数！")

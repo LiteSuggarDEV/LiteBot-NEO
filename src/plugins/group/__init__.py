@@ -7,9 +7,10 @@ from nonebot.plugin import PluginMetadata
 
 from litebot_utils.models import get_or_create_group_config
 
-from . import join_manager, kick, mute, notice, recall, switch, welcome_switch
+from . import join_manager, kick, mute, notice, recall, subadmin, switch, welcome_switch
 
 require("menu")
+require("nonebot_plugin_orm")
 __plugin_meta__ = PluginMetadata(
     name="群组插件",
     description="群组管理插件（群管可用）",
@@ -24,6 +25,7 @@ __all__ = [
     "mute",
     "notice",
     "recall",
+    "subadmin",
     "switch",
     "welcome_switch",
 ]

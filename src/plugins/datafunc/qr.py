@@ -32,6 +32,6 @@ async def qr_runner(matcher: Matcher, args: Message = CommandArg()):
             await matcher.send(message)
         except Exception as e:
             logger.exception(e)
-            await matcher.finish("生成二维码失败，详情请查看日志")
+            await matcher.finish("⚠️ 生成二维码失败，详情请查看日志")
     else:
-        await matcher.finish("请输入要生成的内容")
+        await matcher.finish("⚠️ 请输入要生成的内容")

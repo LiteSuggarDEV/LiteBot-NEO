@@ -23,18 +23,18 @@ async def leave(
     str_id = arg.extract_plain_text().strip()
     if isinstance(event, GroupMessageEvent):
         if not str_id:
-            await matcher.finish("请输入--this来离开这个群！或者指定群号！")
+            await matcher.finish("⚠️ 请输入--this来离开这个群！或者指定群号！")
         if str_id == "--this":
-            await send_to_admin(f"尝试离开群：{event.group_id}")
-            await matcher.send("已退出本群！")
+            await send_to_admin(f"⚠️ 尝试离开群：{event.group_id}")
+            await matcher.send("✅ 已退出本群！")
             await bot.set_group_leave(group_id=event.group_id)
     if str_id != "--this":
         try:
             int(str_id)
         except Exception:
-            await matcher.finish("请输入一个数字")
+            await matcher.finish("⚠️ 请输入一个数字")
         else:
-            await matcher.send(f"尝试离开{str_id}")
+            await matcher.send(f"⚠️ 尝试离开{str_id}")
             await bot.set_group_leave(group_id=int(str_id))
     else:
-        await matcher.finish("该参数只允许在群内使用！")
+        await matcher.finish("⚠️ 该参数只允许在群内使用！")

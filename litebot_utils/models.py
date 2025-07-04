@@ -27,6 +27,7 @@ class GroupConfig(Model):
         Text, default=0
     )  # 0:纯数字 1:字母数字混合 3:纯字母 注：字母均为大小写组合
     captcha_length: Mapped[int] = mapped_column(BigInteger, default=6)
+    sub_admins: Mapped[list[int]] = mapped_column(JSON, default=[])
 
     __tablename__ = "group_config"
 
