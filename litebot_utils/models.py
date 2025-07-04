@@ -50,8 +50,3 @@ async def get_or_create_group_config(group_id: int) -> tuple[GroupConfig, bool]:
         config = result.scalar_one()
 
         return config, True
-
-async def commit_config(config: GroupConfig) -> None:
-    async with get_session() as session:
-        session.add(config)
-        await session.commit()
