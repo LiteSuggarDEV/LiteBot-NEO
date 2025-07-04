@@ -164,22 +164,21 @@ async def cmd(
         async with get_session() as session:
             config, _ = await get_or_create_group_config(event.group_id)
             session.add(config)
+            is_enable: bool = False
             if arg in ("启用", "on", "enable", "开启", "yes", "y", "true"):
                 if not await is_self_admin(event, bot):
-                    config.auto_manage_join = False
+                    config.auto_manage_join = is_enable
                     await session.commit()
                     await matcher.send("LiteBot为普通群成员，无法开启！")
                     return
-                config.auto_manage_join = True
-                await session.commit()
+                is_enable = True
             elif arg in ("关闭", "off", "disable", "关闭", "no", "n", "false"):
-                config.auto_manage_join = False
-                await session.commit()
+                is_enable = False
             else:
                 await matcher.finish("请输入 on/off 来开启或关闭！")
-            await matcher.send(
-                f"群组进群验证码已 {'开启' if config.auto_manage_join else '关闭'} ！"
-            )
+            config.auto_manage_join = is_enable
+            await session.commit()
+            await matcher.send(f"群组进群验证码已 {'开启' if is_enable else '关闭'} ！")
 
 
 @on_message(priority=5, block=False).handle()
