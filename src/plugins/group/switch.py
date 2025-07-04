@@ -38,18 +38,18 @@ async def _(
 
     async with get_session() as session:
         # 使用工具函数获取或创建配置
-        group_config, _ = await get_or_create_group_config(group_id)
-        session.add(group_config)
+        config, _ = await get_or_create_group_config(group_id)
+        session.add(config)
         if not str_arg:
             await matcher.send(
-                f"该群LiteBot已经 {'开启' if group_config.switch else '关闭'} ！"
+                f"该群LiteBot已经 {'开启' if config.switch else '关闭'} ！"
             )
         elif str_arg in ("on", "enable", "开启"):
-            group_config.switch = True
+            config.switch = True
             await session.commit()
             await matcher.finish("已开启本群LiteBot！")
         elif str_arg in ("off", "disable", "关闭"):
-            group_config.switch = False
+            config.switch = False
             await session.commit()
             await matcher.finish("已关闭本群LiteBot！")
         else:
