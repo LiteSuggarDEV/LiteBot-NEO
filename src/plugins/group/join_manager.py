@@ -12,11 +12,13 @@ from nonebot.adapters.onebot.v11 import (
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
 from nonebot_plugin_orm import get_session
+from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 
 from litebot_utils.captcha import generate_captcha
 from litebot_utils.captcha_manager import captcha_manager
 from litebot_utils.event import GroupEvent
-from litebot_utils.models import get_or_create_group_config
+from litebot_utils.models import GroupConfig, get_or_create_group_config
 from litebot_utils.rule import is_group_admin, is_self_admin
 from src.plugins.menu.models import MatcherData
 
@@ -258,9 +260,19 @@ async def handle_cancel(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
 async def handle_join(bot: Bot, event: GroupIncreaseNoticeEvent, matcher: Matcher):
     if event.user_id == event.self_id:
         return
-    config, _ = await get_or_create_group_config(group_id=event.group_id)
-    if not config.auto_manage_join:
+
+    try:
+        config, _ = await get_or_create_group_config(group_id=event.group_id)
+    except IntegrityError:
+        async with get_session() as session:
+            stmt = select(GroupConfig).where(GroupConfig.group_id == event.group_id)
+            result = await session.execute(stmt)
+            config = result.scalars().first()
+
+    if not config or not config.auto_manage_join:
         return
+
     if not await is_self_admin(event, bot):
         return
+
     await captcha(bot, matcher, event)
