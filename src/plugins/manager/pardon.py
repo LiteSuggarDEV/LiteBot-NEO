@@ -3,10 +3,10 @@ from nonebot.adapters.onebot.v11 import Message
 from nonebot.params import CommandArg
 
 from litebot_utils.blacklist.black import bl_manager
-from litebot_utils.rule import is_admin
+from litebot_utils.rule import is_global_admin
 from src.plugins.menu.models import MatcherData
 
-pardon = CommandGroup("pardon", permission=is_admin)
+pardon = CommandGroup("pardon", permission=is_global_admin)
 
 pardon_group = pardon.command(
     "group",

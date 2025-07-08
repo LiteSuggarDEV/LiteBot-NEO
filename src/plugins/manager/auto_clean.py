@@ -2,12 +2,12 @@ from nonebot import logger, on_command
 from nonebot.adapters.onebot.v11 import Bot, MessageEvent
 
 from litebot_utils.config import ConfigManager
-from litebot_utils.rule import is_admin
+from litebot_utils.rule import is_global_admin
 from src.plugins.menu.models import MatcherData
 
 clean_groups = on_command(
     "clean_groups",
-    permission=is_admin,
+    permission=is_global_admin,
     state=MatcherData(
         rm_name="无用群组清理",
         rm_desc="清理人数小于20的无效聊群",

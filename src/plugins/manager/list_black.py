@@ -2,7 +2,7 @@ from nonebot import on_command
 from nonebot.adapters.onebot.v11 import Bot, MessageEvent, MessageSegment
 
 from litebot_utils.blacklist.black import bl_manager
-from litebot_utils.rule import is_admin
+from litebot_utils.rule import is_global_admin
 from litebot_utils.utils import send_forward_msg
 from src.plugins.menu.models import MatcherData
 
@@ -12,7 +12,7 @@ black_list = on_command(
     state=MatcherData(
         rm_name="列出黑名单", rm_desc="用于列出黑名单", rm_usage="blacklist"
     ).model_dump(),
-    permission=is_admin,
+    permission=is_global_admin,
 )
 
 
