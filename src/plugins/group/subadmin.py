@@ -49,7 +49,9 @@ async def _(
                         who = int(arg_list[1])
 
                 if await this_is_group_admin(group_id, who, bot):
-                    await matcher.finish("⛔ 该用户已经持有管理员权限，请勿重复添加！")
+                    await matcher.finish("⛔ 该用户已经是群管理员，请勿重复添加！")
+                elif await this_is_sub_admin(group_id, who, bot):
+                    await matcher.finish("⛔ 该用户已经是协管，请勿重复添加！")
                 else:
                     success = await SubAdmin.add(group_id, who)
                     if success:
