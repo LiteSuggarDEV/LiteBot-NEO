@@ -99,7 +99,7 @@ class GroupConfig(Model):
     welcome: Mapped[bool] = mapped_column(Boolean, default=False)
     judge: Mapped[bool] = mapped_column(Boolean, default=False)
     anti_recall: Mapped[bool] = mapped_column(Boolean, default=False)
-    welcome_message: Mapped[str] = mapped_column(Text, default="欢迎加入群组！")
+    welcome_message: Mapped[str] = mapped_column(Text(1024), default="欢迎加入群组！")
     nailong: Mapped[bool] = mapped_column(Boolean, default=False)
     anti_spam: Mapped[dict] = mapped_column(
         JSON,

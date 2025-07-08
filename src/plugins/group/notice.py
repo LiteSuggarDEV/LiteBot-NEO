@@ -13,7 +13,7 @@ require("nonebot_plugin_orm")
 from nonebot_plugin_orm import get_session
 
 from litebot_utils.event import GroupEvent
-from litebot_utils.models import GroupConfig
+from litebot_utils.models import GroupConfig, get_or_create_group_config
 from litebot_utils.utils import send_to_admin
 
 command_start = get_driver().config.command_start
@@ -73,13 +73,14 @@ async def handle_member_join(
     operator_info = await bot.get_group_member_info(group_id=gid, user_id=operator_id)
 
     operator_name = operator_info["nickname"]
-
+    config, _ = await get_or_create_group_config(gid)
+    msg = config.welcome_message
     if event.sub_type == "invite":
         message = MessageSegment.at(user_id=uid) + MessageSegment.text(
-            f" 被 {operator_name}（{operator_id}） 拉进了聊群！欢迎！"
+            f" 被 {operator_name}（{operator_id}） 拉进了聊群！{msg}"
         )
     else:
-        message = MessageSegment.at(user_id=uid) + MessageSegment.text(" 欢迎加入 ！")
+        message = MessageSegment.at(user_id=uid) + MessageSegment.text(msg)
 
     await bot.send_group_msg(group_id=gid, message=message)
 
