@@ -1,4 +1,4 @@
-from nonebot import logger, on_command
+from nonebot import on_command
 from nonebot.adapters.onebot.v11 import (
     Bot,
     GroupMessageEvent,
@@ -35,77 +35,71 @@ async def _(
     action: str = arg_list[0]
     group_id = event.group_id
 
-    try:
-        match action:
-            case "add" | "set" | "append":
-                for seg in arg:
-                    if seg.type == "at":
-                        who = int(seg.data["qq"])
-                        break
+    match action:
+        case "add" | "set" | "append":
+            for seg in arg:
+                if seg.type == "at":
+                    who = int(seg.data["qq"])
+                    break
+            else:
+                if len(arg_list) < 2:
+                    await matcher.finish("⛔ 请输入要添加的成员！")
                 else:
-                    if len(arg_list) < 2:
-                        await matcher.finish("⛔ 请输入要添加的成员！")
-                    else:
-                        who = int(arg_list[1])
+                    who = int(arg_list[1])
 
-                if await check_group_admin(group_id, who, bot):
-                    await matcher.finish(
-                        "⛔ 该用户已经是群管理员或协管，请勿重复添加！"
-                    )
+            if await check_group_admin(group_id, who, bot):
+                await matcher.finish("⛔ 该用户已经是群管理员或协管，请勿重复添加！")
+            else:
+                success = await SubAdmin.add(group_id, who)
+                if success:
+                    await matcher.finish(f"✅ 已添加 {who} 为群组协管！")
                 else:
-                    success = await SubAdmin.add(group_id, who)
-                    if success:
-                        await matcher.finish(f"✅ 已添加 {who} 为群组协管！")
-                    else:
-                        await matcher.finish("⛔ 该用户已经是协管，请勿重复添加！")
-            case "remove" | "delete" | "del" | "unset":
-                for seg in arg:
-                    if seg.type == "at":
-                        who = int(seg.data["qq"])
-                        break
+                    await matcher.finish("⛔ 该用户已经是协管，请勿重复添加！")
+        case "remove" | "delete" | "del" | "unset":
+            for seg in arg:
+                if seg.type == "at":
+                    who = int(seg.data["qq"])
+                    break
+            else:
+                if len(arg_list) < 2:
+                    await matcher.finish("⛔ 请输入要操作的成员！")
                 else:
-                    if len(arg_list) < 2:
-                        await matcher.finish("⛔ 请输入要操作的成员！")
-                    else:
-                        who = int(arg_list[1])
-                if not await check_group_admin(group_id, who, bot):
-                    await matcher.finish("⛔ 该用户没有管理员权限，无法删除！")
-                elif await is_event_group_admin(event, bot) and await check_group_admin(
-                    group_id, who, bot
-                ):
-                    await matcher.finish("⛔ 无法删除群组管理员的权限！")
+                    who = int(arg_list[1])
+            if not await check_group_admin(group_id, who, bot):
+                await matcher.finish("⛔ 该用户没有管理员权限，无法删除！")
+            elif await is_event_group_admin(event, bot) and await check_group_admin(
+                group_id, who, bot
+            ):
+                await matcher.finish("⛔ 无法删除群组管理员的权限！")
+            else:
+                success = await SubAdmin.remove(group_id, who)
+                if success:
+                    await matcher.finish(f"✅ 已删除 {who} 的管理权限！")
                 else:
-                    success = await SubAdmin.remove(group_id, who)
-                    if success:
-                        await matcher.finish(f"✅ 已删除 {who} 的管理权限！")
-                    else:
-                        await matcher.finish("⛔ 该用户不持有协管权限！")
-            case "has" | "query":
-                for seg in arg:
-                    if seg.type == "at":
-                        who = int(seg.data["qq"])
-                        break
+                    await matcher.finish("⛔ 该用户不持有协管权限！")
+        case "has" | "query":
+            for seg in arg:
+                if seg.type == "at":
+                    who = int(seg.data["qq"])
+                    break
+            else:
+                if len(arg_list) < 2:
+                    await matcher.finish("⛔ 请输入要操作的成员！")
                 else:
-                    if len(arg_list) < 2:
-                        await matcher.finish("⛔ 请输入要操作的成员！")
-                    else:
-                        who = int(arg_list[1])
+                    who = int(arg_list[1])
+            await matcher.finish(
+                f"该用户{'持有' if await check_group_admin(group_id, who, bot) else '未持有'}管理权限！"
+            )
+        case "list":
+            sub_admins = await SubAdmin.get_list(group_id)
+            if not sub_admins:
+                await matcher.finish("当前群组暂无协管")
+            else:
                 await matcher.finish(
-                    f"该用户{'持有' if await check_group_admin(group_id, who, bot) else '未持有'}管理权限！"
-                )
-            case "list":
-                sub_admins = await SubAdmin.get_list(group_id)
-                if not sub_admins:
-                    await matcher.finish("当前群组暂无协管")
-                else:
-                    await matcher.finish(
-                        "当前群组协管列表："
-                        + "\n".join(
-                            f"{i}. {admin}" for i, admin in enumerate(sub_admins, 1)
-                        )
+                    "当前群组协管列表："
+                    + "\n".join(
+                        f"{i}. {admin}" for i, admin in enumerate(sub_admins, 1)
                     )
-            case _:
-                await matcher.finish("⚠️ 请输入正确操作！add/remove/list/has")
-    except Exception as e:
-        logger.opt(exception=True).exception(str(e))
-        await matcher.finish("过程发生了错误，请检查日志以获取详细信息。")
+                )
+        case _:
+            await matcher.finish("⚠️ 请输入正确操作！add/remove/list/has")
