@@ -15,7 +15,7 @@ class GroupConfig(Model):
     welcome: Mapped[bool] = mapped_column(Boolean, default=False)
     judge: Mapped[bool] = mapped_column(Boolean, default=False)
     anti_recall: Mapped[bool] = mapped_column(Boolean, default=False)
-    welcome_message: Mapped[str] = mapped_column(Text, default="欢迎加入群组！")
+    welcome_message: Mapped[str] = mapped_column(Text(1024), default="欢迎加入群组！")
     nailong: Mapped[bool] = mapped_column(Boolean, default=False)
     anti_spam: Mapped[dict] = mapped_column(
         JSON, default=lambda: {"limit": 5, "interval": 5, "ban_time": 5, "enable": False}
@@ -27,10 +27,7 @@ class GroupConfig(Model):
         Text, default=0
     )  # 0:纯数字 1:字母数字混合 3:纯字母 注：字母均为大小写组合
     captcha_length: Mapped[int] = mapped_column(BigInteger, default=6)
-    sub_admins: Mapped[list[int]] = mapped_column(
-        JSON, server_default="[]", nullable=False
-    )
-
+    sub_admin_list: Mapped[list[int]] = mapped_column(JSON, default=[])
     __tablename__ = "group_config"
 
 

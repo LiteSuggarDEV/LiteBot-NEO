@@ -40,8 +40,8 @@ async def _(
         try:
             config, _ = await get_or_create_group_config(event.group_id)
             session.add(config)
-            if config.sub_admins is None:
-                config.sub_admins = []
+            if config.sub_admin_list is None:
+                config.sub_admin_list = []
             match action:
                 case "add" | "set" | "append":
                     for seg in arg:
@@ -59,7 +59,7 @@ async def _(
                             "⛔ 该用户已经持有管理员权限，请勿重复添加！"
                         )
                     else:
-                        config.sub_admins.append(who)
+                        config.sub_admin_list.append(who)
                         await session.commit()
                         await matcher.finish(f"✅ 已添加 {who} 为群组协管！")
                 case "remove" | "delete" | "del" | "unset":
@@ -74,8 +74,8 @@ async def _(
                             who = int(arg_list[1])
                     if not await this_is_group_admin(group_id, who, bot):
                         await matcher.finish("⛔ 该用户没有管理员权限，无法删除！")
-                    elif who in config.sub_admins:
-                        config.sub_admins.remove(who)
+                    elif who in config.sub_admin_list:
+                        config.sub_admin_list.remove(who)
                         await session.commit()
                         await matcher.finish(f"✅ 已删除 {who} 的管理权限！")
                     else:
@@ -98,7 +98,7 @@ async def _(
                         "当前群组协管列表："
                         + "\n".join(
                             f"{i}. {admin}"
-                            for i, admin in enumerate(config.sub_admins, 1)
+                            for i, admin in enumerate(config.sub_admin_list, 1)
                         )
                     )
                 case _:
