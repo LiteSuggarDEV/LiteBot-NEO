@@ -34,11 +34,11 @@ async def this_is_group_admin(group_id: int, user_id: int, bot: Bot) -> bool:
         "role"
     ]
     config, _ = await get_or_create_group_config(group_id)
-
+    sub_admin_list = config.sub_admin_list
     return (
         role != "member"
         or await this_is_admin(user_id)
-        or user_id in (config.sub_admins if config.sub_admins is not None else [])
+        or user_id in (sub_admin_list if sub_admin_list is not None else [])
     )
 
 
