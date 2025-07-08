@@ -89,6 +89,18 @@ wheels = [
 ]
 
 [[package]]
+name = "aiomysql"
+version = "0.2.0"
+source = { registry = "https://mirrors.aliyun.com/pypi/simple" }
+dependencies = [
+    { name = "pymysql" },
+]
+sdist = { url = "https://mirrors.aliyun.com/pypi/packages/67/76/2c5b55e4406a1957ffdfd933a94c2517455291c97d2b81cec6813754791a/aiomysql-0.2.0.tar.gz", hash = "sha256:558b9c26d580d08b8c5fd1be23c5231ce3aeff2dadad989540fee740253deb67" }
+wheels = [
+    { url = "https://mirrors.aliyun.com/pypi/packages/42/87/c982ee8b333c85b8ae16306387d703a1fcdfc81a2f3f15a24820ab1a512d/aiomysql-0.2.0-py3-none-any.whl", hash = "sha256:b7c26da0daf23a5ec5e0b133c03d20657276e4eae9b73e040b72787f6f6ade0a" },
+]
+
+[[package]]
 name = "aiosignal"
 version = "1.3.2"
 source = { registry = "https://mirrors.aliyun.com/pypi/simple" }
@@ -449,7 +461,7 @@ dependencies = [
     { name = "nonebot-adapter-onebot" },
     { name = "nonebot-plugin-htmlrender" },
     { name = "nonebot-plugin-localstore" },
-    { name = "nonebot-plugin-orm", extra = ["asyncmy", "default"] },
+    { name = "nonebot-plugin-orm", extra = ["aiomysql", "asyncmy", "default"] },
     { name = "nonebot2", extra = ["fastapi"] },
     { name = "pillow" },
     { name = "ping3" },
@@ -468,7 +480,7 @@ requires-dist = [
     { name = "nonebot-adapter-onebot", specifier = ">=2.4.6" },
     { name = "nonebot-plugin-htmlrender", specifier = ">=0.6.6" },
     { name = "nonebot-plugin-localstore", specifier = ">=0.7.4" },
-    { name = "nonebot-plugin-orm", extras = ["default", "asyncmy"], specifier = ">=0.8.1" },
+    { name = "nonebot-plugin-orm", extras = ["aiomysql", "asyncmy", "default"], specifier = ">=0.8.1" },
     { name = "nonebot2", extras = ["fastapi"], specifier = ">=2.4.2" },
     { name = "pillow", specifier = ">=11.2.1" },
     { name = "ping3", specifier = ">=4.0.8" },
@@ -763,6 +775,9 @@ wheels = [
 ]
 
 [package.optional-dependencies]
+aiomysql = [
+    { name = "sqlalchemy", extra = ["aiomysql"] },
+]
 asyncmy = [
     { name = "sqlalchemy", extra = ["asyncmy"] },
 ]
@@ -1112,6 +1127,15 @@ wheels = [
 ]
 
 [[package]]
+name = "pymysql"
+version = "1.1.1"
+source = { registry = "https://mirrors.aliyun.com/pypi/simple" }
+sdist = { url = "https://mirrors.aliyun.com/pypi/packages/b3/8f/ce59b5e5ed4ce8512f879ff1fa5ab699d211ae2495f1adaa5fbba2a1eada/pymysql-1.1.1.tar.gz", hash = "sha256:e127611aaf2b417403c60bf4dc570124aeb4a57f5f37b8e95ae399a42f904cd0" }
+wheels = [
+    { url = "https://mirrors.aliyun.com/pypi/packages/0c/94/e4181a1f6286f545507528c78016e00065ea913276888db2262507693ce5/PyMySQL-1.1.1-py3-none-any.whl", hash = "sha256:4de15da4c61dc132f4fb9ab763063e693d521a80fd0e87943b9a453dd4c19d6c" },
+]
+
+[[package]]
 name = "python-dotenv"
 version = "1.1.0"
 source = { registry = "https://mirrors.aliyun.com/pypi/simple" }
@@ -1241,6 +1265,10 @@ wheels = [
 ]
 
 [package.optional-dependencies]
+aiomysql = [
+    { name = "aiomysql" },
+    { name = "greenlet" },
+]
 aiosqlite = [
     { name = "aiosqlite" },
     { name = "greenlet" },
