@@ -21,9 +21,7 @@ class SubAdmin(Model):
     """子管理员表"""
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
-    group_id: Mapped[int] = mapped_column(
-        BigInteger, ForeignKey("group_config.group_id"), index=True
-    )
+    group_id: Mapped[int] = mapped_column(BigInteger, index=True)
     user_id: Mapped[int] = mapped_column(BigInteger, index=True)
 
     __tablename__ = "sub_admin"
