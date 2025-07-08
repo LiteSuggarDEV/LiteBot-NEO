@@ -1,7 +1,7 @@
 from enum import IntEnum
 
 from nonebot import require
-from sqlalchemy import JSON, BigInteger, Boolean, Text, select
+from sqlalchemy import JSON, BigInteger, Boolean, ForeignKey, Text, select
 from sqlalchemy.dialects.sqlite import insert
 from sqlalchemy.orm import Mapped, mapped_column
 
