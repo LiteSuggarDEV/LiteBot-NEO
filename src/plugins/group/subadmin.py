@@ -8,7 +8,7 @@ from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
 
 from litebot_utils.models import SubAdmin
-from litebot_utils.rule import is_group_admin, this_is_group_admin
+from litebot_utils.rule import check_group_admin, is_event_group_admin
 from src.plugins.menu.models import MatcherData
 
 subadmin = on_command(
@@ -25,7 +25,7 @@ subadmin = on_command(
 async def _(
     event: GroupMessageEvent, matcher: Matcher, bot: Bot, arg: Message = CommandArg()
 ):
-    if not await is_group_admin(event, bot):
+    if not await is_event_group_admin(event, bot):
         await matcher.finish("⛔ 你没有权限使用此命令！")
     arg_list: list[str] = arg.extract_plain_text().strip().split()
 
@@ -48,10 +48,10 @@ async def _(
                     else:
                         who = int(arg_list[1])
 
-                if await this_is_group_admin(group_id, who, bot):
-                    await matcher.finish("⛔ 该用户已经是群管理员，请勿重复添加！")
-                elif await this_is_sub_admin(group_id, who, bot):
-                    await matcher.finish("⛔ 该用户已经是协管，请勿重复添加！")
+                if await check_group_admin(group_id, who, bot):
+                    await matcher.finish(
+                        "⛔ 该用户已经是群管理员或协管，请勿重复添加！"
+                    )
                 else:
                     success = await SubAdmin.add(group_id, who)
                     if success:
@@ -68,9 +68,11 @@ async def _(
                         await matcher.finish("⛔ 请输入要操作的成员！")
                     else:
                         who = int(arg_list[1])
-                if not await this_is_group_admin(group_id, who, bot):
+                if not await check_group_admin(group_id, who, bot):
                     await matcher.finish("⛔ 该用户没有管理员权限，无法删除！")
-                elif await is_group_admin(event, bot) and await this_is_group_admin(group_id, who, bot):
+                elif await is_event_group_admin(event, bot) and await check_group_admin(
+                    group_id, who, bot
+                ):
                     await matcher.finish("⛔ 无法删除群组管理员的权限！")
                 else:
                     success = await SubAdmin.remove(group_id, who)
@@ -89,7 +91,7 @@ async def _(
                     else:
                         who = int(arg_list[1])
                 await matcher.finish(
-                    f"该用户{'持有' if await this_is_group_admin(group_id, who, bot) else '未持有'}管理权限！"
+                    f"该用户{'持有' if await check_group_admin(group_id, who, bot) else '未持有'}管理权限！"
                 )
             case "list":
                 sub_admins = await SubAdmin.get_list(group_id)

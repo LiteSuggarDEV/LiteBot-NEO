@@ -3,7 +3,7 @@ from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, Message
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
 
-from litebot_utils.rule import is_group_admin, is_self_admin
+from litebot_utils.rule import is_bot_group_admin, is_event_group_admin
 from src.plugins.menu.models import MatcherData
 
 
@@ -17,7 +17,7 @@ from src.plugins.menu.models import MatcherData
     ).model_dump(),
 ).handle()
 async def unmute_all(bot: Bot, event: GroupMessageEvent, matcher: Matcher) -> None:
-    if not await is_group_admin(event, bot):
+    if not await is_event_group_admin(event, bot):
         return
     await bot.set_group_whole_ban(group_id=event.group_id, enable=False)
 
@@ -32,9 +32,11 @@ async def unmute_all(bot: Bot, event: GroupMessageEvent, matcher: Matcher) -> No
     ).model_dump(),
 ).handle()
 async def cmd(bot: Bot, event: GroupMessageEvent) -> None:
-    if not await is_group_admin(event, bot):
+    if not await is_event_group_admin(event, bot):
         return
     await bot.set_group_whole_ban(group_id=event.group_id, enable=True)
+
+
 @on_command(
     "解禁",
     aliases={"unmute"},
@@ -47,9 +49,9 @@ async def cmd(bot: Bot, event: GroupMessageEvent) -> None:
 async def _(
     bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()
 ):
-    if not await is_group_admin(event, bot):
+    if not await is_event_group_admin(event, bot):
         return
-    if not await is_self_admin(event, bot):
+    if not await is_bot_group_admin(event, bot):
         return
     for segment in args:
         if segment.type == "at":
@@ -74,9 +76,9 @@ async def _(
 async def _(
     bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()
 ):
-    if not await is_group_admin(event, bot):
+    if not await is_event_group_admin(event, bot):
         return
-    if not await is_self_admin(event, bot):
+    if not await is_bot_group_admin(event, bot):
         return
     for segment in args:
         if segment.type == "at":

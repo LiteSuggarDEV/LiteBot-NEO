@@ -21,31 +21,31 @@ async def rule_switch(event: Event):
             return group_config.switch if group_config else True
 
 
-async def is_admin(event: UserIDEvent) -> bool:
-    return await this_is_admin(event.user_id)
+async def is_global_admin(event: UserIDEvent) -> bool:
+    return await check_global_admin(event.user_id)
 
 
-async def this_is_admin(user_id: int) -> bool:
+async def check_global_admin(user_id: int) -> bool:
     return user_id in ConfigManager.instance().config.admins
 
 
-async def this_is_group_admin(group_id: int, user_id: int, bot: Bot) -> bool:
+async def check_group_admin(group_id: int, user_id: int, bot: Bot) -> bool:
     role: str = (await bot.get_group_member_info(group_id=group_id, user_id=user_id))[
         "role"
     ]
 
     return (
         role != "member"
-        or await this_is_admin(user_id)
+        or await check_global_admin(user_id)
         or await SubAdmin.exists(group_id, user_id)
     )
 
 
-async def is_group_admin(event: GroupEvent, bot: Bot) -> bool:
-    return await this_is_group_admin(event.group_id, event.user_id, bot)
+async def is_event_group_admin(event: GroupEvent, bot: Bot) -> bool:
+    return await check_group_admin(event.group_id, event.user_id, bot)
 
 
-async def is_self_admin(event: GroupEvent, bot: Bot) -> bool:
+async def is_bot_group_admin(event: GroupEvent, bot: Bot) -> bool:
     return (
         await bot.get_group_member_info(
             group_id=event.group_id, user_id=int(bot.self_id)

@@ -9,7 +9,7 @@ from nonebot.params import CommandArg
 from nonebot_plugin_orm import get_session
 
 from litebot_utils.models import get_or_create_group_config
-from litebot_utils.rule import is_group_admin
+from litebot_utils.rule import is_event_group_admin
 from src.plugins.menu.models import MatcherData
 
 switch = on_command(
@@ -26,7 +26,7 @@ switch = on_command(
 async def _(
     event: GroupMessageEvent, matcher: Matcher, bot: Bot, arg: Message = CommandArg()
 ):
-    if not await is_group_admin(event, bot):
+    if not await is_event_group_admin(event, bot):
         await switch.finish("⛔ 你没有权限使用此命令！")
     """开关"""
     # 获取当前群组的开关状态

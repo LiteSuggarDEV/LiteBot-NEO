@@ -9,7 +9,7 @@ from nonebot.params import CommandArg
 from nonebot_plugin_orm import get_session
 
 from litebot_utils.models import get_or_create_group_config
-from litebot_utils.rule import is_group_admin
+from litebot_utils.rule import is_event_group_admin
 from src.plugins.menu.models import MatcherData
 
 
@@ -27,13 +27,13 @@ from src.plugins.menu.models import MatcherData
 async def set_join_msg(
     bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()
 ) -> None:
-    if not await is_group_admin(event, bot):
+    if not await is_event_group_admin(event, bot):
         await matcher.finish("⛔ 您没有权限执行此操作")
     async with get_session() as session:
-        config,_=await get_or_create_group_config(event.group_id)
+        config, _ = await get_or_create_group_config(event.group_id)
         session.add(config)
         arg = args.extract_plain_text().strip()
-        if len(arg)>512:
+        if len(arg) > 512:
             await matcher.finish("⚠️ 消息过长!")
         config.welcome_message = arg
         await session.commit()

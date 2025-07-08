@@ -19,7 +19,7 @@ from litebot_utils.captcha import generate_captcha
 from litebot_utils.captcha_manager import captcha_manager
 from litebot_utils.event import GroupEvent
 from litebot_utils.models import CaptchaFormat, GroupConfig, get_or_create_group_config
-from litebot_utils.rule import is_group_admin, is_self_admin
+from litebot_utils.rule import is_bot_group_admin, is_event_group_admin
 from src.plugins.menu.models import MatcherData
 
 pending_cancelable_msg: dict[str, dict[str, str]] = {}
@@ -31,7 +31,7 @@ async def captcha(
     async with get_session() as session:
         config, _ = await get_or_create_group_config(event.group_id)
         session.add(config)
-        if not await is_self_admin(event, bot):
+        if not await is_bot_group_admin(event, bot):
             config.auto_manage_join = False
             await session.commit()
             return
@@ -70,13 +70,13 @@ async def captcha(
 async def _(
     matcher: Matcher, event: GroupMessageEvent, bot: Bot, args: Message = CommandArg()
 ):
-    if not await is_group_admin(event, bot):
+    if not await is_event_group_admin(event, bot):
         return
 
     async with get_session() as session:
         config, _ = await get_or_create_group_config(group_id=event.group_id)
         session.add(config)
-        if not await is_self_admin(event, bot):
+        if not await is_bot_group_admin(event, bot):
             config.auto_manage_join = False
             await session.commit()
             await matcher.send("⛔ LiteBot为普通群成员！")
@@ -101,7 +101,7 @@ async def _(
 async def set_captcha(
     bot: Bot, event: GroupMessageEvent, matcher: Matcher, arg: Message = CommandArg()
 ):
-    if not await is_group_admin(event, bot):
+    if not await is_event_group_admin(event, bot):
         return await matcher.finish("请使用管理员权限执行此命令")
     args = arg.extract_plain_text().strip().split()
 
@@ -168,7 +168,7 @@ async def set_captcha(
 async def cmd(
     bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()
 ) -> None:
-    if not await is_group_admin(event, bot):
+    if not await is_event_group_admin(event, bot):
         return
 
     if arg := args.extract_plain_text().strip().lower():
@@ -177,7 +177,7 @@ async def cmd(
             session.add(config)
             is_enable: bool = False
             if arg in ("启用", "on", "enable", "开启", "yes", "y", "true"):
-                if not await is_self_admin(event, bot):
+                if not await is_bot_group_admin(event, bot):
                     config.auto_manage_join = is_enable
                     await session.commit()
                     await matcher.send("⛔ LiteBot为普通群成员，无法开启！")
@@ -246,7 +246,7 @@ async def handle_cancel(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
         f"{prefix}skip" for prefix in get_driver().config.command_start
     ):
         return
-    if not await is_group_admin(event, bot):
+    if not await is_event_group_admin(event, bot):
         return
     if (
         await bot.get_group_member_info(user_id=event.self_id, group_id=event.group_id)
@@ -280,7 +280,7 @@ async def handle_join(bot: Bot, event: GroupIncreaseNoticeEvent, matcher: Matche
     if not config or not config.auto_manage_join:
         return
 
-    if not await is_self_admin(event, bot):
+    if not await is_bot_group_admin(event, bot):
         return
 
     await captcha(bot, matcher, event)
