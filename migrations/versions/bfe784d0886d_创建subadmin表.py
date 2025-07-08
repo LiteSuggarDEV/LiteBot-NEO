@@ -1,8 +1,8 @@
 """创建SubAdmin表
 
-迁移 ID: 0bedb3ec6757
+迁移 ID: bfe784d0886d
 父迁移: f65219e033c6
-创建时间: 2025-07-08 21:26:47.288789
+创建时间: 2025-07-08 22:20:16.802765
 
 """
 
@@ -14,7 +14,7 @@ import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.dialects import sqlite
 
-revision: str = "0bedb3ec6757"
+revision: str = "bfe784d0886d"
 down_revision: str | Sequence[str] | None = "f65219e033c6"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
@@ -29,11 +29,6 @@ def upgrade(name: str = "") -> None:
         sa.Column("id", sa.BigInteger(), autoincrement=True, nullable=False),
         sa.Column("group_id", sa.BigInteger(), nullable=False),
         sa.Column("user_id", sa.BigInteger(), nullable=False),
-        sa.ForeignKeyConstraint(
-            ["group_id"],
-            ["group_config.group_id"],
-            name=op.f("fk_sub_admin_group_id_group_config"),
-        ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_sub_admin")),
         info={"bind_key": ""},
     )
