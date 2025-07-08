@@ -70,6 +70,8 @@ async def _(
                         who = int(arg_list[1])
                 if not await this_is_group_admin(group_id, who, bot):
                     await matcher.finish("⛔ 该用户没有管理员权限，无法删除！")
+                elif await is_group_admin(event, bot) and await this_is_group_admin(group_id, who, bot):
+                    await matcher.finish("⛔ 无法删除群组管理员的权限！")
                 else:
                     success = await SubAdmin.remove(group_id, who)
                     if success:
