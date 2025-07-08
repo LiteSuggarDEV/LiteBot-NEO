@@ -18,7 +18,7 @@ from sqlalchemy.exc import IntegrityError
 from litebot_utils.captcha import generate_captcha
 from litebot_utils.captcha_manager import captcha_manager
 from litebot_utils.event import GroupEvent
-from litebot_utils.models import GroupConfig, get_or_create_group_config
+from litebot_utils.models import CaptchaFormat, GroupConfig, get_or_create_group_config
 from litebot_utils.rule import is_group_admin, is_self_admin
 from src.plugins.menu.models import MatcherData
 
@@ -106,11 +106,12 @@ async def set_captcha(
     args = arg.extract_plain_text().strip().split()
 
     if len(args) < 2:
+        format_options = ", ".join(f"{f.value}:{f.name}" for f in CaptchaFormat)
         await matcher.send(
             "⚠️ 请输入参数[length|timeout|format]，以及参数值！\n"
             + "参数length：设置验证码长度，默认为6\n"
             + "参数timeout：设置验证码超时时间，默认为5分钟\n"
-            + "参数format：设置验证码格式，默认为0;0:纯数字 1:字母数字混合 2:纯字母 注：字母均为大小写组合\n"
+            + f"参数format：设置验证码格式，默认为0；可选值：{format_options}\n"
         )
         return
 
@@ -126,27 +127,34 @@ async def set_captcha(
                     if int(value) >= 4 and int(value) <= 10:
                         config.captcha_length = int(value)
                         await session.commit()
-                        await matcher.finish("✅ 已设置长度为：" + value)
+                        await matcher.finish(f"✅ 已设置长度为：{value}")
                     else:
                         await matcher.finish("⚠️ 请输入长度(4~10)！")
                 case "timeout":
                     if int(value) >= 1 and int(value) <= 30:
                         config.captcha_timeout = int(value)
                         await session.commit()
-                        await matcher.finish("✅ 已设置超时时间为：" + value)
+                        await matcher.finish(f"✅ 已设置超时时间为：{value}")
                     else:
                         await matcher.finish("⚠️ 请输入超时(1~30) 单位：分钟！")
                 case "format":
-                    if int(value) in (0, 1, 2):
-                        config.captcha_format = int(value)
+                    if int(value) in {f.value for f in CaptchaFormat}:
+                        config.captcha_format = CaptchaFormat(int(value))
                         await session.commit()
-                        await matcher.finish(f"✅ 已设置验证码格式为：{value}")
-                    else:
+                        format_name = CaptchaFormat(int(value)).name
                         await matcher.finish(
-                            "⚠️ 请输入验证码格式！0:纯数字 1:字母数字混合 2:纯字母 注：字母均为大小写组合"
+                            f"✅ 已设置验证码格式为：{value} ({format_name})"
+                        )
+                    else:
+                        valid_formats = ", ".join(
+                            f"{f.value}:{f.name}" for f in CaptchaFormat
+                        )
+                        await matcher.finish(
+                            f"⚠️ 请输入有效的验证码格式！可选值：{valid_formats}"
                         )
         except ValueError:
             await matcher.finish("⚠️ 请输入正确的数字！")
+
 
 @on_command(
     "入群验证",

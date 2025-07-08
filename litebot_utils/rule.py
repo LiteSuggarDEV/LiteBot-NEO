@@ -7,7 +7,7 @@ from nonebot_plugin_orm import get_session
 
 from litebot_utils.config import ConfigManager
 from litebot_utils.event import GroupEvent, UserIDEvent
-from litebot_utils.models import GroupConfig, get_or_create_group_config
+from litebot_utils.models import GroupConfig, SubAdmin
 
 
 async def rule_switch(event: Event):
@@ -33,12 +33,11 @@ async def this_is_group_admin(group_id: int, user_id: int, bot: Bot) -> bool:
     role: str = (await bot.get_group_member_info(group_id=group_id, user_id=user_id))[
         "role"
     ]
-    config, _ = await get_or_create_group_config(group_id)
 
     return (
         role != "member"
         or await this_is_admin(user_id)
-        or user_id in (config.sub_admins if config.sub_admins is not None else [])
+        or await SubAdmin.exists(group_id, user_id)
     )
 
 
