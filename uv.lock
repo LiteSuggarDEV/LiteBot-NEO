@@ -457,6 +457,7 @@ source = { virtual = "." }
 dependencies = [
     { name = "aiofiles" },
     { name = "aiohttp" },
+    { name = "aiomysql" },
     { name = "mcstatus" },
     { name = "nonebot-adapter-onebot" },
     { name = "nonebot-plugin-htmlrender" },
@@ -476,6 +477,7 @@ dependencies = [
 requires-dist = [
     { name = "aiofiles", specifier = ">=24.1.0" },
     { name = "aiohttp", specifier = ">=3.12.2" },
+    { name = "aiomysql", specifier = ">=0.2.0" },
     { name = "mcstatus", specifier = ">=12.0.1" },
     { name = "nonebot-adapter-onebot", specifier = ">=2.4.6" },
     { name = "nonebot-plugin-htmlrender", specifier = ">=0.6.6" },
