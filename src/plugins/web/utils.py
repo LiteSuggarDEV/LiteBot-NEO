@@ -10,6 +10,7 @@ resolver.nameservers = [
     "8.8.8.8",
 ]
 
+
 def is_valid_domain(domain: str) -> bool:
     """
     检查字符串是否为有效的域名
@@ -51,6 +52,7 @@ def is_ip_address(address: str) -> bool:
         return True
     except ValueError:
         return False
+
 
 def is_ip_in_private_network(address: str) -> bool:
     """

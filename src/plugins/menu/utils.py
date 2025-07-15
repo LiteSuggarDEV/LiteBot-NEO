@@ -2,6 +2,7 @@ import base64
 import hashlib
 from datetime import datetime
 from pathlib import Path
+from typing import Literal
 
 from nonebot_plugin_htmlrender import md_to_pic
 from nonebot_plugin_localstore import get_config_dir
@@ -13,29 +14,27 @@ PAGE_DIR = get_config_dir("LiteBot") / "pages"
 PAGE_DIR.mkdir(parents=True, exist_ok=True)
 _md_cache: dict[str, str] = {}
 
-def get_css_path() -> str:
-    if datetime.now().hour < 7 or datetime.now().hour > 20:
+def get_css_path(style: Literal["light", "dark", ""] = "") -> str:
+    if datetime.now().hour < 7 or datetime.now().hour > 20 or style == "dark":
         return str(dir_path / "dark.css")
     else:
         return str(dir_path / "light.css")
+
 
 def _hash_md(md: str) -> str:
     return hashlib.sha256(md.encode("utf-8")).hexdigest()
 
 
 async def cached_md_to_pic(md: str, css_path: str) -> str:
-    key = _hash_md(md)
+    key = _hash_md(md + css_path)
     if key in _md_cache:
-        return _md_cache[key]
+        return _md_cache[key + css_path]
 
     # 渲染图片，得到 base64
     base64_img = f"base64://{base64.b64encode(await md_to_pic(md=md, css_path=css_path)).decode()}"
 
-    _md_cache[key] = base64_img
+    _md_cache[key + css_path] = base64_img
     return base64_img
-
-
-
 
 
 def generate_markdown_menus(plugins: list[PluginData]) -> list[str]:
@@ -75,7 +74,3 @@ def generate_markdown_menus(plugins: list[PluginData]) -> list[str]:
         markdown_menus.append(plugin_markdown.strip())
 
     return markdown_menus
-
-
-
-
