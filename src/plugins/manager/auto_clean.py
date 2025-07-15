@@ -46,7 +46,7 @@ async def _(bot: Bot, event: MessageEvent):
             try:
                 await bot.send_group_msg(
                     group_id=group["group_id"],
-                    message=f"⚠️ 该群人数小于二十人！Bot将退出该群组。如有疑问请加群{ConfigManager.instance().config.notify_group[0]}。",
+                    message=f"⚠️ 该群人数小于二十人！Bot将退出该群组。如有疑问请加群{ConfigManager.instance().config.public_group}。",
                 )
             except Exception as e:
                 logger.error(f"⚠️ 发送退群通知失败: {e!s}")

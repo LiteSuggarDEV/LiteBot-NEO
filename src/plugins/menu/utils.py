@@ -1,5 +1,6 @@
 import base64
 import hashlib
+from datetime import datetime
 from pathlib import Path
 
 from nonebot_plugin_htmlrender import md_to_pic
@@ -8,11 +9,15 @@ from nonebot_plugin_localstore import get_config_dir
 from .models import PluginData
 
 dir_path = Path(__file__).parent
-CSS_PATH = str(dir_path / "dark.css")
 PAGE_DIR = get_config_dir("LiteBot") / "pages"
 PAGE_DIR.mkdir(parents=True, exist_ok=True)
 _md_cache: dict[str, str] = {}
 
+def get_css_path() -> str:
+    if datetime.now().hour < 7 or datetime.now().hour > 20:
+        return str(dir_path / "dark.css")
+    else:
+        return str(dir_path / "light.css")
 
 def _hash_md(md: str) -> str:
     return hashlib.sha256(md.encode("utf-8")).hexdigest()
