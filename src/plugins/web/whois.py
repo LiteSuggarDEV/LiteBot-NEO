@@ -29,9 +29,9 @@ async def whois_runner(matcher: Matcher, args: Message = CommandArg()):
     try:
         async with ClientSession() as session:
             async with session.get(
-                            f"https://v2.xxapi.cn/api/whois?domain={location}",
-                            headers=headers,
-                        ) as response:
+                f"https://v2.xxapi.cn/api/whois?domain={location}",
+                headers=headers,
+            ) as response:
                 if response.status != 200:
                     logger.error(f"Whois查询失败，状态码：{response.status}")
                     await matcher.finish("查询失败")

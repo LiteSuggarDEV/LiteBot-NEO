@@ -5,7 +5,7 @@ from nonebot import get_driver
 from nonebot.log import logger
 
 from .models import MatcherData, PluginData
-from .utils import CSS_PATH, cached_md_to_pic, generate_markdown_menus
+from .utils import cached_md_to_pic, generate_markdown_menus, get_css_path
 
 
 @dataclass
@@ -115,5 +115,6 @@ async def load_menus():
 
     logger.info("开始预渲染菜单图片...")
     for md_str in markdown_menus:
-        await cached_md_to_pic(md=md_str, css_path=CSS_PATH)
+        await cached_md_to_pic(md=md_str, css_path=get_css_path("dark"))
+        await cached_md_to_pic(md=md_str, css_path=get_css_path("light"))
     logger.info("菜单图片预渲染完成")
