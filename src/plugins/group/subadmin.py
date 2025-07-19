@@ -8,7 +8,7 @@ from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
 
 from litebot_utils.models import SubAdmin
-from litebot_utils.rule import check_group_admin, is_event_group_admin
+from litebot_utils.rule import check_group_admin, is_event_group_admin, is_sub_admin
 from src.plugins.menu.models import MatcherData
 
 subadmin = on_command(
@@ -67,14 +67,15 @@ async def _(
                     who = int(arg_list[1])
             if not await check_group_admin(group_id, who, bot):
                 await matcher.finish("⛔ 该用户没有管理员权限，无法删除！")
-            elif await is_event_group_admin(event, bot):
-                await matcher.finish("⛔ 无法删除群组管理员的权限！")
-            else:
+            elif await is_sub_admin(group_id, who):
+
                 success = await SubAdmin.remove(group_id, who)
                 if success:
                     await matcher.finish(f"✅ 已删除 {who} 的管理权限！")
                 else:
                     await matcher.finish("⛔ 该用户不持有协管权限！")
+            else:
+                await matcher.finish("⛔ 无法移除该用户管理权限（来自群组赋予）！")
         case "has" | "query":
             for seg in arg:
                 if seg.type == "at":

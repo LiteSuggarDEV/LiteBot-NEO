@@ -28,6 +28,8 @@ async def is_global_admin(event: UserIDEvent) -> bool:
 async def check_global_admin(user_id: int) -> bool:
     return user_id in ConfigManager.instance().config.admins
 
+async def is_sub_admin(group_id: int, user_id: int):
+    return await SubAdmin.exists(group_id, user_id)
 
 async def check_group_admin(group_id: int, user_id: int, bot: Bot) -> bool:
     role: str = (await bot.get_group_member_info(group_id=group_id, user_id=user_id))[
