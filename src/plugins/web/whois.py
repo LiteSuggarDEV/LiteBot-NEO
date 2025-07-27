@@ -1,6 +1,7 @@
 from aiohttp import ClientSession
 from nonebot import logger, on_command
 from nonebot.adapters.onebot.v11 import Message
+from nonebot.exception import NoneBotException
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
 
@@ -60,6 +61,8 @@ async def whois_runner(matcher: Matcher, args: Message = CommandArg()):
                     await matcher.finish(msg)
                 else:
                     await matcher.finish(msg or "查询失败")
+    except NoneBotException:
+        raise
     except Exception as e:
         logger.error(f"Whois查询异常: {e!s}")
         await matcher.finish("查询失败，请稍后再试")
