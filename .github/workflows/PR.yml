@@ -47,7 +47,6 @@ jobs:
 
       - name: Install dependencies
         run : |
-            sudo apt install nmap -y
             pipx install nb-cli
 
       - name: Get Python path

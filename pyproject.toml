@@ -17,7 +17,6 @@ dependencies = [
     "psutil>=7.0.0",
     "aiofiles>=24.1.0",
     "pydantic>=2.11.5",
-    "python-nmap>=0.7.1",
     "qrcode>=8.2",
     "mcstatus>=12.0.1",
     "aiomysql>=0.2.0",

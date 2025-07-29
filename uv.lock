@@ -469,7 +469,6 @@ dependencies = [
     { name = "pip" },
     { name = "psutil" },
     { name = "pydantic" },
-    { name = "python-nmap" },
     { name = "qrcode" },
 ]
 
@@ -488,8 +487,7 @@ requires-dist = [
     { name = "ping3", specifier = ">=4.0.8" },
     { name = "pip", specifier = ">=25.1.1" },
     { name = "psutil", specifier = ">=7.0.0" },
-    { name = "pydantic", specifier = ">=2.11.5,<3.0.0" },
-    { name = "python-nmap", specifier = ">=0.7.1" },
+    { name = "pydantic", specifier = ">=2.11.5" },
     { name = "qrcode", specifier = ">=8.2" },
 ]
 
@@ -1157,12 +1155,6 @@ sdist = { url = "https://mirrors.aliyun.com/pypi/packages/4c/68/fbea05ec6fb318bd
 wheels = [
     { url = "https://mirrors.aliyun.com/pypi/packages/eb/68/ecf3535c40845de2efd8ac2d092dd5fca0868219fa3684d9e58ef7abeece/python_markdown_math-0.9-py3-none-any.whl", hash = "sha256:ac9932df517a5c0f6d01c56e7a44d065eca4a420893ac45f7a6937c67cb41e86" },
 ]
-
-[[package]]
-name = "python-nmap"
-version = "0.7.1"
-source = { registry = "https://mirrors.aliyun.com/pypi/simple" }
-sdist = { url = "https://mirrors.aliyun.com/pypi/packages/f7/1b/8e6b3d1461331e4e8600faf099e7c62ba3c1603987dafdd558681fb8ba37/python-nmap-0.7.1.tar.gz", hash = "sha256:f75af6b91dd8e3b0c31f869db32163f62ada686945e5b7c25f84bc0f7fad3b64" }
 
 [[package]]
 name = "pyyaml"
