@@ -7,6 +7,11 @@ from nonebot.plugin import PluginMetadata
 
 from litebot_utils.models import get_or_create_group_config
 
+require("menu")
+require("nonebot_plugin_orm")
+
+from nonebot_plugin_orm import get_session
+
 from . import (
     join_manager,
     join_msg,
@@ -19,8 +24,6 @@ from . import (
     welcome_switch,
 )
 
-require("menu")
-require("nonebot_plugin_orm")
 __plugin_meta__ = PluginMetadata(
     name="群组插件",
     description="群组管理插件（群管可用）",
@@ -50,6 +53,8 @@ on_off_checker = on_message(priority=3, block=False)
 
 @on_off_checker.handle()
 async def checher(event: GroupMessageEvent, matcher: Matcher):
-    config, _ = await get_or_create_group_config(group_id=event.group_id)
-    if not config.switch:
-        matcher.stop_propagation()
+    async with get_session() as session:
+        config, _ = await get_or_create_group_config(event.group_id)
+        session.add(config)
+        if not config.switch:
+            matcher.stop_propagation()

@@ -211,6 +211,13 @@ async def checker(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
                 MessageSegment.at(event.user_id)
                 + MessageSegment.text(f"✅ 验证成功！欢迎加入{group_name}！"),
             )
+            async with get_session() as session:
+                config, _ = await get_or_create_group_config(event.group_id)
+                session.add(config)
+                welcome_msg = config.welcome_message
+                enable_welcome = config.welcome
+            if enable_welcome:
+                await matcher.send(welcome_msg)
             await captcha_manager.remove(event.group_id, event.user_id)
             for k in list(pending_cancelable_msg):
                 v = pending_cancelable_msg[k]

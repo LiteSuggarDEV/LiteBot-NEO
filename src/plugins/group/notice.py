@@ -69,11 +69,13 @@ async def handle_member_join(
     if uid == event.self_id:
         await send_to_admin(f"LiteBot加入了群号为{event.group_id}的聊群")
         return
-
+    config, _ = await get_or_create_group_config(gid)
+    if config.auto_manage_join:
+        return
     operator_info = await bot.get_group_member_info(group_id=gid, user_id=operator_id)
 
     operator_name = operator_info["nickname"]
-    config, _ = await get_or_create_group_config(gid)
+
     msg = config.welcome_message
     if event.sub_type == "invite":
         message = MessageSegment.at(user_id=uid) + MessageSegment.text(
