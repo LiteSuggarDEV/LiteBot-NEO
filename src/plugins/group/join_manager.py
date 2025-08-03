@@ -28,6 +28,7 @@ pending_cancelable_msg: dict[str, dict[str, str]] = {}
 async def captcha(
     bot: Bot, matcher: Matcher, event: GroupEvent, uid: int | None = None
 ):
+    user_id = event.user_id if uid is None else uid
     async with get_session() as session:
         config, _ = await get_or_create_group_config(event.group_id)
         session.add(config)
@@ -39,7 +40,6 @@ async def captcha(
         captcha_format = config.captcha_format
         captcha_timeout = config.captcha_timeout
     captcha_code = generate_captcha(captcha_length, captcha_format)
-    user_id = event.user_id if uid is None else uid
     sent_msg_id: int = (
         await matcher.send(
             MessageSegment.at(user_id)
@@ -79,11 +79,11 @@ async def _(
         if not await is_bot_group_admin(event, bot):
             config.auto_manage_join = False
             await session.commit()
-            await matcher.send("⛔ LiteBot为普通群成员！")
+            await matcher.finish("⛔ LiteBot为普通群成员！")
     for segment in args:
         if segment.type == "at":
-            uid = segment.data["qq"]
-            await captcha(bot, matcher, event, int(uid))
+            uid = int(segment.data["qq"])
+            await captcha(bot, matcher, event, uid)
             break
     else:
         await matcher.finish("⚠️ 请at需要验证的人。")
@@ -221,7 +221,7 @@ async def checker(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
             await captcha_manager.remove(event.group_id, event.user_id)
             for k in list(pending_cancelable_msg):
                 v = pending_cancelable_msg[k]
-                if v.get("user_id") == str(event.user_id) and v.get("group_id") == str(
+                if v.get("user_id") == event.get_user_id() and v.get("group_id") == str(
                     event.group_id
                 ):
                     await bot.delete_msg(message_id=int(k))
