@@ -28,7 +28,7 @@ pending_cancelable_msg: dict[str, dict[str, str]] = {}
 async def captcha(
     bot: Bot, matcher: Matcher, event: GroupEvent, uid: int | None = None
 ):
-    user_id = uid or event.user_id
+    user_id = event.user_id if uid is None else uid
     async with get_session() as session:
         config, _ = await get_or_create_group_config(event.group_id)
         session.add(config)
