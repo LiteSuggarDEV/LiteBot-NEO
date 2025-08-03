@@ -14,6 +14,7 @@ PAGE_DIR = get_config_dir("LiteBot") / "pages"
 PAGE_DIR.mkdir(parents=True, exist_ok=True)
 _md_cache: dict[str, str] = {}
 
+
 def get_css_path(style: Literal["light", "dark", ""] = "") -> str:
     if datetime.now().hour < 7 or datetime.now().hour > 20 or style == "dark":
         return str(dir_path / "dark.css")

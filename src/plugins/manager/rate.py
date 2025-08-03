@@ -14,6 +14,7 @@ from nonebot.rule import (
     RegexRule,
     ShellCommandRule,
     StartswithRule,
+    ToMeRule,
 )
 
 from litebot_utils.config import ConfigManager
@@ -29,7 +30,7 @@ watch_user = defaultdict(
 
 @run_preprocessor
 async def run(matcher: Matcher, event: MessageEvent):
-    if not any(
+    hasmsg = any(
         isinstance(
             checker.call,
             FullmatchRule
@@ -38,11 +39,11 @@ async def run(matcher: Matcher, event: MessageEvent):
             | EndswithRule
             | KeywordsRule
             | ShellCommandRule
-            | RegexRule,
+            | RegexRule
+            | ToMeRule,
         )
         for checker in matcher.rule.checkers
-    ):  # 检查该匹配器是否有文字类匹配类规则
-        return
+    )
 
     ins_id = str(
         event.group_id if isinstance(event, GroupMessageEvent) else event.user_id
@@ -51,12 +52,14 @@ async def run(matcher: Matcher, event: MessageEvent):
 
     bucket = data[ins_id]
     if not bucket.consume():
-        too_fast_reply = (
-            "请不要频繁发送请求哦～",
-            "请降低请求速度～",
-            "请稍后再试哦～",
-        )
+        if hasmsg:
+            # If the matcher has a message, we can send a reply
+            too_fast_reply = (
+                "请不要频繁发送请求哦～",
+                "请降低请求速度～",
+                "请稍后再试哦～",
+            )
 
-        with contextlib.suppress(Exception):
-            await matcher.send(random.choice(too_fast_reply))
+            with contextlib.suppress(Exception):
+                await matcher.send(random.choice(too_fast_reply))
         raise IgnoredException("Too fast!")
