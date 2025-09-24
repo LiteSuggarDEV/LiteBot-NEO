@@ -95,14 +95,14 @@ class GroupConfig(Model):
     group_id: Mapped[int] = mapped_column(BigInteger, primary_key=True, index=True)
     switch: Mapped[bool] = mapped_column(Boolean, default=True)
     welcome: Mapped[bool] = mapped_column(Boolean, default=False)
-    judge: Mapped[bool] = mapped_column(Boolean, default=False)
-    anti_recall: Mapped[bool] = mapped_column(Boolean, default=False)
+    # judge: Mapped[bool] = mapped_column(Boolean, default=False)
+    # anti_recall: Mapped[bool] = mapped_column(Boolean, default=False)
     welcome_message: Mapped[str] = mapped_column(Text(1024), default="欢迎加入群组！")
-    nailong: Mapped[bool] = mapped_column(Boolean, default=False)
-    anti_spam: Mapped[dict] = mapped_column(
-        JSON,
-        default=lambda: {"limit": 5, "interval": 5, "ban_time": 5, "enable": False},
-    )
+    # nailong: Mapped[bool] = mapped_column(Boolean, default=False)
+    # anti_spam: Mapped[dict] = mapped_column(
+    #    JSON,
+    #    default=lambda: {"limit": 5, "interval": 5, "ban_time": 5, "enable": False},
+    # )
     anti_link: Mapped[bool] = mapped_column(Boolean, default=False)
     auto_manage_join: Mapped[bool] = mapped_column(Boolean, default=False)
     captcha_timeout: Mapped[int] = mapped_column(BigInteger, default=5)
