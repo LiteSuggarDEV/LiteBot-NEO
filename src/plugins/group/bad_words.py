@@ -19,11 +19,12 @@ from src.plugins.menu.models import MatcherData
 def load_bad_words() -> list[str]:
     with open(Path(__file__).parent / "badwords.json", encoding="utf-8") as f:
         b64_words: list[str] = load(f)
-    return [b64decode(word.encode("utf-8")).decode("utf-8") for word in b64_words]
+    data = [b64decode(word.encode("utf-8")).decode("utf-8") for word in b64_words]
+    data.sort()
+    return data
 
 
-BAD_WORDS = load_bad_words()
-BAD_WORDS.sort()
+BAD_WORDS = tuple(load_bad_words())
 
 print(f"加载了{len(BAD_WORDS)} 个内置敏感词")
 
@@ -41,7 +42,20 @@ async def is_check_enabled(group_id: int) -> bool:
 
 
 @on_message(priority=1, block=False).handle()
-async def _(event: GroupMessageEvent): ...
+async def _(event: GroupMessageEvent, bot: Bot, matcher: Matcher):
+    group_id = event.group_id
+    if event.sender.role != "member":
+        return
+    if check_bad_words(event.message.extract_plain_text()):
+        if not await is_check_enabled():
+            return
+        self_role = (
+            await bot.get_group_member_info(group_id=group_id, user_id=event.self_id)
+        )["role"]
+        if self_role == "member":
+            return
+        await bot.delete_msg(message_id=event.message_id)
+        matcher.stop_propagation()
 
 
 @on_command(
