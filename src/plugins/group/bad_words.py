@@ -16,10 +16,18 @@ from litebot_utils.rule import is_bot_group_admin, is_event_group_admin
 from src.plugins.menu.models import MatcherData
 
 
+import logging
+
 def load_bad_words() -> list[str]:
     with open(Path(__file__).parent / "badwords.json", encoding="utf-8") as f:
         b64_words: list[str] = load(f)
-    data = [b64decode(word.encode("utf-8")).decode("utf-8") for word in b64_words]
+    data = []
+    for word in b64_words:
+        try:
+            decoded = b64decode(word.encode("utf-8")).decode("utf-8")
+            data.append(decoded)
+        except Exception as e:
+            logging.warning(f"Invalid base64 entry in badwords.json: {word} ({e})")
     data.sort()
     return data
 
