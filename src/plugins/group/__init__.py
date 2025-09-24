@@ -13,6 +13,7 @@ require("nonebot_plugin_orm")
 from nonebot_plugin_orm import get_session
 
 from . import (
+    bad_words,
     join_manager,
     join_msg,
     kick,
@@ -33,6 +34,7 @@ __plugin_meta__ = PluginMetadata(
 
 
 __all__ = [
+    "bad_words",
     "join_manager",
     "join_msg",
     "kick",
