@@ -2,7 +2,7 @@ from base64 import b64decode
 from json import load
 from pathlib import Path
 
-from nonebot import on_command, require
+from nonebot import on_command, on_message, require
 from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent
 from nonebot.matcher import Matcher
 
@@ -13,6 +13,7 @@ from nonebot_plugin_orm import get_session
 from litebot_utils.models import get_or_create_group_config
 from litebot_utils.rule import is_bot_group_admin, is_event_group_admin
 from src.plugins.menu.models import MatcherData
+from async_lru import alru_cache
 
 
 def load_bad_words() -> list[str]:
@@ -29,6 +30,18 @@ print(f"加载了{len(BAD_WORDS)} 个内置敏感词")
 
 def check_bad_words(text: str) -> bool:
     return any(word in text for word in BAD_WORDS if text)
+
+
+@alru_cache(1024)
+async def is_check_enabled(group_id: int) -> bool:
+    async with get_session() as session:
+        config, _ = await get_or_create_group_config(group_id)
+        session.add(config)
+        return config.badwords_check
+
+
+@on_message(priority=1, block=False).handle()
+async def _(event: GroupMessageEvent): ...
 
 
 @on_command(
@@ -67,6 +80,7 @@ async def _(event: GroupMessageEvent, matcher: Matcher, bot: Bot):
                     config.badwords_check = False
                 case _:
                     await matcher.finish("❌ 请输入on/off")
+            is_check_enabled.cache_clear()
             await session.commit()
             await matcher.finish("✔ 已完成操作")
         else:
