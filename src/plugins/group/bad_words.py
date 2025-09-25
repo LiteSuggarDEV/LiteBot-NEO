@@ -8,6 +8,8 @@ from nonebot.matcher import Matcher
 
 require("src.plugins.menu")
 require("nonebot_plugin_orm")
+import logging
+
 from async_lru import alru_cache
 from nonebot_plugin_orm import get_session
 
@@ -15,8 +17,6 @@ from litebot_utils.models import get_or_create_group_config
 from litebot_utils.rule import is_bot_group_admin, is_event_group_admin
 from src.plugins.menu.models import MatcherData
 
-
-import logging
 
 def load_bad_words() -> list[str]:
     with open(Path(__file__).parent / "badwords.json", encoding="utf-8") as f:
