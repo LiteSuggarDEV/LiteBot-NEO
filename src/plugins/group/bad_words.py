@@ -38,7 +38,7 @@ async def is_check_enabled(group_id: int) -> bool:
     async with get_session() as session:
         config, _ = await get_or_create_group_config(group_id)
         session.add(config)
-        return config.badwords_check
+        return config.badwords_check is True
 
 
 @on_message(priority=1, block=False).handle()
@@ -60,6 +60,7 @@ async def _(event: GroupMessageEvent, bot: Bot, matcher: Matcher):
 
 @on_command(
     "违禁词检测",
+    aliases={"bw_ck"},
     priority=10,
     block=True,
     state=MatcherData(
