@@ -3,8 +3,9 @@ from json import load
 from pathlib import Path
 
 from nonebot import on_command, on_message, require
-from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent
+from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, Message
 from nonebot.matcher import Matcher
+from nonebot.params import CommandArg
 
 require("src.plugins.menu")
 require("nonebot_plugin_orm")
@@ -65,6 +66,55 @@ async def _(event: GroupMessageEvent, bot: Bot, matcher: Matcher):
         await bot.delete_msg(message_id=event.message_id)
         matcher.stop_propagation()
 
+
+@on_command(
+    "设置违禁词",
+    aliases={"bw_set"},
+    priority=10,
+    block=True,
+    state=MatcherData(
+        rm_desc="设置自定义违禁词",
+        rm_name="设置自定义词",
+        rm_usage="/bw_set [add|del] <词>",
+    ).model_dump(),
+).handle()
+async def _(
+    event: GroupMessageEvent, matcher: Matcher, bot: Bot, args: Message = CommandArg()
+):
+    if not await is_event_group_admin(event, bot):
+        return
+    if not await is_bot_group_admin(event, bot):
+        return
+    self_role = (
+        await bot.get_group_member_info(
+            group_id=event.group_id, user_id=event.self_id, no_cache=True
+        )
+    )["role"]
+    group_id = event.group_id
+    arg = args.extract_plain_text().strip().split()
+    if len(arg) !=2:
+        await matcher.finish("参数错误")
+    async with get_session() as session:
+        config, _ = await get_or_create_group_config(group_id)
+        session.add(config)
+        if self_role == "member":
+            config.badwords_check = False
+            await session.commit()
+            await matcher.finish("❌Bot为普通群员")
+        if config.custom_badwords is None:
+            config.custom_badwords = []
+        bw_list = config.custom_badwords
+        match arg[0]:
+            case "add":
+                if arg[1] not in bw_list:
+                    bw_list.append(arg[1])
+            case "del":
+                if arg[1] in bw_list:
+                    bw_list.remove(arg[1])
+            case _:
+                await matcher.finish("❌未知操作")
+        await session.commit()
+        await matcher.finish("✔已完成操作")
 
 @on_command(
     "违禁词检测",
