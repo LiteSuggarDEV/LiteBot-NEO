@@ -45,7 +45,7 @@ print(f"加载了{len(BAD_WORDS)} 个内置敏感词")
 def check_bad_words(
     text: str, extra_words: Iterable[str] = [], words: Iterable[str] = BAD_WORDS
 ) -> bool:
-    return len(set(jieba.cut(text, True)) & set(tuple(words) + tuple(extra_words))) != 0
+    return bool(set(jieba.cut(text, True)) & set(tuple(words) + tuple(extra_words)))
 
 
 @alru_cache(1024)
@@ -59,7 +59,7 @@ async def is_check_enabled(group_id: int) -> bool:
 @on_message(priority=1, block=False).handle()
 async def _(event: GroupMessageEvent, bot: Bot, matcher: Matcher):
     group_id = event.group_id
-    if event.sender.role != "member":
+    if event.sender.role == "member":
         return
     if not await is_check_enabled(event.group_id):
         return
@@ -74,8 +74,8 @@ async def _(event: GroupMessageEvent, bot: Bot, matcher: Matcher):
             case "custom":
                 words = tuple(config.custom_badwords or [])
             case "mixed":
-                words = BAD_WORDS + tuple(config.custom_badwords)
-        if check_bad_words(event.message.extract_plain_text(), words=words):
+                words = BAD_WORDS + tuple(config.custom_badwords or [])
+        if check_bad_words(event.message.extract_plain_text().strip(), words=words):
             self_role = (
                 await bot.get_group_member_info(
                     group_id=group_id, user_id=event.self_id
