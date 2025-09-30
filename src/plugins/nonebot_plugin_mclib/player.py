@@ -154,7 +154,7 @@ async def _(event: MessageEvent, bot: Bot, args: Message = CommandArg()):
                 ).read()
                 await mc_body.send(MessageSegment.image(image))
             except Exception:
-                exc_type, exc_value, exc_traceback = sys.exc_info()  # noqa: RUF059
+                exc_type, exc_value, exc_traceback = sys.exc_info()
                 await mc_body.send(f"过程发生了错误：{exc_value!s}")
 
                 return

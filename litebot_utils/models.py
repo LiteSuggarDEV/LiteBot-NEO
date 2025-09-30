@@ -110,8 +110,8 @@ class GroupConfig(Model):
         BigInteger, default=CaptchaFormat.NUMERIC
     )
     captcha_length: Mapped[int] = mapped_column(BigInteger, default=6)
-    badwords_check: Mapped[bool] = mapped_column(Boolean)
-    custom_badwords: Mapped[list[str]] = mapped_column(JSON)
+    badwords_check: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    custom_badwords: Mapped[list[str]] = mapped_column(JSON, nullable=True)
 
     __tablename__ = "group_config"
 

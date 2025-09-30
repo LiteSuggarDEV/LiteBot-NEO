@@ -92,7 +92,7 @@ async def _(
     )["role"]
     group_id = event.group_id
     arg = args.extract_plain_text().strip().split()
-    if len(arg) !=2:
+    if len(arg) != 2:
         await matcher.finish("参数错误")
     async with get_session() as session:
         config, _ = await get_or_create_group_config(group_id)
@@ -115,6 +115,7 @@ async def _(
                 await matcher.finish("❌未知操作")
         await session.commit()
         await matcher.finish("✔已完成操作")
+
 
 @on_command(
     "违禁词检测",
