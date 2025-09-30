@@ -1,7 +1,7 @@
 from enum import IntEnum
 
 from nonebot import require
-from sqlalchemy import JSON, BigInteger, Boolean, Text, select
+from sqlalchemy import JSON, BigInteger, Boolean, String, Text, select
 from sqlalchemy.dialects.sqlite import insert
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -112,7 +112,7 @@ class GroupConfig(Model):
     captcha_length: Mapped[int] = mapped_column(BigInteger, default=6)
     badwords_check: Mapped[bool] = mapped_column(Boolean, nullable=True)
     custom_badwords: Mapped[list[str]] = mapped_column(JSON, nullable=True)
-
+    badwords_check_mode: Mapped[str] = mapped_column(String(20), default="builtin")
     __tablename__ = "group_config"
 
 
