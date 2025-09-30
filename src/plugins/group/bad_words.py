@@ -58,9 +58,9 @@ async def _(event: GroupMessageEvent, bot: Bot, matcher: Matcher):
     group_id = event.group_id
     if event.sender.role != "member":
         return
-    if check_bad_words(event.message.extract_plain_text()):
-        if not await is_check_enabled():
+    if not await is_check_enabled():
             return
+    if check_bad_words(event.message.extract_plain_text()):
         self_role = (
             await bot.get_group_member_info(group_id=group_id, user_id=event.self_id)
         )["role"]
