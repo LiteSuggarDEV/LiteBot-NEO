@@ -229,7 +229,9 @@ async def _(
         rm_desc="是否开启违禁词检查功能",
     ).model_dump(),
 ).handle()
-async def _(event: GroupMessageEvent, matcher: Matcher, bot: Bot):
+async def _(
+    event: GroupMessageEvent, matcher: Matcher, bot: Bot, args: Message = CommandArg()
+):
     if not await is_event_group_admin(event, bot):
         return
     if not await is_bot_group_admin(event, bot):
@@ -247,7 +249,7 @@ async def _(event: GroupMessageEvent, matcher: Matcher, bot: Bot):
             config.badwords_check = False
             await session.commit()
             await matcher.finish("❌Bot为普通群员")
-        if arg := event.message.extract_plain_text().strip():
+        if arg := args.extract_plain_text().strip():
             match arg:
                 case "enable" | "on" | "1" | "yes" | "true" | "启用" | "开启":
                     config.badwords_check = True
