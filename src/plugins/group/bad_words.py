@@ -61,7 +61,7 @@ async def _(event: GroupMessageEvent, bot: Bot, matcher: Matcher):
     group_id = event.group_id
     if event.sender.role != "member":
         return
-    if not await is_check_enabled():
+    if not await is_check_enabled(event.group_id):
         return
     async with get_session() as session:
         config, _ = await get_or_create_group_config(group_id)
