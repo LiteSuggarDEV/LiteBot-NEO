@@ -1,4 +1,5 @@
 from base64 import b64decode, b64encode
+from collections.abc import Iterable
 from json import load
 from pathlib import Path
 
@@ -41,8 +42,10 @@ BAD_WORDS = tuple(load_bad_words())
 print(f"加载了{len(BAD_WORDS)} 个内置敏感词")
 
 
-def check_bad_words(text: str) -> bool:
-    return len(set(jieba.cut(text)) & set(BAD_WORDS)) != 0
+def check_bad_words(
+    text: str, extra_words: Iterable[str] = [], words: Iterable[str] = BAD_WORDS
+) -> bool:
+    return len(set(jieba.cut(text)) & set(tuple(words) + tuple(extra_words))) != 0
 
 
 @alru_cache(1024)
@@ -59,15 +62,29 @@ async def _(event: GroupMessageEvent, bot: Bot, matcher: Matcher):
     if event.sender.role != "member":
         return
     if not await is_check_enabled():
-            return
-    if check_bad_words(event.message.extract_plain_text()):
-        self_role = (
-            await bot.get_group_member_info(group_id=group_id, user_id=event.self_id)
-        )["role"]
-        if self_role == "member":
-            return
-        await bot.delete_msg(message_id=event.message_id)
-        matcher.stop_propagation()
+        return
+    async with get_session() as session:
+        config, _ = await get_or_create_group_config(group_id)
+        session.add(config)
+        mode = config.badwords_check_mode
+        words = []
+        match mode:
+            case "builtin":
+                pass
+            case "custom":
+                words = tuple(config.custom_badwords or [])
+            case "mixed":
+                words = BAD_WORDS + tuple(config.custom_badwords)
+        if check_bad_words(event.message.extract_plain_text(), words=words):
+            self_role = (
+                await bot.get_group_member_info(
+                    group_id=group_id, user_id=event.self_id
+                )
+            )["role"]
+            if self_role == "member":
+                return
+            await bot.delete_msg(message_id=event.message_id)
+            matcher.stop_propagation()
 
 
 @on_command(
