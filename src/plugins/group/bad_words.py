@@ -70,7 +70,7 @@ async def _(event: GroupMessageEvent, bot: Bot, matcher: Matcher):
         words = []
         match mode:
             case "builtin":
-                pass
+                words = BAD_WORDS
             case "custom":
                 words = tuple(config.custom_badwords or [])
             case "mixed":
@@ -112,7 +112,7 @@ async def _(event: GroupMessageEvent, matcher: Matcher, bot: Bot):
                     "自定义/混合违禁词模式:"
                     + "\n".join(
                         [
-                            b64encode(word.encode("utf-8")).decode("utf-8")
+                            b64encode(word.encode("utf-8")).decode("utf-8") + ","
                             for word in config.custom_badwords
                         ]
                         if config.custom_badwords
@@ -146,8 +146,7 @@ async def _(
     )["role"]
     group_id = event.group_id
     arg = args.extract_plain_text().strip().split()
-    if len(arg) != 1:
-        await matcher.finish("参数错误")
+
     async with get_session() as session:
         config, _ = await get_or_create_group_config(group_id)
         session.add(config)
@@ -155,6 +154,17 @@ async def _(
             config.badwords_check = False
             await session.commit()
             await matcher.finish("❌Bot为普通群员")
+        if len(arg) == 0:
+            await matcher.finish(
+                "当前模式："
+                + {
+                    "builtin": "内置",
+                    "custom": "自定义",
+                    "mixed": "混合",
+                }[config.badwords_check_mode]
+            )
+        elif len(arg) != 1:
+            await matcher.finish("参数错误")
         match arg[0]:
             case "builtin":
                 config.badwords_check_mode = "builtin"
@@ -261,4 +271,6 @@ async def _(
             await session.commit()
             await matcher.finish("✔ 已完成操作")
         else:
-            await matcher.finish("❌ 请输入on/off")
+            await matcher.finish(
+                "当前状态：" + ("已开启" if config.badwords_check else "已关闭")
+            )
