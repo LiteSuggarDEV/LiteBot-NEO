@@ -45,7 +45,7 @@ print(f"加载了{len(BAD_WORDS)} 个内置敏感词")
 def check_bad_words(
     text: str, extra_words: Iterable[str] = [], words: Iterable[str] = BAD_WORDS
 ) -> bool:
-    return len(set(jieba.cut(text)) & set(tuple(words) + tuple(extra_words))) != 0
+    return len(set(jieba.cut(text, True)) & set(tuple(words) + tuple(extra_words))) != 0
 
 
 @alru_cache(1024)
