@@ -59,7 +59,14 @@ async def is_check_enabled(group_id: int) -> bool:
 @on_message(priority=1, block=False).handle()
 async def _(event: GroupMessageEvent, bot: Bot, matcher: Matcher):
     group_id = event.group_id
-    if event.sender.role == "member":
+    if (
+        event.sender.role
+        or (
+            await bot.get_group_member_info(
+                group_id=event.group_id, user_id=event.self_id
+            )
+        )["role"]
+    ) != "member":
         return
     if not await is_check_enabled(event.group_id):
         return
