@@ -1,5 +1,3 @@
-import contextlib
-import random
 from collections import defaultdict
 
 from nonebot.adapters.onebot.v11 import GroupMessageEvent, MessageEvent
@@ -30,7 +28,7 @@ watch_user = defaultdict(
 
 @run_preprocessor
 async def run(matcher: Matcher, event: MessageEvent):
-    hasmsg = any(
+    if not any(
         isinstance(
             checker.call,
             FullmatchRule
@@ -43,7 +41,8 @@ async def run(matcher: Matcher, event: MessageEvent):
             | ToMeRule,
         )
         for checker in matcher.rule.checkers
-    )
+    ):
+        return
 
     ins_id = str(
         event.group_id if isinstance(event, GroupMessageEvent) else event.user_id
@@ -52,14 +51,4 @@ async def run(matcher: Matcher, event: MessageEvent):
 
     bucket = data[ins_id]
     if not bucket.consume():
-        if hasmsg:
-            # If the matcher has a message, we can send a reply
-            too_fast_reply = (
-                "请不要频繁发送请求哦～",
-                "请降低请求速度～",
-                "请稍后再试哦～",
-            )
-
-            with contextlib.suppress(Exception):
-                await matcher.send(random.choice(too_fast_reply))
         raise IgnoredException("Too fast!")
