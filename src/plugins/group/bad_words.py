@@ -45,7 +45,7 @@ print(f"加载了{len(BAD_WORDS)} 个内置敏感词")
 def check_bad_words(
     text: str, extra_words: Iterable[str] = [], words: Iterable[str] = BAD_WORDS
 ) -> bool:
-    return len(set(jieba.cut(text)) & set(tuple(words) + tuple(extra_words))) != 0
+    return bool(set(jieba.cut(text, True)) & set(tuple(words) + tuple(extra_words)))
 
 
 @alru_cache(1024)
@@ -59,7 +59,14 @@ async def is_check_enabled(group_id: int) -> bool:
 @on_message(priority=1, block=False).handle()
 async def _(event: GroupMessageEvent, bot: Bot, matcher: Matcher):
     group_id = event.group_id
-    if event.sender.role != "member":
+    if (
+        event.sender.role
+        or (
+            await bot.get_group_member_info(
+                group_id=event.group_id, user_id=event.self_id
+            )
+        )["role"]
+    ) != "member":
         return
     if not await is_check_enabled(event.group_id):
         return
@@ -70,12 +77,12 @@ async def _(event: GroupMessageEvent, bot: Bot, matcher: Matcher):
         words = []
         match mode:
             case "builtin":
-                pass
+                words = BAD_WORDS
             case "custom":
                 words = tuple(config.custom_badwords or [])
             case "mixed":
-                words = BAD_WORDS + tuple(config.custom_badwords)
-        if check_bad_words(event.message.extract_plain_text(), words=words):
+                words = BAD_WORDS + tuple(config.custom_badwords or [])
+        if check_bad_words(event.message.extract_plain_text().strip(), words=words):
             self_role = (
                 await bot.get_group_member_info(
                     group_id=group_id, user_id=event.self_id
@@ -112,7 +119,7 @@ async def _(event: GroupMessageEvent, matcher: Matcher, bot: Bot):
                     "自定义/混合违禁词模式:"
                     + "\n".join(
                         [
-                            b64encode(word.encode("utf-8")).decode("utf-8")
+                            b64encode(word.encode("utf-8")).decode("utf-8") + ","
                             for word in config.custom_badwords
                         ]
                         if config.custom_badwords
@@ -146,8 +153,7 @@ async def _(
     )["role"]
     group_id = event.group_id
     arg = args.extract_plain_text().strip().split()
-    if len(arg) != 1:
-        await matcher.finish("参数错误")
+
     async with get_session() as session:
         config, _ = await get_or_create_group_config(group_id)
         session.add(config)
@@ -155,6 +161,17 @@ async def _(
             config.badwords_check = False
             await session.commit()
             await matcher.finish("❌Bot为普通群员")
+        if len(arg) == 0:
+            await matcher.finish(
+                "当前模式："
+                + {
+                    "builtin": "内置",
+                    "custom": "自定义",
+                    "mixed": "混合",
+                }[config.badwords_check_mode]
+            )
+        elif len(arg) != 1:
+            await matcher.finish("参数错误")
         match arg[0]:
             case "builtin":
                 config.badwords_check_mode = "builtin"
@@ -229,7 +246,9 @@ async def _(
         rm_desc="是否开启违禁词检查功能",
     ).model_dump(),
 ).handle()
-async def _(event: GroupMessageEvent, matcher: Matcher, bot: Bot):
+async def _(
+    event: GroupMessageEvent, matcher: Matcher, bot: Bot, args: Message = CommandArg()
+):
     if not await is_event_group_admin(event, bot):
         return
     if not await is_bot_group_admin(event, bot):
@@ -247,7 +266,7 @@ async def _(event: GroupMessageEvent, matcher: Matcher, bot: Bot):
             config.badwords_check = False
             await session.commit()
             await matcher.finish("❌Bot为普通群员")
-        if arg := event.message.extract_plain_text().strip():
+        if arg := args.extract_plain_text().strip():
             match arg:
                 case "enable" | "on" | "1" | "yes" | "true" | "启用" | "开启":
                     config.badwords_check = True
@@ -259,4 +278,6 @@ async def _(event: GroupMessageEvent, matcher: Matcher, bot: Bot):
             await session.commit()
             await matcher.finish("✔ 已完成操作")
         else:
-            await matcher.finish("❌ 请输入on/off")
+            await matcher.finish(
+                "当前状态：" + ("已开启" if config.badwords_check else "已关闭")
+            )
